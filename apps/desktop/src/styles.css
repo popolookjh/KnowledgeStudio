@@ -1,0 +1,122 @@
+/*
+ * Knowledge Studio application shell styling.
+ * Dark-mode first; light mode follows the OS via prefers-color-scheme.
+ */
+
+:root {
+  color-scheme: dark light;
+
+  --bg-app: #0f1216;
+  --bg-surface: #151a21;
+  --bg-elevated: #1b222c;
+  --border-subtle: #262e39;
+  --text-primary: #e6ebf2;
+  --text-secondary: #9aa7b5;
+  --accent: #5aa7e8;
+  --accent-soft: rgba(90, 167, 232, 0.16);
+  --status-height: 26px;
+  --titlebar-height: 38px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-app: #f5f6f8;
+    --bg-surface: #ffffff;
+    --bg-elevated: #eef0f4;
+    --border-subtle: #d9dde4;
+    --text-primary: #1c2430;
+    --text-secondary: #5c6875;
+    --accent: #2b6cb0;
+    --accent-soft: rgba(43, 108, 176, 0.12);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family:
+    'Segoe UI', system-ui, -apple-system, 'Vazirmatn', 'Iranian Sans', Tahoma, sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-shell__titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--titlebar-height);
+  padding: 0 14px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  user-select: none;
+}
+
+.app-shell__brand {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-shell__titlebar-meta {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.app-shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 32px;
+  text-align: center;
+}
+
+.app-shell__hero h1 {
+  font-size: 26px;
+  font-weight: 650;
+  margin: 0 0 12px;
+}
+
+.app-shell__hero p {
+  max-width: 520px;
+  margin: 0 auto;
+  color: var(--text-secondary);
+}
+
+.app-shell__meta {
+  display: flex;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.app-shell__statusbar {
+  display: flex;
+  align-items: center;
+  height: var(--status-height);
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  user-select: none;
+}

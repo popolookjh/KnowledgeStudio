@@ -1,0 +1,26 @@
+{
+  "name": "@knowledge-studio/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Knowledge Studio desktop application: Electron shell with a React renderer.",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "tsc -b && concurrently -k \"vite\" \"wait-on tcp:127.0.0.1:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "build": "tsc -b && vite build",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
+    "electron": "^44.0.0",
+    "vite": "^8.2.2",
+    "wait-on": "^9.1.0"
+  }
+}
