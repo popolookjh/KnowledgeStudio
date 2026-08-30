@@ -12,9 +12,10 @@ export default tseslint.config(
       '**/dist-electron/**',
       '**/dist-tsc/**',
       '**/coverage/**',
-      // This config file cannot resolve its own imports through the project
-      // service; Node syntax-checks it on load, so untyped linting suffices.
+      // Root-level config files have no owning tsconfig project; Node
+      // syntax-checks them on load, so untyped linting suffices.
       'eslint.config.mjs',
+      'vitest.config.ts',
     ],
   },
   eslint.configs.recommended,

@@ -75,6 +75,12 @@ importers:
 
   packages/shared: {}
 
+  packages/vault:
+    dependencies:
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+
 packages:
 
   '@electron-internal/extract-zip@1.0.5':
