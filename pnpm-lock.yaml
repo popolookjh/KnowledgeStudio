@@ -97,6 +97,15 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
 
+  packages/links:
+    dependencies:
+      '@knowledge-studio/markdown':
+        specifier: workspace:*
+        version: link:../markdown
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/markdown:
     dependencies:
       '@knowledge-studio/shared':

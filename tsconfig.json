@@ -4,6 +4,7 @@
     { "path": "packages/shared" },
     { "path": "packages/vault" },
     { "path": "packages/markdown" },
+    { "path": "packages/links" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" }
