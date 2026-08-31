@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { extractOutline, readFrontmatter } from '@knowledge-studio/markdown';
 import { useAppState } from '../state/store';
+import { LinksPanel } from './LinksPanel';
 
 /**
  * Right sidebar: note properties (frontmatter) and heading outline.
@@ -75,6 +76,7 @@ export function RightSidebar(): React.JSX.Element {
           </ul>
         )}
       </section>
+      <LinksPanel />
     </aside>
   );
 }

@@ -53,6 +53,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.38.1
         version: 6.43.9
+      '@knowledge-studio/links':
+        specifier: workspace:*
+        version: link:../../packages/links
       '@knowledge-studio/markdown':
         specifier: workspace:*
         version: link:../../packages/markdown

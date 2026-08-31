@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { BridgeApi, EntryDto, VaultEventDto } from '../../shared/ipc-contract';
 import { noteTitleFromPath } from '../../shared/ipc-contract';
+import { linkIndex } from './linkIndex';
 
 /**
  * Renderer application store: vault session, file listing, open tabs with
@@ -174,9 +175,25 @@ class Store {
     const result = await api.listEntries();
     if (result.ok) {
       this.set({ entries: result.value });
+      void this.rebuildLinkIndex();
     } else {
       this.setStatus(result.error.message, 'error');
     }
+  }
+
+  /** Rebuilds the renderer link index over all notes in the vault. */
+  private async rebuildLinkIndex(): Promise<void> {
+    const api = this.state.bridge;
+    if (!api) {
+      return;
+    }
+    const notes = this.state.entries
+      .filter((entry) => entry.kind === 'note')
+      .map((entry) => entry.path);
+    await linkIndex.rebuild(notes, async (vaultPath) => {
+      const read = await api.readNote(vaultPath);
+      return read.ok ? read.value.content : null;
+    });
   }
 
   async openNote(vaultPath: string): Promise<void> {
@@ -203,6 +220,7 @@ class Store {
       openedAt: Date.now(),
     };
     this.set({ tabs: [...this.state.tabs, tab], activePath: vaultPath, conflictPath: null });
+    linkIndex.updateNote(vaultPath, result.value.content);
   }
 
   setActiveTab(vaultPath: string): void {
@@ -240,6 +258,7 @@ class Store {
       tab.path === vaultPath ? { ...tab, content } : tab,
     );
     this.set({ tabs });
+    linkIndex.updateNote(vaultPath, content);
     this.scheduleAutosave(vaultPath);
   }
 
@@ -328,6 +347,7 @@ class Store {
         : entry,
     );
     this.set({ tabs, conflictPath: null, status: null });
+    linkIndex.updateNote(vaultPath, result.value.content);
   }
 
   private suggestNotePath(folder: string): string {
@@ -357,6 +377,24 @@ class Store {
     await this.openNote(path);
   }
 
+  async createNoteFromLink(target: string, heading: string | null): Promise<void> {
+    const api = this.state.bridge;
+    if (!api || !this.state.sessionRoot) {
+      return;
+    }
+    const withExtension = target.includes('.') ? target : `${target}.md`;
+    const created = await api.createNote(
+      withExtension,
+      heading ? `# ${heading}\n\n` : '# Untitled\n\n',
+    );
+    if (!created.ok) {
+      this.setStatus(created.error.message, 'error');
+      return;
+    }
+    await this.refreshEntries();
+    await this.openNote(withExtension);
+  }
+
   async deleteNote(vaultPath: string): Promise<void> {
     const api = this.state.bridge;
     if (!api || !this.state.sessionRoot) {
@@ -382,16 +420,32 @@ class Store {
         this.closeTab(event.vaultPath);
         this.setStatus(`File deleted outside the editor: ${event.vaultPath}`, 'error');
       }
+      linkIndex.removeNote(event.vaultPath);
       await this.refreshEntries();
       return;
     }
     if (event.kind === 'created') {
       await this.refreshEntries();
+      // Index the new file's content immediately so its links resolve.
+      const api = this.state.bridge;
+      if (api && !openTab) {
+        const read = await api.readNote(event.vaultPath);
+        if (read.ok) {
+          linkIndex.updateNote(event.vaultPath, read.value.content);
+        }
+      }
       return;
     }
     // changed
     await this.refreshEntries();
     if (!openTab) {
+      const api = this.state.bridge;
+      if (api) {
+        const read = await api.readNote(event.vaultPath);
+        if (read.ok) {
+          linkIndex.updateNote(event.vaultPath, read.value.content);
+        }
+      }
       return;
     }
     if (openTab.content === openTab.savedContent) {
