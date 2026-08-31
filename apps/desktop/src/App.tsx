@@ -1,39 +1,130 @@
+import { useEffect } from 'react';
+import { EditorPane } from './components/EditorPane';
+import { Explorer } from './components/Explorer';
+import { PreviewPane } from './components/PreviewPane';
+import { RightSidebar } from './components/RightSidebar';
+import { StatusBar } from './components/StatusBar';
+import { TabsBar } from './components/TabsBar';
+import { WelcomeView } from './components/WelcomeView';
+import { store, useAppState } from './state/store';
+
 /**
- * Phase 0 application shell.
+ * Application layout:
  *
- * Deliberately minimal: a real Electron window rendering a real React
- * application through the sandboxed preload bridge. Feature surfaces
- * (explorer, editor, sidebars) arrive with their own phases.
+ * ┌──────────────────────────────────────────────────────┐
+ * │ titlebar (brand + vault actions + mode switch)       │
+ * ├───────────┬──────────────────────────────┬───────────┤
+ * │ explorer  │ tabs / editor (+ preview)    │ props +   │
+ * │ (left)    │                              │ outline   │
+ * ├───────────┴──────────────────────────────┴───────────┤
+ * │ status bar                                           │
+ * └──────────────────────────────────────────────────────┘
  */
-export default function App() {
-  const bridge = window.knowledgeStudio;
-  const version = bridge?.version ?? 'dev';
-  const platform = bridge?.platform ?? 'unknown';
+export default function App(): React.JSX.Element {
+  const { sessionRoot, mode, activePath, conflictPath } = useAppState();
+
+  useEffect(() => {
+    void store.bootstrap();
+  }, []);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent): void => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        if (activePath) {
+          void store.saveNote(activePath);
+        }
+      }
+      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'p') {
+        // Command palette placeholder shortcut; palette lands in Phase 10.
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activePath]);
 
   return (
     <div className="app-shell">
-      <header className="app-shell__titlebar">
-        <span className="app-shell__brand">Knowledge Studio</span>
-        <span className="app-shell__titlebar-meta">Foundation · Phase 0</span>
+      <header className="titlebar">
+        <span className="titlebar__brand">Knowledge Studio</span>
+        {sessionRoot && (
+          <>
+            <span className="titlebar__vault" title={sessionRoot}>
+              {sessionRoot}
+            </span>
+            <div className="titlebar__actions">
+              <button
+                type="button"
+                className="btn btn--small"
+                onClick={() => void store.createNoteInFolder('')}
+              >
+                New note
+              </button>
+              <div className="titlebar__modes" role="group" aria-label="Editor mode">
+                {(['edit', 'split', 'preview'] as const).map((candidate) => (
+                  <button
+                    key={candidate}
+                    type="button"
+                    className={`btn btn--small${mode === candidate ? ' is-active' : ''}`}
+                    onClick={() => store.setMode(candidate)}
+                  >
+                    {candidate}
+                  </button>
+                ))}
+              </div>
+              <button type="button" className="btn btn--small" onClick={() => void store.closeVault()}>
+                Close vault
+              </button>
+            </div>
+          </>
+        )}
       </header>
-      <main className="app-shell__main">
-        <section className="app-shell__hero">
-          <h1>Your knowledge, in plain Markdown.</h1>
-          <p>
-            Knowledge Studio is a local-first, offline-first knowledge workspace. Your notes stay
-            in ordinary Markdown files that remain fully usable — with or without this
-            application.
-          </p>
-        </section>
-        <section className="app-shell__meta">
-          <span>v{version}</span>
-          <span aria-hidden="true">·</span>
-          <span>{platform}</span>
-        </section>
-      </main>
-      <footer className="app-shell__statusbar">
-        <span>Ready</span>
-      </footer>
+      {sessionRoot ? (
+        <div className="workbench">
+          <Explorer />
+          <main className="center">
+            <TabsBar />
+            {conflictPath && (
+              <div className="conflict" role="alert">
+                <span>
+                  This file changed on disk while you were editing it. Keep your version or load
+                  the file from the vault?
+                </span>
+                <div className="conflict__actions">
+                  <button
+                    type="button"
+                    className="btn btn--small btn--primary"
+                    onClick={() => void store.overwriteFromEditor(conflictPath)}
+                  >
+                    Keep mine
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn--small"
+                    onClick={() => void store.reloadFromDisk(conflictPath)}
+                  >
+                    Load from disk
+                  </button>
+                </div>
+              </div>
+            )}
+            <div
+              className={`center__panes${
+                mode === 'split' ? ' center__panes--split' : ''
+              }`}
+            >
+              {mode !== 'preview' && <EditorPane />}
+              {(mode === 'split' || mode === 'preview') && <PreviewPane />}
+            </div>
+          </main>
+          <RightSidebar />
+        </div>
+      ) : (
+        <main className="app-shell__main">
+          <WelcomeView />
+        </main>
+      )}
+      <StatusBar />
     </div>
   );
 }

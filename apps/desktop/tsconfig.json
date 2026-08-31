@@ -7,6 +7,6 @@
     "outDir": "dist-tsc",
     "rootDir": "."
   },
-  "include": ["src"],
+  "include": ["src", "shared"],
   "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.electron.json" }]
 }

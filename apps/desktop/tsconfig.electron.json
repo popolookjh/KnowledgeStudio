@@ -1,12 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "types": ["node"],
     "outDir": "dist-electron",
-    "rootDir": "electron",
+    "rootDir": ".",
     "verbatimModuleSyntax": false
   },
-  "include": ["electron"]
+  "include": ["electron/**/*", "shared/**/*"]
 }

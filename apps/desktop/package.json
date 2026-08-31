@@ -3,13 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "description": "Knowledge Studio desktop application: Electron shell with a React renderer.",
-  "main": "dist-electron/main.js",
+  "type": "module",
+  "main": "dist-electron/electron/main.js",
   "scripts": {
     "dev": "tsc -b && concurrently -k \"vite\" \"wait-on tcp:127.0.0.1:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
     "build": "tsc -b && vite build",
     "start": "electron ."
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "^6.3.2",
+    "@codemirror/language": "^6.11.0",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.38.1",
+    "@knowledge-studio/markdown": "workspace:*",
+    "@knowledge-studio/shared": "workspace:*",
+    "@knowledge-studio/vault": "workspace:*",
+    "codemirror": "^6.0.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

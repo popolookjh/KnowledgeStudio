@@ -1,12 +1,14 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
+import { registerVaultIpc } from './ipc.js';
 
 const DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
 
 /**
  * Creates the main window with the hardened renderer configuration:
  * sandbox on, context isolation on, Node integration off. All privileged
- * work stays in the main process behind explicit IPC contracts.
+ * work stays in the main process behind the IPC contracts in
+ * `shared/ipc-contract.ts`.
  */
 function createMainWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -18,7 +20,7 @@ function createMainWindow(): BrowserWindow {
     backgroundColor: '#0f1216',
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(import.meta.dirname, 'preload.cjs'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
@@ -35,14 +37,15 @@ function createMainWindow(): BrowserWindow {
   if (DEV_SERVER_URL) {
     void win.loadURL(DEV_SERVER_URL);
   } else {
-    void win.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
+    void win.loadFile(path.join(import.meta.dirname, '..', '..', 'dist', 'index.html'));
   }
 
   return win;
 }
 
 void app.whenReady().then(() => {
-  createMainWindow();
+  const win = createMainWindow();
+  registerVaultIpc(win);
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createMainWindow();

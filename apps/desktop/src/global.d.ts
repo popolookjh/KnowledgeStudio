@@ -1,16 +1,15 @@
+import type { BridgeApi } from '../shared/ipc-contract';
+
 /**
- * Bridge exposed by the sandboxed preload script (`electron/preload.ts`).
- * The renderer has no Node access; this flat, serializable surface is the
- * only channel to the main process. It will grow through explicit IPC
- * contracts, never through ad-hoc remote access.
+ * The sandboxed preload bridge is the renderer's only privileged channel.
+ * In browser/Vite dev contexts it is absent; components must treat it as
+ * optional and render the welcome screen instead of crashing.
  */
-export {};
 
 declare global {
   interface Window {
-    readonly knowledgeStudio?: {
-      readonly version: string;
-      readonly platform: string;
-    };
+    readonly knowledgeStudio?: BridgeApi;
   }
 }
+
+export {};
