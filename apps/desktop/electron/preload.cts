@@ -22,6 +22,8 @@ const api: BridgeApi = {
   createNote: (vaultPath, content) => ipcRenderer.invoke(IPC.createNote, vaultPath, content),
   renameEntry: (from, to) => ipcRenderer.invoke(IPC.renameEntry, from, to),
   deleteEntry: (vaultPath) => ipcRenderer.invoke(IPC.deleteEntry, vaultPath),
+  search: (query) => ipcRenderer.invoke(IPC.search, query),
+  rebuildIndex: () => ipcRenderer.invoke(IPC.rebuildIndex),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

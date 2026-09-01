@@ -18,6 +18,7 @@
     "@knowledge-studio/links": "workspace:*",
     "@knowledge-studio/markdown": "workspace:*",
     "@knowledge-studio/metadata": "workspace:*",
+    "@knowledge-studio/search": "workspace:*",
     "@knowledge-studio/shared": "workspace:*",
     "@knowledge-studio/vault": "workspace:*",
     "codemirror": "^6.0.2",

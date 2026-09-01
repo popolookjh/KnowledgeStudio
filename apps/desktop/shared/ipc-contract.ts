@@ -22,6 +22,8 @@ export const IPC = {
   renameEntry: 'vault:rename',
   deleteEntry: 'vault:delete',
   vaultEvent: 'vault:event',
+  search: 'search:query',
+  rebuildIndex: 'search:rebuild',
 } as const;
 
 export interface RpcError {
@@ -63,6 +65,17 @@ export interface VaultEventDto {
   readonly vaultPath: string;
 }
 
+export interface SearchHitDto {
+  readonly path: string;
+  readonly title: string;
+  readonly snippet: string;
+  readonly rank: number;
+}
+
+export interface IndexStatusDto {
+  readonly indexedNotes: number;
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -86,6 +99,8 @@ export interface BridgeApi {
   renameEntry(from: string, to: string): Promise<RpcResult<string>>;
   deleteEntry(vaultPath: string): Promise<RpcResult<string>>;
   onVaultEvent(listener: (event: VaultEventDto) => void): () => void;
+  search(query: string): Promise<RpcResult<readonly SearchHitDto[]>>;
+  rebuildIndex(): Promise<RpcResult<IndexStatusDto>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

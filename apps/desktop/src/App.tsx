@@ -3,6 +3,7 @@ import { EditorPane } from './components/EditorPane';
 import { Explorer } from './components/Explorer';
 import { PreviewPane } from './components/PreviewPane';
 import { RightSidebar } from './components/RightSidebar';
+import { SearchOverlay } from './components/SearchOverlay';
 import { StatusBar } from './components/StatusBar';
 import { TabsBar } from './components/TabsBar';
 import { WelcomeView } from './components/WelcomeView';
@@ -35,9 +36,6 @@ export default function App(): React.JSX.Element {
           void store.saveNote(activePath);
         }
       }
-      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'p') {
-        // Command palette placeholder shortcut; palette lands in Phase 10.
-      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -53,6 +51,22 @@ export default function App(): React.JSX.Element {
               {sessionRoot}
             </span>
             <div className="titlebar__actions">
+              <button
+                type="button"
+                className="btn btn--small"
+                title="Search the vault (Ctrl+P)"
+                onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', ctrlKey: true }))}
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                className="btn btn--small"
+                title="Rebuild the search index from Markdown"
+                onClick={() => void store.rebuildIndex()}
+              >
+                Rebuild index
+              </button>
               <button
                 type="button"
                 className="btn btn--small"
@@ -125,6 +139,7 @@ export default function App(): React.JSX.Element {
         </main>
       )}
       <StatusBar />
+      <SearchOverlay />
     </div>
   );
 }

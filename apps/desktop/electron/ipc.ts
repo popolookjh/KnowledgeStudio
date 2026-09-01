@@ -9,6 +9,7 @@ import {
   type Vault,
   type VaultEntry,
 } from '@knowledge-studio/vault';
+import { SearchIndex } from '@knowledge-studio/search';
 import { IPC } from '../shared/ipc-contract.js';
 import type {
   EntryDto,
@@ -16,6 +17,7 @@ import type {
   ReadNoteResult,
   RpcError,
   RpcResult,
+  SearchHitDto,
   VaultEventDto,
   VaultSessionInfo,
   WriteNoteResult,
@@ -54,6 +56,7 @@ class VaultHost {
   private vault: Vault | null = null;
   private watcherDisposer: { close(): void } | null = null;
   private renderer: BrowserWindow | null = null;
+  private searchIndex = new SearchIndex();
 
   bindWindow(win: BrowserWindow): void {
     this.renderer = win;
@@ -91,6 +94,7 @@ class VaultHost {
     this.vault = vault;
     await this.rememberVault(vault.root);
     await this.startWatcher();
+    await this.rebuildSearchIndex();
     return { rootPath: vault.root };
   }
 
@@ -141,6 +145,7 @@ class VaultHost {
     this.watcherDisposer = null;
     this.vault?.close();
     this.vault = null;
+    this.searchIndex.close();
   }
 
   close(): void {
@@ -226,6 +231,76 @@ class VaultHost {
     return trashed.ok ? rpc(trashed.value.id) : { ok: false, error: serializeFailure(trashed.error) };
   }
 
+  /** Rebuilds (or creates) the FTS5 index over every note in the vault. */
+  async rebuildSearchIndex(): Promise<RpcResult<{ indexedNotes: number }>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) {
+      return { ok: false, error: vault };
+    }
+    const entries = await walkVault(vault.root);
+    if (!entries.ok) {
+      return { ok: false, error: serializeFailure(entries.error) };
+    }
+    const dbPath = path.join(vault.appDir, 'index.db');
+    if (!this.searchIndex.isOpen || this.searchIndex.path !== dbPath) {
+      this.searchIndex.close();
+      const opened = this.searchIndex.open(dbPath);
+      if (!opened.ok) {
+        return { ok: false, error: serializeFailure(opened.error) };
+      }
+    }
+    const notes: Array<{ path: string; content: string }> = [];
+    for (const entry of entries.value) {
+      if (entry.kind !== 'note') {
+        continue;
+      }
+      const read = await vault.readFile(entry.path);
+      if (read.ok) {
+        notes.push({ path: entry.path, content: read.value.content });
+      }
+    }
+    const rebuilt = this.searchIndex.rebuild(notes);
+    return rebuilt.ok
+      ? rpc({ indexedNotes: rebuilt.value })
+      : { ok: false, error: serializeFailure(rebuilt.error) };
+  }
+
+  searchNotes(query: string): RpcResult<readonly SearchHitDto[]> {
+    if (!this.searchIndex.isOpen) {
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    }
+    const hits = this.searchIndex.search(query, { limit: 50 });
+    return hits.ok
+      ? rpc(hits.value)
+      : { ok: false, error: serializeFailure(hits.error) };
+  }
+
+  /** Keeps the FTS5 index in step with watcher events. */
+  private syncIndexOnEvent(event: VaultEventDto): void {
+    const vault = this.vault;
+    if (!vault || !this.searchIndex.isOpen) {
+      return;
+    }
+    if (event.kind === 'deleted') {
+      const removed = this.searchIndex.remove(event.vaultPath);
+      if (!removed.ok) {
+        void removed;
+      }
+      return;
+    }
+    void vault
+      .readFile(event.vaultPath)
+      .then((read) => {
+        if (read.ok) {
+          void this.searchIndex.upsert({ path: event.vaultPath, content: read.value.content });
+        } else if (event.kind === 'changed') {
+          // File disappeared between event and read; drop it.
+          void this.searchIndex.remove(event.vaultPath);
+        }
+      })
+      .catch(() => undefined);
+  }
+
   private async startWatcher(): Promise<void> {
     const vault = this.vault;
     if (!vault) {
@@ -235,6 +310,7 @@ class VaultHost {
       onFileEvent: (event) => {
         const dto: VaultEventDto = { kind: event.kind, vaultPath: event.vaultPath };
         this.renderer?.webContents.send(IPC.vaultEvent, dto);
+        this.syncIndexOnEvent(dto);
       },
       onError: () => {
         // Watcher failures are non-fatal; the UI degrades to manual refresh.
@@ -270,5 +346,7 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   );
   ipcMain.handle(IPC.renameEntry, (_event, from: string, to: string) => host.renameEntry(from, to));
   ipcMain.handle(IPC.deleteEntry, (_event, vaultPath: string) => host.deleteEntry(vaultPath));
+  ipcMain.handle(IPC.search, (_event, query: string) => host.searchNotes(query));
+  ipcMain.handle(IPC.rebuildIndex, () => host.rebuildSearchIndex());
   return host;
 }

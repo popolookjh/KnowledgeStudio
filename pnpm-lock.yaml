@@ -62,6 +62,9 @@ importers:
       '@knowledge-studio/metadata':
         specifier: workspace:*
         version: link:../../packages/metadata
+      '@knowledge-studio/search':
+        specifier: workspace:*
+        version: link:../../packages/search
       '@knowledge-studio/shared':
         specifier: workspace:*
         version: link:../../packages/shared

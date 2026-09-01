@@ -430,6 +430,20 @@ class Store {
     await this.saveNote(vaultPath);
   }
 
+  /** Full rebuild of the FTS5 index from Markdown (recovery path). */
+  async rebuildIndex(): Promise<void> {
+    const api = this.state.bridge;
+    if (!api) {
+      return;
+    }
+    const result = await api.rebuildIndex();
+    if (result.ok) {
+      this.setStatus(`Index rebuilt: ${result.value.indexedNotes} notes`);
+    } else {
+      this.setStatus(`Index rebuild failed: ${result.error.message}`, 'error');
+    }
+  }
+
   async deleteNote(vaultPath: string): Promise<void> {
     const api = this.state.bridge;
     if (!api || !this.state.sessionRoot) {
