@@ -158,6 +158,15 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
+  packages/search:
+    dependencies:
+      '@knowledge-studio/markdown':
+        specifier: workspace:*
+        version: link:../markdown
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/shared: {}
 
   packages/vault:
