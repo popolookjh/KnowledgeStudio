@@ -13,6 +13,7 @@ export default defineConfig({
       '@knowledge-studio/vault': path.join(repoRoot, 'packages/vault/src/index.ts'),
       '@knowledge-studio/markdown': path.join(repoRoot, 'packages/markdown/src/index.ts'),
       '@knowledge-studio/links': path.join(repoRoot, 'packages/links/src/index.ts'),
+      '@knowledge-studio/metadata': path.join(repoRoot, 'packages/metadata/src/index.ts'),
     },
   },
   test: {

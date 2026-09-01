@@ -395,6 +395,41 @@ class Store {
     await this.openNote(withExtension);
   }
 
+  /**
+   * Edits one frontmatter property of an open note (Phase 4): parse →
+   * patch → re-serialize via the metadata package, then save. The body is
+   * preserved byte-for-byte; unknown properties survive untouched.
+   */
+  async setMetadataProperty(vaultPath: string, key: string, value: string | string[] | null): Promise<void> {
+    const api = this.state.bridge;
+    const tab = this.state.tabs.find((entry) => entry.path === vaultPath);
+    if (!api || !tab) {
+      return;
+    }
+    const { readMetadata, writeMetadata } = await import('@knowledge-studio/metadata');
+    const { data } = readMetadata(tab.content);
+    const patch = { ...data };
+    if (value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
+      delete patch[key];
+    } else if (key === 'tags' || key === 'aliases') {
+      patch[key] = Array.isArray(value) ? value : value.split(',').map((part) => part.trim()).filter((part) => part.length > 0);
+    } else if (key === 'confidence') {
+      const numeric = Number(value);
+      if (!Number.isNaN(numeric)) {
+        patch[key] = numeric;
+      }
+    } else {
+      patch[key] = value;
+    }
+    const updated = writeMetadata(tab.content, patch);
+    if (!updated.ok) {
+      this.setStatus(updated.error.map((issue) => issue.message).join('; '), 'error');
+      return;
+    }
+    this.updateContent(vaultPath, updated.value);
+    await this.saveNote(vaultPath);
+  }
+
   async deleteNote(vaultPath: string): Promise<void> {
     const api = this.state.bridge;
     if (!api || !this.state.sessionRoot) {

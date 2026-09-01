@@ -59,6 +59,9 @@ importers:
       '@knowledge-studio/markdown':
         specifier: workspace:*
         version: link:../../packages/markdown
+      '@knowledge-studio/metadata':
+        specifier: workspace:*
+        version: link:../../packages/metadata
       '@knowledge-studio/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -142,6 +145,18 @@ importers:
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
+
+  packages/metadata:
+    dependencies:
+      '@knowledge-studio/markdown':
+        specifier: workspace:*
+        version: link:../markdown
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+      yaml:
+        specifier: ^2.8.0
+        version: 2.9.0
 
   packages/shared: {}
 
