@@ -1,0 +1,10 @@
+{
+  "name": "@knowledge-studio/templates",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Safe Markdown templates with an explicit, non-executable variable set.",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" }
+}

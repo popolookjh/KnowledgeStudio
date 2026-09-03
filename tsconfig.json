@@ -8,6 +8,7 @@
     { "path": "packages/metadata" },
     { "path": "packages/search" },
     { "path": "packages/tags" },
+    { "path": "packages/templates" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" }

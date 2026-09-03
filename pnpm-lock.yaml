@@ -187,6 +187,8 @@ importers:
         specifier: workspace:*
         version: link:../markdown
 
+  packages/templates: {}
+
   packages/vault:
     dependencies:
       '@knowledge-studio/shared':
