@@ -138,6 +138,8 @@ importers:
 
   packages/history: {}
 
+  packages/import-export: {}
+
   packages/links:
     dependencies:
       '@knowledge-studio/markdown':
@@ -200,6 +202,12 @@ importers:
       zod:
         specifier: ^4.5.4
         version: 4.5.4
+
+  packages/rtl:
+    dependencies:
+      '@knowledge-studio/markdown':
+        specifier: workspace:*
+        version: link:../markdown
 
   packages/search:
     dependencies:
