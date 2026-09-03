@@ -179,6 +179,8 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4
 
+  packages/mcp: {}
+
   packages/metadata:
     dependencies:
       '@knowledge-studio/markdown':

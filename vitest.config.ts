@@ -24,6 +24,7 @@ export default defineConfig({
       '@knowledge-studio/history': path.join(repoRoot, 'packages/history/src/index.ts'),
       '@knowledge-studio/git': path.join(repoRoot, 'packages/git/src/index.ts'),
       '@knowledge-studio/plugin-sdk': path.join(repoRoot, 'packages/plugin-sdk/src/index.ts'),
+      '@knowledge-studio/mcp': path.join(repoRoot, 'packages/mcp/src/index.ts'),
     },
   },
   test: {
