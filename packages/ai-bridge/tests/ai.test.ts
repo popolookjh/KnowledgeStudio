@@ -9,7 +9,7 @@ describe('AIProviderRegistry', () => {
 
 describe('EchoAIProvider', () => {
   it('completes from the last user message', async () => { const response = await new EchoAIProvider().complete({ messages: [{ role: 'user', content: 'سلام' }] }); expect(response.content).toBe('سلام'); });
-  it('streams and terminates', async () => { const deltas: string[] = []; const provider = new EchoAIProvider(); const stream = provider.stream; if (!stream) throw new Error('stream unavailable'); for await (const delta of stream({ messages: [{ role: 'user', content: 'hello' }] })) deltas.push(delta.done ? 'done' : delta.content); expect(deltas).toEqual(['hello', 'done']); });
+  it('streams and terminates', async () => { const deltas: string[] = []; const provider = new EchoAIProvider(); for await (const delta of provider.stream?.({ messages: [{ role: 'user', content: 'hello' }] }) ?? []) deltas.push(delta.done ? 'done' : delta.content); expect(deltas).toEqual(['hello', 'done']); });
 });
 
 describe('privacy disclosure', () => {

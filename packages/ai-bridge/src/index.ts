@@ -16,7 +16,7 @@ export interface AIProviderProtocol {
   readonly displayName: string;
   capabilities(): Promise<AIProviderCapabilities>;
   complete(request: AIRequest): Promise<AIResponse>;
-  stream?(request: AIRequest): AsyncIterable<AIStreamDelta>;
+  stream?(this: void, request: AIRequest): AsyncIterable<AIStreamDelta>;
 }
 
 export interface EmbeddingRequest { readonly texts: readonly string[]; readonly model?: string; readonly signal?: AbortSignal; }
@@ -48,10 +48,12 @@ export class EchoAIProvider implements AIProviderProtocol {
   readonly displayName = 'Local Echo (test provider)';
   capabilities(): Promise<AIProviderCapabilities> { return Promise.resolve({ streaming: true, vision: false, embeddings: false, models: ['echo'] }); }
   complete(request: AIRequest): Promise<AIResponse> { const last = [...request.messages].reverse().find((message) => message.role === 'user'); return Promise.resolve({ content: last?.content ?? '', model: request.model ?? 'echo' }); }
-  async *stream(request: AIRequest): AsyncIterable<AIStreamDelta> {
+  stream(request: AIRequest): AsyncIterable<AIStreamDelta> {
     const last = [...request.messages].reverse().find((message) => message.role === 'user');
-    yield { content: last?.content ?? '', done: false };
-    yield { content: '', done: true };
+    return (async function* generate(): AsyncIterable<AIStreamDelta> {
+      yield { content: last?.content ?? '', done: false };
+      yield { content: '', done: true };
+    })();
   }
 }
 
