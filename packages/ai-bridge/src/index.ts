@@ -48,7 +48,11 @@ export class EchoAIProvider implements AIProviderProtocol {
   readonly displayName = 'Local Echo (test provider)';
   capabilities(): Promise<AIProviderCapabilities> { return Promise.resolve({ streaming: true, vision: false, embeddings: false, models: ['echo'] }); }
   complete(request: AIRequest): Promise<AIResponse> { const last = [...request.messages].reverse().find((message) => message.role === 'user'); return Promise.resolve({ content: last?.content ?? '', model: request.model ?? 'echo' }); }
-  async *stream(request: AIRequest): AsyncIterable<AIStreamDelta> { const response = await this.complete(request); yield { content: response.content, done: false }; yield { content: '', done: true }; }
+  async *stream(request: AIRequest): AsyncIterable<AIStreamDelta> {
+    const last = [...request.messages].reverse().find((message) => message.role === 'user');
+    yield { content: last?.content ?? '', done: false };
+    yield { content: '', done: true };
+  }
 }
 
 export function validateDisclosure(disclosure: AIPrivacyDisclosure): { ok: true } | { ok: false; error: string } {
