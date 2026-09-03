@@ -20,6 +20,7 @@
     "@knowledge-studio/metadata": "workspace:*",
     "@knowledge-studio/search": "workspace:*",
     "@knowledge-studio/shared": "workspace:*",
+    "@knowledge-studio/tags": "workspace:*",
     "@knowledge-studio/vault": "workspace:*",
     "codemirror": "^6.0.2",
     "cytoscape": "^3.34.2",

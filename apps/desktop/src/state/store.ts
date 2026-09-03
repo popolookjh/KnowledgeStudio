@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import type { BridgeApi, EntryDto, VaultEventDto } from '../../shared/ipc-contract';
 import { noteTitleFromPath } from '../../shared/ipc-contract';
 import { linkIndex } from './linkIndex';
+import { tagIndex } from './tagIndex';
 
 /**
  * Renderer application store: vault session, file listing, open tabs with
@@ -196,6 +197,13 @@ class Store {
       const read = await api.readNote(vaultPath);
       return read.ok ? read.value.content : null;
     });
+    const tagNotes = await Promise.all(
+      notes.map(async (vaultPath) => {
+        const read = await api.readNote(vaultPath);
+        return read.ok ? { path: vaultPath, content: read.value.content } : null;
+      }),
+    );
+    tagIndex.rebuild(tagNotes.filter((note): note is { path: string; content: string } => note !== null));
   }
 
   async openNote(vaultPath: string): Promise<void> {
@@ -223,6 +231,7 @@ class Store {
     };
     this.set({ tabs: [...this.state.tabs, tab], activePath: vaultPath, conflictPath: null });
     linkIndex.updateNote(vaultPath, result.value.content);
+    tagIndex.update(vaultPath, result.value.content);
   }
 
   setActiveTab(vaultPath: string): void {
@@ -261,6 +270,7 @@ class Store {
     );
     this.set({ tabs });
     linkIndex.updateNote(vaultPath, content);
+    tagIndex.update(vaultPath, content);
     this.scheduleAutosave(vaultPath);
   }
 
@@ -480,6 +490,7 @@ class Store {
         this.setStatus(`File deleted outside the editor: ${event.vaultPath}`, 'error');
       }
       linkIndex.removeNote(event.vaultPath);
+      tagIndex.remove(event.vaultPath);
       await this.refreshEntries();
       return;
     }

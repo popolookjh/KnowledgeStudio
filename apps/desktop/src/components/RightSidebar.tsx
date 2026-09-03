@@ -3,6 +3,7 @@ import { extractOutline, readFrontmatter } from '@knowledge-studio/markdown';
 import { useAppState } from '../state/store';
 import { LinksPanel } from './LinksPanel';
 import { PropertiesPanel } from './PropertiesPanel';
+import { TagBrowser } from './TagBrowser';
 
 /**
  * Right sidebar: editable properties, heading outline, and links.
@@ -41,6 +42,7 @@ export function RightSidebar(): React.JSX.Element {
         )}
       </section>
       <LinksPanel />
+      <TagBrowser />
     </aside>
   );
 }

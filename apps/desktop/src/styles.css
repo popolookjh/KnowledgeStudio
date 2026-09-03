@@ -822,3 +822,10 @@ button {
   min-height: 0;
   background: var(--bg-app);
 }
+
+/* Tag browser */
+.tag-browser__cloud { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag-browser__tag { padding: 2px 5px; border: 1px solid var(--border-subtle); border-radius: 3px; background: var(--bg-elevated); color: var(--text-secondary); cursor: pointer; font-size: 12px; }
+.tag-browser__tag:hover, .tag-browser__tag.is-selected { border-color: var(--accent); color: var(--accent); }
+.tag-browser__tag span { opacity: .65; font-size: 10px; }
+.tag-browser__results { list-style: none; padding: 6px 0 0; margin: 0; }

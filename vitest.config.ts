@@ -15,6 +15,7 @@ export default defineConfig({
       '@knowledge-studio/links': path.join(repoRoot, 'packages/links/src/index.ts'),
       '@knowledge-studio/metadata': path.join(repoRoot, 'packages/metadata/src/index.ts'),
       '@knowledge-studio/search': path.join(repoRoot, 'packages/search/src/index.ts'),
+      '@knowledge-studio/tags': path.join(repoRoot, 'packages/tags/src/index.ts'),
     },
   },
   test: {

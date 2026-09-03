@@ -1,0 +1,21 @@
+{
+  "name": "@knowledge-studio/tags",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tag extraction and browse/filter index for Markdown vaults.",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\""
+  },
+  "dependencies": {
+    "@knowledge-studio/markdown": "workspace:*"
+  }
+}

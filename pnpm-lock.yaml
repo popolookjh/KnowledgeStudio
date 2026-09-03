@@ -68,6 +68,9 @@ importers:
       '@knowledge-studio/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@knowledge-studio/tags':
+        specifier: workspace:*
+        version: link:../../packages/tags
       '@knowledge-studio/vault':
         specifier: workspace:*
         version: link:../../packages/vault
@@ -177,6 +180,12 @@ importers:
         version: link:../shared
 
   packages/shared: {}
+
+  packages/tags:
+    dependencies:
+      '@knowledge-studio/markdown':
+        specifier: workspace:*
+        version: link:../markdown
 
   packages/vault:
     dependencies:
