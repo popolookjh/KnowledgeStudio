@@ -26,7 +26,7 @@ export default tseslint.config(
         projectService: {
           // Root-level config files have no owning tsconfig project; linting
           // them through the default project is safe (no project references).
-          allowDefaultProject: ['*.mjs', 'vitest.config.ts'],
+          allowDefaultProject: ['*.mjs', 'vitest.config.ts', 'scripts/*.mjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },

@@ -1,0 +1,11 @@
+{
+  "name": "@knowledge-studio/observability",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Content-redacted structured local observability and recovery diagnostics.",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" },
+  "dependencies": { "@knowledge-studio/security": "workspace:*" }
+}

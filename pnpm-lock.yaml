@@ -197,6 +197,12 @@ importers:
         specifier: ^2.8.0
         version: 2.9.0
 
+  packages/observability:
+    dependencies:
+      '@knowledge-studio/security':
+        specifier: workspace:*
+        version: link:../security
+
   packages/plugin-sdk:
     dependencies:
       zod:

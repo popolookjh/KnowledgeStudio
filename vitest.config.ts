@@ -30,6 +30,7 @@ export default defineConfig({
       '@knowledge-studio/security': path.join(repoRoot, 'packages/security/src/index.ts'),
       '@knowledge-studio/import-export': path.join(repoRoot, 'packages/import-export/src/index.ts'),
       '@knowledge-studio/rtl': path.join(repoRoot, 'packages/rtl/src/index.ts'),
+      '@knowledge-studio/observability': path.join(repoRoot, 'packages/observability/src/index.ts'),
     },
   },
   test: {
