@@ -132,6 +132,8 @@ importers:
 
   packages/commands: {}
 
+  packages/history: {}
+
   packages/links:
     dependencies:
       '@knowledge-studio/markdown':
