@@ -121,6 +121,8 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  packages/commands: {}
+
   packages/links:
     dependencies:
       '@knowledge-studio/markdown':
