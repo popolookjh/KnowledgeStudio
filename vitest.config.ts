@@ -27,6 +27,7 @@ export default defineConfig({
       '@knowledge-studio/mcp': path.join(repoRoot, 'packages/mcp/src/index.ts'),
       '@knowledge-studio/ai-bridge': path.join(repoRoot, 'packages/ai-bridge/src/index.ts'),
       '@knowledge-studio/semantic-search': path.join(repoRoot, 'packages/semantic-search/src/index.ts'),
+      '@knowledge-studio/security': path.join(repoRoot, 'packages/security/src/index.ts'),
     },
   },
   test: {
