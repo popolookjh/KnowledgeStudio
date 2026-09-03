@@ -26,6 +26,8 @@ const api: BridgeApi = {
   rebuildIndex: () => ipcRenderer.invoke(IPC.rebuildIndex),
   loadWorkspace: () => ipcRenderer.invoke(IPC.loadWorkspace),
   saveWorkspace: (state) => ipcRenderer.invoke(IPC.saveWorkspace, state),
+  readCanvas: (path) => ipcRenderer.invoke(IPC.readCanvas, path),
+  writeCanvas: (path, content) => ipcRenderer.invoke(IPC.writeCanvas, path, content),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

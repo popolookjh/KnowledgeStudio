@@ -53,6 +53,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.38.1
         version: 6.43.9
+      '@knowledge-studio/canvas':
+        specifier: workspace:*
+        version: link:../../packages/canvas
       '@knowledge-studio/links':
         specifier: workspace:*
         version: link:../../packages/links

@@ -140,6 +140,20 @@ class VaultHost {
     }
   }
 
+  async readCanvas(canvasPath: string): Promise<RpcResult<string>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    const result = await vault.readFile(canvasPath);
+    return result.ok ? rpc(result.value.content) : { ok: false, error: serializeFailure(result.error) };
+  }
+
+  async writeCanvas(canvasPath: string, content: string): Promise<RpcResult<true>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    const result = await vault.writeFile(canvasPath, content);
+    return result.ok ? rpc(true) : { ok: false, error: serializeFailure(result.error) };
+  }
+
   async saveWorkspace(state: WorkspaceStateDto): Promise<RpcResult<true>> {
     try {
       const workspacePath = path.join(app.getPath('userData'), 'workspace.json');
@@ -373,5 +387,7 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.rebuildIndex, () => host.rebuildSearchIndex());
   ipcMain.handle(IPC.loadWorkspace, () => host.loadWorkspace());
   ipcMain.handle(IPC.saveWorkspace, (_event, state: WorkspaceStateDto) => host.saveWorkspace(state));
+  ipcMain.handle(IPC.readCanvas, (_event, canvasPath: string) => host.readCanvas(canvasPath));
+  ipcMain.handle(IPC.writeCanvas, (_event, canvasPath: string, content: string) => host.writeCanvas(canvasPath, content));
   return host;
 }

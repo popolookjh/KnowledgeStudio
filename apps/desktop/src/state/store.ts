@@ -45,6 +45,7 @@ export interface AppState {
   readonly bootstrapped: boolean;
   readonly graphOpen: boolean;
   readonly sidebarCollapsed: boolean;
+  readonly canvasOpen: boolean;
 }
 
 const AUTOSAVE_DELAY_MS = 800;
@@ -67,6 +68,7 @@ class Store {
     bootstrapped: false,
     graphOpen: false,
     sidebarCollapsed: false,
+    canvasOpen: false,
   };
 
   private readonly listeners = new Set<() => void>();
@@ -465,6 +467,9 @@ class Store {
   toggleSidebar(): void {
     this.set({ sidebarCollapsed: !this.state.sidebarCollapsed });
   }
+
+  openCanvas(): void { this.set({ canvasOpen: true }); }
+  closeCanvas(): void { this.set({ canvasOpen: false }); }
 
   private async persistWorkspace(): Promise<void> {
     const api = this.state.bridge;

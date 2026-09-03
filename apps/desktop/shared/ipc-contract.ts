@@ -26,6 +26,8 @@ export const IPC = {
   rebuildIndex: 'search:rebuild',
   loadWorkspace: 'workspace:load',
   saveWorkspace: 'workspace:save',
+  readCanvas: 'canvas:read',
+  writeCanvas: 'canvas:write',
 } as const;
 
 export interface RpcError {
@@ -116,6 +118,8 @@ export interface BridgeApi {
   rebuildIndex(): Promise<RpcResult<IndexStatusDto>>;
   loadWorkspace(): Promise<RpcResult<WorkspaceStateDto>>;
   saveWorkspace(state: WorkspaceStateDto): Promise<RpcResult<true>>;
+  readCanvas(path: string): Promise<RpcResult<string>>;
+  writeCanvas(path: string, content: string): Promise<RpcResult<true>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

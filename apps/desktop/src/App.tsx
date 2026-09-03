@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CanvasView } from './components/CanvasView';
 import { EditorPane } from './components/EditorPane';
 import { Explorer } from './components/Explorer';
 import { GraphView } from './components/GraphView';
@@ -23,7 +24,7 @@ import { store, useAppState } from './state/store';
  * └──────────────────────────────────────────────────────┘
  */
 export default function App(): React.JSX.Element {
-  const { sessionRoot, mode, activePath, conflictPath, graphOpen } = useAppState();
+  const { sessionRoot, mode, activePath, conflictPath, graphOpen, canvasOpen } = useAppState();
 
   useEffect(() => {
     void store.bootstrap();
@@ -67,6 +68,14 @@ export default function App(): React.JSX.Element {
                 onClick={() => store.openGraph()}
               >
                 Graph
+              </button>
+              <button
+                type="button"
+                className="btn btn--small"
+                title="Open a visual canvas"
+                onClick={() => store.openCanvas()}
+              >
+                Canvas
               </button>
               <button
                 type="button"
@@ -150,6 +159,17 @@ export default function App(): React.JSX.Element {
       <StatusBar />
       <SearchOverlay />
       {graphOpen && <GraphView />}
+      {canvasOpen && (
+        <div className="canvas-overlay" onClick={() => store.closeCanvas()}>
+          <div className="canvas-overlay__panel" onClick={(event) => event.stopPropagation()}>
+            <div className="canvas-overlay__header">
+              <span>Canvas board</span>
+              <button type="button" className="btn btn--small" onClick={() => store.closeCanvas()}>Close</button>
+            </div>
+            <CanvasView />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
