@@ -14,6 +14,7 @@
     { "path": "packages/settings" },
     { "path": "packages/canvas" },
     { "path": "packages/history" },
+    { "path": "packages/git" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" }

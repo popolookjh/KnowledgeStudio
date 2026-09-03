@@ -22,6 +22,7 @@ export default defineConfig({
       '@knowledge-studio/settings': path.join(repoRoot, 'packages/settings/src/index.ts'),
       '@knowledge-studio/canvas': path.join(repoRoot, 'packages/canvas/src/index.ts'),
       '@knowledge-studio/history': path.join(repoRoot, 'packages/history/src/index.ts'),
+      '@knowledge-studio/git': path.join(repoRoot, 'packages/git/src/index.ts'),
     },
   },
   test: {

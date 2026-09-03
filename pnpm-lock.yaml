@@ -132,6 +132,8 @@ importers:
 
   packages/commands: {}
 
+  packages/git: {}
+
   packages/history: {}
 
   packages/links:
