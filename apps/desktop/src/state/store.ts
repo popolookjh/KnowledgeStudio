@@ -44,6 +44,7 @@ export interface AppState {
   readonly conflictPath: string | null;
   readonly bootstrapped: boolean;
   readonly graphOpen: boolean;
+  readonly sidebarCollapsed: boolean;
 }
 
 const AUTOSAVE_DELAY_MS = 800;
@@ -65,9 +66,11 @@ class Store {
     conflictPath: null,
     bootstrapped: false,
     graphOpen: false,
+    sidebarCollapsed: false,
   };
 
   private readonly listeners = new Set<() => void>();
+  private workspaceTimer: ReturnType<typeof setTimeout> | null = null;
 
   private autosaveTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -84,6 +87,10 @@ class Store {
     this.state = { ...this.state, ...patch };
     for (const listener of this.listeners) {
       listener();
+    }
+    if (this.state.bridge && this.state.sessionRoot) {
+      if (this.workspaceTimer) clearTimeout(this.workspaceTimer);
+      this.workspaceTimer = setTimeout(() => { void this.persistWorkspace(); }, 250);
     }
   }
 
@@ -106,6 +113,11 @@ class Store {
     if (reopened && reopened.ok) {
       this.set({ sessionRoot: reopened.value.rootPath, watcherActive: true });
       await this.refreshEntries();
+      const workspace = await api.loadWorkspace();
+      if (workspace.ok && workspace.value.selectedVault === reopened.value.rootPath) {
+        this.set({ mode: workspace.value.editorMode, activePath: workspace.value.activePath });
+        for (const tabPath of workspace.value.openTabs) await this.openNote(tabPath);
+      }
     }
     api.onVaultEvent((event) => {
       void this.handleVaultEvent(event);
@@ -448,6 +460,25 @@ class Store {
 
   closeGraph(): void {
     this.set({ graphOpen: false });
+  }
+
+  toggleSidebar(): void {
+    this.set({ sidebarCollapsed: !this.state.sidebarCollapsed });
+  }
+
+  private async persistWorkspace(): Promise<void> {
+    const api = this.state.bridge;
+    if (!api) return;
+    await api.saveWorkspace({
+      selectedVault: this.state.sessionRoot,
+      openTabs: this.state.tabs.map((tab) => tab.path),
+      activePath: this.state.activePath,
+      editorMode: this.state.mode,
+      explorerWidth: 240,
+      rightbarWidth: 260,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+    });
   }
 
   /** Full rebuild of the FTS5 index from Markdown (recovery path). */

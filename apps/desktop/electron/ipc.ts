@@ -20,6 +20,7 @@ import type {
   SearchHitDto,
   VaultEventDto,
   VaultSessionInfo,
+  WorkspaceStateDto,
   WriteNoteResult,
 } from '../shared/ipc-contract.js';
 
@@ -126,6 +127,28 @@ class VaultHost {
       return { ok: false, error: serializeFailure(created.error) };
     }
     return rpc(await this.adoptVault(created.value));
+  }
+
+  async loadWorkspace(): Promise<RpcResult<WorkspaceStateDto>> {
+    try {
+      const raw = await fs.readFile(path.join(app.getPath('userData'), 'workspace.json'), 'utf8');
+      const parsed: unknown = JSON.parse(raw);
+      if (typeof parsed !== 'object' || parsed === null) throw new Error('invalid workspace');
+      return rpc(parsed as WorkspaceStateDto);
+    } catch {
+      return rpc({ selectedVault: null, openTabs: [], activePath: null, editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 });
+    }
+  }
+
+  async saveWorkspace(state: WorkspaceStateDto): Promise<RpcResult<true>> {
+    try {
+      const workspacePath = path.join(app.getPath('userData'), 'workspace.json');
+      await fs.mkdir(path.dirname(workspacePath), { recursive: true });
+      await fs.writeFile(workspacePath, JSON.stringify(state, null, 2));
+      return rpc(true);
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
   }
 
   async reopenLast(): Promise<RpcResult<VaultSessionInfo> | null> {
@@ -348,5 +371,7 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.deleteEntry, (_event, vaultPath: string) => host.deleteEntry(vaultPath));
   ipcMain.handle(IPC.search, (_event, query: string) => host.searchNotes(query));
   ipcMain.handle(IPC.rebuildIndex, () => host.rebuildSearchIndex());
+  ipcMain.handle(IPC.loadWorkspace, () => host.loadWorkspace());
+  ipcMain.handle(IPC.saveWorkspace, (_event, state: WorkspaceStateDto) => host.saveWorkspace(state));
   return host;
 }

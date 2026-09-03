@@ -24,6 +24,8 @@ const api: BridgeApi = {
   deleteEntry: (vaultPath) => ipcRenderer.invoke(IPC.deleteEntry, vaultPath),
   search: (query) => ipcRenderer.invoke(IPC.search, query),
   rebuildIndex: () => ipcRenderer.invoke(IPC.rebuildIndex),
+  loadWorkspace: () => ipcRenderer.invoke(IPC.loadWorkspace),
+  saveWorkspace: (state) => ipcRenderer.invoke(IPC.saveWorkspace, state),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

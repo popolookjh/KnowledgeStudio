@@ -24,6 +24,8 @@ export const IPC = {
   vaultEvent: 'vault:event',
   search: 'search:query',
   rebuildIndex: 'search:rebuild',
+  loadWorkspace: 'workspace:load',
+  saveWorkspace: 'workspace:save',
 } as const;
 
 export interface RpcError {
@@ -76,6 +78,17 @@ export interface IndexStatusDto {
   readonly indexedNotes: number;
 }
 
+export interface WorkspaceStateDto {
+  readonly selectedVault: string | null;
+  readonly openTabs: readonly string[];
+  readonly activePath: string | null;
+  readonly editorMode: 'edit' | 'split' | 'preview';
+  readonly explorerWidth: number;
+  readonly rightbarWidth: number;
+  readonly windowWidth: number;
+  readonly windowHeight: number;
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -101,6 +114,8 @@ export interface BridgeApi {
   onVaultEvent(listener: (event: VaultEventDto) => void): () => void;
   search(query: string): Promise<RpcResult<readonly SearchHitDto[]>>;
   rebuildIndex(): Promise<RpcResult<IndexStatusDto>>;
+  loadWorkspace(): Promise<RpcResult<WorkspaceStateDto>>;
+  saveWorkspace(state: WorkspaceStateDto): Promise<RpcResult<true>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

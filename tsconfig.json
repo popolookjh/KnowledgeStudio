@@ -11,6 +11,7 @@
     { "path": "packages/templates" },
     { "path": "packages/attachments" },
     { "path": "packages/commands" },
+    { "path": "packages/settings" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" }

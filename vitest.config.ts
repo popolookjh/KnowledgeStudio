@@ -19,6 +19,7 @@ export default defineConfig({
       '@knowledge-studio/templates': path.join(repoRoot, 'packages/templates/src/index.ts'),
       '@knowledge-studio/attachments': path.join(repoRoot, 'packages/attachments/src/index.ts'),
       '@knowledge-studio/commands': path.join(repoRoot, 'packages/commands/src/index.ts'),
+      '@knowledge-studio/settings': path.join(repoRoot, 'packages/settings/src/index.ts'),
     },
   },
   test: {
