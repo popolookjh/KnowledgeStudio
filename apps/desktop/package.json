@@ -22,10 +22,12 @@
     "@knowledge-studio/shared": "workspace:*",
     "@knowledge-studio/vault": "workspace:*",
     "codemirror": "^6.0.2",
+    "cytoscape": "^3.34.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@types/cytoscape": "^3.31.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "^6.1.1",

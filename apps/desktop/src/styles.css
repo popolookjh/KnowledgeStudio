@@ -782,3 +782,43 @@ button {
   color: var(--text-secondary);
   user-select: none;
 }
+
+/* Graph overlay */
+
+.graph-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+}
+
+.graph-overlay__panel {
+  width: min(900px, 92vw);
+  height: min(640px, 84vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.graph-overlay__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.graph-overlay__canvas {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-app);
+}

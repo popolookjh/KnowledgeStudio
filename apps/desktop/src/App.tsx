@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { EditorPane } from './components/EditorPane';
 import { Explorer } from './components/Explorer';
+import { GraphView } from './components/GraphView';
 import { PreviewPane } from './components/PreviewPane';
 import { RightSidebar } from './components/RightSidebar';
 import { SearchOverlay } from './components/SearchOverlay';
@@ -22,7 +23,7 @@ import { store, useAppState } from './state/store';
  * └──────────────────────────────────────────────────────┘
  */
 export default function App(): React.JSX.Element {
-  const { sessionRoot, mode, activePath, conflictPath } = useAppState();
+  const { sessionRoot, mode, activePath, conflictPath, graphOpen } = useAppState();
 
   useEffect(() => {
     void store.bootstrap();
@@ -58,6 +59,14 @@ export default function App(): React.JSX.Element {
                 onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', ctrlKey: true }))}
               >
                 Search
+              </button>
+              <button
+                type="button"
+                className="btn btn--small"
+                title="Open the knowledge graph"
+                onClick={() => store.openGraph()}
+              >
+                Graph
               </button>
               <button
                 type="button"
@@ -140,6 +149,7 @@ export default function App(): React.JSX.Element {
       )}
       <StatusBar />
       <SearchOverlay />
+      {graphOpen && <GraphView />}
     </div>
   );
 }

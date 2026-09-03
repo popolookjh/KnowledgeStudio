@@ -42,6 +42,7 @@ export interface AppState {
   /** Path of the tab whose on-disk file changed under an unsaved buffer. */
   readonly conflictPath: string | null;
   readonly bootstrapped: boolean;
+  readonly graphOpen: boolean;
 }
 
 const AUTOSAVE_DELAY_MS = 800;
@@ -62,6 +63,7 @@ class Store {
     status: null,
     conflictPath: null,
     bootstrapped: false,
+    graphOpen: false,
   };
 
   private readonly listeners = new Set<() => void>();
@@ -428,6 +430,14 @@ class Store {
     }
     this.updateContent(vaultPath, updated.value);
     await this.saveNote(vaultPath);
+  }
+
+  openGraph(): void {
+    this.set({ graphOpen: true });
+  }
+
+  closeGraph(): void {
+    this.set({ graphOpen: false });
   }
 
   /** Full rebuild of the FTS5 index from Markdown (recovery path). */

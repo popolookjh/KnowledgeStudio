@@ -167,6 +167,11 @@ class LinkIndexService {
   wikiTokensOf(vaultPath: string): readonly WikiLinkToken[] {
     return this.index.outgoingOf(vaultPath).wiki;
   }
+
+  /** All indexed note paths (graph/visualization inputs). */
+  allPaths(): readonly string[] {
+    return this.paths;
+  }
 }
 
 export const linkIndex = new LinkIndexService();
