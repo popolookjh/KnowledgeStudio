@@ -1,0 +1,11 @@
+{
+  "name": "@knowledge-studio/canvas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Knowledge Studio's original human-readable canvas JSON format.",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" },
+  "dependencies": { "zod": "^4.1.0" }
+}
