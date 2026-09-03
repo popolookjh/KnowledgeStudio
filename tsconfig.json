@@ -18,6 +18,7 @@
     { "path": "packages/plugin-sdk" },
     { "path": "packages/mcp" },
     { "path": "packages/ai-bridge" },
+    { "path": "packages/semantic-search" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" }

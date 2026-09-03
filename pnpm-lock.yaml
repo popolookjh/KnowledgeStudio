@@ -210,6 +210,12 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  packages/semantic-search:
+    dependencies:
+      '@knowledge-studio/ai-bridge':
+        specifier: workspace:*
+        version: link:../ai-bridge
+
   packages/settings:
     dependencies:
       zod:
