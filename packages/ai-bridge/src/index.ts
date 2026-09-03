@@ -51,6 +51,7 @@ export class EchoAIProvider implements AIProviderProtocol {
   stream(request: AIRequest): AsyncIterable<AIStreamDelta> {
     const last = [...request.messages].reverse().find((message) => message.role === 'user');
     return (async function* generate(): AsyncIterable<AIStreamDelta> {
+      await Promise.resolve();
       yield { content: last?.content ?? '', done: false };
       yield { content: '', done: true };
     })();
