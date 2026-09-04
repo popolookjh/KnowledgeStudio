@@ -78,6 +78,13 @@ describe('walkVault', () => {
     expect(filterAttachments(result.value).length).toBe(2);
   });
 
+  it('never surfaces atomic vault temporary files', async () => {
+    writeFileSync(path.join(root, 'notes', '.alpha.md.ks-tmp-deadbeef'), 'partial');
+    const result = await walkVault(root);
+    if (!result.ok) throw new Error('walk failed');
+    expect(result.value.map((entry) => entry.path)).not.toContain('notes/.alpha.md.ks-tmp-deadbeef');
+  });
+
   it('skips symlinks instead of traversing them', async () => {
     const outside = mkdtempSync(path.join(tmpdir(), 'ks-walk-out-'));
     mkdirSync(path.join(outside, 'secret-sub'));

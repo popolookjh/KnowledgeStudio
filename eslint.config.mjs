@@ -12,6 +12,7 @@ export default tseslint.config(
       '**/dist-electron/**',
       '**/dist-tsc/**',
       '**/coverage/**',
+      'tests/e2e/.tsbuild/**',
       // Root-level config files have no owning tsconfig project; Node
       // syntax-checks them on load, so untyped linting suffices.
       'eslint.config.mjs',
@@ -26,7 +27,7 @@ export default tseslint.config(
         projectService: {
           // Root-level config files have no owning tsconfig project; linting
           // them through the default project is safe (no project references).
-          allowDefaultProject: ['*.mjs', 'vitest.config.ts', 'scripts/*.mjs'],
+          allowDefaultProject: ['*.mjs', 'vitest.config.ts', 'playwright.electron.config.ts', 'scripts/*.mjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },

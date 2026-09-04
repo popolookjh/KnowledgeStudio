@@ -27,6 +27,8 @@ corepack pnpm test
 | `corepack pnpm dev` | Run the desktop app with Vite HMR |
 | `corepack pnpm build` | Build all packages (renderer, Electron main/preload) |
 | `corepack pnpm test` | Run the full Vitest suite once |
+| `corepack pnpm test:e2e` | Build then run deterministic Electron/Playwright E2E fixtures |
+| `corepack pnpm test:e2e:headed` | Run the Electron E2E suite visibly for debugging |
 | `corepack pnpm test:watch` | Watch mode |
 | `corepack pnpm lint` / `format:check` | Lint / formatting checks |
 | `corepack pnpm typecheck` | `tsc -b` across all project references |

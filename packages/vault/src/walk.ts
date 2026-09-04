@@ -38,6 +38,12 @@ export async function walkVault(root: string): Promise<Result<readonly VaultEntr
       if (relativeDir === '' && IGNORED_DIRECTORY_NAMES.includes(dirent.name)) {
         continue;
       }
+      // Atomic vault writes use a same-directory `.<name>.ks-tmp-<nonce>`
+      // file. It is never user content and may be observable during a watch
+      // refresh, so do not surface it in the explorer or indexes.
+      if (dirent.isFile() && dirent.name.includes('.ks-tmp-')) {
+        continue;
+      }
       const vaultPath = relativeDir === '' ? dirent.name : `${relativeDir}/${dirent.name}`;
       const absolute = path.join(absoluteDir, dirent.name);
       if (dirent.isDirectory()) {

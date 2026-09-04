@@ -11,6 +11,7 @@ Run from the repository root:
 corepack pnpm lint
 corepack pnpm typecheck
 corepack pnpm test
+corepack pnpm test:e2e
 corepack pnpm build
 node scripts/search-benchmark.mjs 1000
 ```

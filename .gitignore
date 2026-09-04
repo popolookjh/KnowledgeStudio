@@ -11,6 +11,9 @@ build/
 
 # Test / coverage
 coverage/
+tests/e2e/.tmp/
+tests/e2e/.artifacts/
+tests/e2e/.tsbuild/
 
 # Vite
 .vite/

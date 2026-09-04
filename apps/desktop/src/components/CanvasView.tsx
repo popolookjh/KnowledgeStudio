@@ -39,6 +39,7 @@ export function CanvasView(): React.JSX.Element {
   const boardRef = useRef<HTMLDivElement | null>(null);
   const documentRef = useRef(document);
   const persistRef = useRef<(next: CanvasDocument) => void>(() => undefined);
+  const writeChainRef = useRef<Promise<void>>(Promise.resolve());
   documentRef.current = document;
   const nodeMap = useMemo(() => new Map(document.nodes.map((node) => [node.id, node])), [document.nodes]);
 
@@ -79,8 +80,13 @@ export function CanvasView(): React.JSX.Element {
   const persist = async (next: CanvasDocument): Promise<void> => {
     setDocument(next);
     if (!bridge) return;
-    const result = await bridge.writeCanvas(canvasPath, serializeCanvas(next));
-    setStatus(result.ok ? 'Saved' : `Save failed: ${result.error.message}`);
+    writeChainRef.current = writeChainRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        const result = await bridge.writeCanvas(canvasPath, serializeCanvas(next));
+        setStatus(result.ok ? 'Saved' : `Save failed: ${result.error.message}`);
+      });
+    await writeChainRef.current;
   };
   persistRef.current = (next) => { void persist(next); };
 
@@ -180,7 +186,6 @@ export function CanvasView(): React.JSX.Element {
   };
 
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>): void => {
-    event.preventDefault();
     const point = worldPoint(event.clientX, event.clientY);
     if (!point) return;
     const current = documentRef.current;

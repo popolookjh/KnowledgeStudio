@@ -55,7 +55,7 @@ export function GitPanel(): React.JSX.Element {
               {status.entries.map((entry) => (
                 <li key={entry.path}>
                   <label>
-                    <input type="checkbox" checked={selected.has(entry.path)} onChange={() => setSelected((current) => { const next = new Set(current); if (next.has(entry.path)) next.delete(entry.path); else next.add(entry.path); return next; })} />
+                    <input type="checkbox" aria-label={`Select ${entry.path}`} checked={selected.has(entry.path)} onChange={() => setSelected((current) => { const next = new Set(current); if (next.has(entry.path)) next.delete(entry.path); else next.add(entry.path); return next; })} />
                     <span>{entry.index}{entry.worktree} {entry.path}</span>
                   </label>
                 </li>
