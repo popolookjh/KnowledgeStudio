@@ -9,6 +9,7 @@ import {
   type Vault,
   type VaultEntry,
 } from '@knowledge-studio/vault';
+import { copyAttachment, findMissingAttachments, findOrphanAttachments } from '@knowledge-studio/attachments';
 import { SearchIndex } from '@knowledge-studio/search';
 import { RevisionStore } from '@knowledge-studio/history';
 import { GitClient } from '@knowledge-studio/git';
@@ -20,6 +21,8 @@ import { IPC } from '../shared/ipc-contract.js';
 import type {
   AiConfigStatusDto,
   AiProviderConfigDto,
+  AttachmentDto,
+  AttachmentIssueDto,
   PluginDto,
   McpStatusDto,
   GitDiffDto,
@@ -160,6 +163,33 @@ class VaultHost {
     } catch {
       return rpc({ selectedVault: null, openTabs: [], activePath: null, editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 });
     }
+  }
+
+  async pickAttachment(notePath: string): Promise<RpcResult<AttachmentDto> | null> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    const picked = await dialog.showOpenDialog({ title: 'Add attachment', properties: ['openFile', 'dontAddToRecent'] });
+    if (picked.canceled || picked.filePaths.length === 0) return null;
+    const copied = await copyAttachment({ vaultRoot: vault.root, sourcePath: picked.filePaths[0]!, notePath });
+    return copied.ok ? rpc(copied.value) : { ok: false, error: serializeFailure(copied.error) };
+  }
+
+  async attachmentIssues(notePath: string): Promise<RpcResult<readonly AttachmentIssueDto[]>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    const current = await vault.readFile(notePath);
+    if (!current.ok) return { ok: false, error: serializeFailure(current.error) };
+    const entries = await walkVault(vault.root);
+    if (!entries.ok) return { ok: false, error: serializeFailure(entries.error) };
+    const notes: Array<{ path: string; content: string }> = [];
+    for (const entry of entries.value) {
+      if (entry.kind !== 'note') continue;
+      const read = await vault.readFile(entry.path);
+      if (read.ok) notes.push({ path: entry.path, content: read.value.content });
+    }
+    const missing = await findMissingAttachments(vault.root, notePath, current.value.content);
+    const orphans = await findOrphanAttachments(vault.root, notes);
+    return rpc([...missing, ...orphans]);
   }
 
   async aiConfigList(): Promise<RpcResult<AiConfigStatusDto>> {
@@ -546,5 +576,7 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.pluginApproveHighRisk, (_event, pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean) => host.approvePluginHighRisk(pluginId, permission, approved));
   ipcMain.handle(IPC.aiConfigList, () => host.aiConfigList());
   ipcMain.handle(IPC.aiConfigUpsert, (_event, config: Omit<AiProviderConfigDto, 'hasSecret'>) => host.aiConfigUpsert(config));
+  ipcMain.handle(IPC.attachmentPick, (_event, notePath: string) => host.pickAttachment(notePath));
+  ipcMain.handle(IPC.attachmentIssues, (_event, notePath: string) => host.attachmentIssues(notePath));
   return host;
 }

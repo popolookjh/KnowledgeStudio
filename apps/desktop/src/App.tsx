@@ -101,6 +101,15 @@ export default function App(): React.JSX.Element {
               <button
                 type="button"
                 className="btn btn--small"
+                title="Add an attachment to the active note"
+                onClick={() => { if (activePath) void store.addAttachment(activePath); }}
+                disabled={!activePath}
+              >
+                Add attachment
+              </button>
+              <button
+                type="button"
+                className="btn btn--small"
                 onClick={() => void store.createNoteInFolder('')}
               >
                 New note

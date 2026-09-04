@@ -65,6 +65,9 @@ importers:
       '@knowledge-studio/ai-config':
         specifier: workspace:*
         version: link:../../packages/ai-config
+      '@knowledge-studio/attachments':
+        specifier: workspace:*
+        version: link:../../packages/attachments
       '@knowledge-studio/canvas':
         specifier: workspace:*
         version: link:../../packages/canvas

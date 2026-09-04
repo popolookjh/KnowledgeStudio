@@ -41,6 +41,8 @@ export const IPC = {
   pluginApproveHighRisk: 'plugin:approve-high-risk',
   aiConfigList: 'ai-config:list',
   aiConfigUpsert: 'ai-config:upsert',
+  attachmentPick: 'attachment:pick',
+  attachmentIssues: 'attachment:issues',
 } as const;
 
 export interface RpcError {
@@ -71,6 +73,18 @@ export interface ReadNoteResult {
   readonly content: string;
   readonly mtimeMs: number;
   readonly size: number;
+}
+
+export interface AttachmentDto {
+  readonly vaultPath: string;
+  readonly markdownLink: string;
+  readonly bytes: number;
+  readonly sha256: string;
+}
+
+export interface AttachmentIssueDto {
+  readonly vaultPath: string;
+  readonly reason: 'missing' | 'orphan';
 }
 
 export interface WriteNoteResult {
@@ -212,6 +226,8 @@ export interface BridgeApi {
   approvePluginHighRisk(pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean): Promise<RpcResult<readonly PluginDto[]>>;
   aiConfigList(): Promise<RpcResult<AiConfigStatusDto>>;
   aiConfigUpsert(config: Omit<AiProviderConfigDto, 'hasSecret'>): Promise<RpcResult<AiProviderConfigDto>>;
+  pickAttachment(notePath: string): Promise<RpcResult<AttachmentDto> | null>;
+  attachmentIssues(notePath: string): Promise<RpcResult<readonly AttachmentIssueDto[]>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

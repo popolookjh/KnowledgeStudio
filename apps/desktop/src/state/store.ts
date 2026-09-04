@@ -389,11 +389,25 @@ class Store {
     return candidate;
   }
 
-  async createNoteInFolder(folder: string): Promise<void> {
+  async addAttachment(vaultPath: string): Promise<void> {
     const api = this.state.bridge;
-    if (!api || !this.state.sessionRoot) {
+    const tab = this.state.tabs.find((entry) => entry.path === vaultPath);
+    if (!api || !tab) return;
+    const result = await api.pickAttachment(vaultPath);
+    if (result === null) return;
+    if (!result.ok) {
+      this.setStatus(`Attachment failed: ${result.error.message}`, 'error');
       return;
     }
+    const separator = tab.content.endsWith('\n') ? '' : '\n';
+    this.updateContent(vaultPath, `${tab.content}${separator}\n${result.value.markdownLink}\n`);
+    await this.saveNote(vaultPath);
+    this.setStatus(`Attached ${result.value.vaultPath}`);
+  }
+
+  async createNoteInFolder(folder: string): Promise<void> {
+    const api = this.state.bridge;
+    if (!api || !this.state.sessionRoot) return;
     const path = this.suggestNotePath(folder);
     const created = await api.createNote(path, '# Untitled\n\n');
     if (!created.ok) {

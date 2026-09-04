@@ -16,6 +16,7 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.38.1",
     "@knowledge-studio/ai-config": "workspace:*",
+    "@knowledge-studio/attachments": "workspace:*",
     "@knowledge-studio/canvas": "workspace:*",
     "@knowledge-studio/git": "workspace:*",
     "@knowledge-studio/history": "workspace:*",

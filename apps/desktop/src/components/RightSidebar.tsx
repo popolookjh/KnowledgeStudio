@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { extractOutline, readFrontmatter } from '@knowledge-studio/markdown';
 import { useAppState } from '../state/store';
 import { AiSettingsPanel } from './AiSettingsPanel';
+import { AttachmentsPanel } from './AttachmentsPanel';
 import { GitPanel } from './GitPanel';
 import { HistoryPanel } from './HistoryPanel';
 import { LinksPanel } from './LinksPanel';
@@ -53,6 +54,7 @@ export function RightSidebar(): React.JSX.Element {
       <McpPanel />
       <AiSettingsPanel />
       <TagBrowser />
+      <AttachmentsPanel />
     </aside>
   );
 }
