@@ -68,6 +68,12 @@ importers:
       '@knowledge-studio/markdown':
         specifier: workspace:*
         version: link:../../packages/markdown
+      '@knowledge-studio/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
+      '@knowledge-studio/mcp-host':
+        specifier: workspace:*
+        version: link:../../packages/mcp-host
       '@knowledge-studio/metadata':
         specifier: workspace:*
         version: link:../../packages/metadata
@@ -190,6 +196,12 @@ importers:
         version: 4.0.4
 
   packages/mcp: {}
+
+  packages/mcp-host:
+    dependencies:
+      '@knowledge-studio/mcp':
+        specifier: workspace:*
+        version: link:../mcp
 
   packages/metadata:
     dependencies:

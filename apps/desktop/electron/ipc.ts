@@ -12,8 +12,11 @@ import {
 import { SearchIndex } from '@knowledge-studio/search';
 import { RevisionStore } from '@knowledge-studio/history';
 import { GitClient } from '@knowledge-studio/git';
+import { ActiveVaultMcpHost } from '@knowledge-studio/mcp-host';
+import { createVaultMcpDataSource } from './mcp-vault-source.js';
 import { IPC } from '../shared/ipc-contract.js';
 import type {
+  McpStatusDto,
   GitDiffDto,
   GitStatusDto,
   EntryDto,
@@ -64,6 +67,7 @@ class VaultHost {
   private renderer: BrowserWindow | null = null;
   private searchIndex = new SearchIndex();
   private history: RevisionStore | null = null;
+  private readonly mcpHost = new ActiveVaultMcpHost();
 
   bindWindow(win: BrowserWindow): void {
     this.renderer = win;
@@ -97,9 +101,10 @@ class VaultHost {
   }
 
   private async adoptVault(vault: Vault): Promise<VaultSessionInfo> {
-    this.closeInternal();
+    await this.closeInternal();
     this.vault = vault;
     this.history = new RevisionStore(path.join(vault.appDir, 'history'));
+    await this.mcpHost.attachVault(vault.root, createVaultMcpDataSource(vault));
     await this.rememberVault(vault.root);
     await this.startWatcher();
     await this.rebuildSearchIndex();
@@ -145,6 +150,27 @@ class VaultHost {
     } catch {
       return rpc({ selectedVault: null, openTabs: [], activePath: null, editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 });
     }
+  }
+
+  mcpStatus(): RpcResult<McpStatusDto> {
+    return rpc({ ...this.mcpHost.status, readOnly: true });
+  }
+
+  async mcpStart(port: number | undefined): Promise<RpcResult<McpStatusDto>> {
+    if (port !== undefined && (!Number.isInteger(port) || port < 0 || port > 65535)) {
+      return { ok: false, error: { code: 'MCP_PORT_INVALID', message: 'Port must be an integer from 0 through 65535' } };
+    }
+    try {
+      const status = await this.mcpHost.start(port ?? 0);
+      return rpc({ ...status, readOnly: true });
+    } catch (error) {
+      return { ok: false, error: { code: 'MCP_START_FAILED', message: error instanceof Error ? error.message : String(error) } };
+    }
+  }
+
+  async mcpStop(): Promise<RpcResult<McpStatusDto>> {
+    await this.mcpHost.stop();
+    return rpc({ ...this.mcpHost.status, readOnly: true });
   }
 
   async gitStatus(): Promise<RpcResult<GitStatusDto>> {
@@ -226,7 +252,8 @@ class VaultHost {
     return rpc(await this.adoptVault(opened.value));
   }
 
-  private closeInternal(): void {
+  private async closeInternal(): Promise<void> {
+    await this.mcpHost.detachVault();
     this.watcherDisposer?.close();
     this.watcherDisposer = null;
     this.vault?.close();
@@ -235,8 +262,8 @@ class VaultHost {
     this.searchIndex.close();
   }
 
-  close(): void {
-    this.closeInternal();
+  async close(): Promise<void> {
+    await this.closeInternal();
   }
 
   private requireVault(): Vault | RpcError {
@@ -453,5 +480,8 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.gitStatus, () => host.gitStatus());
   ipcMain.handle(IPC.gitDiff, (_event, paths: readonly string[]) => host.gitDiff(paths));
   ipcMain.handle(IPC.gitCommitSelected, (_event, paths: readonly string[], message: string) => host.gitCommitSelected(paths, message));
+  ipcMain.handle(IPC.mcpStatus, () => host.mcpStatus());
+  ipcMain.handle(IPC.mcpStart, (_event, port?: number) => host.mcpStart(port));
+  ipcMain.handle(IPC.mcpStop, () => host.mcpStop());
   return host;
 }

@@ -33,6 +33,9 @@ export const IPC = {
   gitStatus: 'git:status',
   gitDiff: 'git:diff',
   gitCommitSelected: 'git:commit-selected',
+  mcpStatus: 'mcp:status',
+  mcpStart: 'mcp:start',
+  mcpStop: 'mcp:stop',
 } as const;
 
 export interface RpcError {
@@ -91,6 +94,15 @@ export interface RevisionDto {
   readonly createdAt: string;
   readonly bytes: number;
   readonly sha256: string;
+}
+
+export interface McpStatusDto {
+  readonly running: boolean;
+  readonly endpoint: string | null;
+  readonly vaultId: string | null;
+  readonly tools: readonly string[];
+  readonly lastError: string | null;
+  readonly readOnly: true;
 }
 
 export interface GitStatusEntryDto {
@@ -156,6 +168,9 @@ export interface BridgeApi {
   gitStatus(): Promise<RpcResult<GitStatusDto>>;
   gitDiff(paths: readonly string[]): Promise<RpcResult<GitDiffDto>>;
   gitCommitSelected(paths: readonly string[], message: string): Promise<RpcResult<{ hash: string }>>;
+  mcpStatus(): Promise<RpcResult<McpStatusDto>>;
+  mcpStart(port?: number): Promise<RpcResult<McpStatusDto>>;
+  mcpStop(): Promise<RpcResult<McpStatusDto>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

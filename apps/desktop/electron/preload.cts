@@ -31,6 +31,9 @@ const IPC = {
   gitStatus: 'git:status',
   gitDiff: 'git:diff',
   gitCommitSelected: 'git:commit-selected',
+  mcpStatus: 'mcp:status',
+  mcpStart: 'mcp:start',
+  mcpStop: 'mcp:stop',
 } as const;
 
 /**
@@ -64,6 +67,9 @@ const api: BridgeApi = {
   gitStatus: () => ipcRenderer.invoke(IPC.gitStatus),
   gitDiff: (paths) => ipcRenderer.invoke(IPC.gitDiff, paths),
   gitCommitSelected: (paths, message) => ipcRenderer.invoke(IPC.gitCommitSelected, paths, message),
+  mcpStatus: () => ipcRenderer.invoke(IPC.mcpStatus),
+  mcpStart: (port) => ipcRenderer.invoke(IPC.mcpStart, port),
+  mcpStop: () => ipcRenderer.invoke(IPC.mcpStop),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

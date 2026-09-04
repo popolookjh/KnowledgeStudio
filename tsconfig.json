@@ -18,6 +18,7 @@
     { "path": "packages/plugin-sdk" },
     { "path": "packages/plugin-host" },
     { "path": "packages/mcp" },
+    { "path": "packages/mcp-host" },
     { "path": "packages/ai-bridge" },
     { "path": "packages/semantic-search" },
     { "path": "packages/security" },

@@ -34,6 +34,10 @@ describe('ReadOnlyMcpServer', () => {
     server = new ReadOnlyMcpServer(source, { port: 0 }); await server.start();
     const get = await fetch(`${server.endpoint}`); expect(get.status).toBe(405);
   });
+  it('rejects non-loopback runtime options', async () => {
+    server = new ReadOnlyMcpServer(source, { host: '0.0.0.0' as never, port: 0 });
+    await expect(server.start()).rejects.toThrow(/loopback/);
+  });
   it('stops cleanly and prevents duplicate start', async () => {
     server = new ReadOnlyMcpServer(source, { port: 0 }); await server.start(); await expect(server.start()).rejects.toThrow(/already/); await server.stop(); expect(server.listening).toBe(false);
   });

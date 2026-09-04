@@ -1,0 +1,11 @@
+{
+  "name": "@knowledge-studio/mcp-host",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Explicit active-vault lifecycle service for the read-only loopback MCP server.",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" },
+  "dependencies": { "@knowledge-studio/mcp": "workspace:*" }
+}

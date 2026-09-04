@@ -42,6 +42,9 @@ export class ReadOnlyMcpServer {
   async start(): Promise<{ host: string; port: number }> {
     if (this.server) throw new Error('MCP server is already running');
     const host = this.options.host ?? '127.0.0.1';
+    if (host !== '127.0.0.1' && host !== '::1') {
+      throw new Error('MCP server may bind only to loopback addresses');
+    }
     const port = this.options.port ?? 0;
     this.server = http.createServer((request, response) => {
       void this.handle(request, response);

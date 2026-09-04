@@ -20,6 +20,8 @@
     "@knowledge-studio/history": "workspace:*",
     "@knowledge-studio/links": "workspace:*",
     "@knowledge-studio/markdown": "workspace:*",
+    "@knowledge-studio/mcp": "workspace:*",
+    "@knowledge-studio/mcp-host": "workspace:*",
     "@knowledge-studio/metadata": "workspace:*",
     "@knowledge-studio/search": "workspace:*",
     "@knowledge-studio/shared": "workspace:*",
