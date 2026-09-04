@@ -906,3 +906,12 @@ button {
 /* Local read-only MCP status panel */
 .mcp-panel p { margin: 4px 0; color: var(--text-secondary); font-size: 11px; overflow-wrap: anywhere; }
 .mcp-panel__notice { color: var(--warning) !important; }
+
+/* Provider-neutral AI settings */
+.ai-panel__entry { margin-top: 8px; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 4px; font-size: 11px; }
+.ai-panel__entry p { margin: 4px 0; color: var(--text-secondary); overflow-wrap: anywhere; }
+.ai-panel__form { margin: 8px 0; font-size: 12px; }
+.ai-panel__form input:not([type="checkbox"]), .ai-panel__form select { width: 100%; box-sizing: border-box; margin: 4px 0; padding: 4px; border: 1px solid var(--border-subtle); border-radius: 3px; background: var(--bg-app); color: var(--text-primary); font: inherit; }
+.ai-panel__form label { display: block; margin: 4px 0; }
+.ai-panel__disclosure { color: var(--warning); }
+.ai-panel__notice { color: var(--warning); font-size: 12px; }

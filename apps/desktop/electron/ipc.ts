@@ -1,4 +1,4 @@
-import { app, dialog, ipcMain } from 'electron';
+import { app, dialog, ipcMain, safeStorage } from 'electron';
 import type { BrowserWindow } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -14,9 +14,12 @@ import { RevisionStore } from '@knowledge-studio/history';
 import { GitClient } from '@knowledge-studio/git';
 import { ActiveVaultMcpHost } from '@knowledge-studio/mcp-host';
 import { LocalPluginHost } from '@knowledge-studio/plugin-host';
+import { ElectronAiConfigHost } from './ai-config-host.js';
 import { createVaultMcpDataSource } from './mcp-vault-source.js';
 import { IPC } from '../shared/ipc-contract.js';
 import type {
+  AiConfigStatusDto,
+  AiProviderConfigDto,
   PluginDto,
   McpStatusDto,
   GitDiffDto,
@@ -74,6 +77,7 @@ class VaultHost {
     path.join(app.getPath('userData'), 'plugins'),
     path.join(app.getPath('userData'), 'plugin-policy'),
   );
+  private readonly aiConfigHost = new ElectronAiConfigHost(app.getPath('userData'), safeStorage);
 
   bindWindow(win: BrowserWindow): void {
     this.renderer = win;
@@ -155,6 +159,25 @@ class VaultHost {
       return rpc(parsed as WorkspaceStateDto);
     } catch {
       return rpc({ selectedVault: null, openTabs: [], activePath: null, editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 });
+    }
+  }
+
+  async aiConfigList(): Promise<RpcResult<AiConfigStatusDto>> {
+    try {
+      return rpc({
+        providers: await this.aiConfigHost.list(),
+        secureStorageAvailable: this.aiConfigHost.secureStorageAvailable,
+      });
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
+  }
+
+  async aiConfigUpsert(config: Omit<AiProviderConfigDto, 'hasSecret'>): Promise<RpcResult<AiProviderConfigDto>> {
+    try {
+      return rpc(await this.aiConfigHost.upsert(config));
+    } catch (error) {
+      return { ok: false, error: { code: 'AI_CONFIG_INVALID', message: error instanceof Error ? error.message : String(error) } };
     }
   }
 
@@ -521,5 +544,7 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.pluginList, () => host.listPlugins());
   ipcMain.handle(IPC.pluginSetEnabled, (_event, pluginId: string, enabled: boolean) => host.setPluginEnabled(pluginId, enabled));
   ipcMain.handle(IPC.pluginApproveHighRisk, (_event, pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean) => host.approvePluginHighRisk(pluginId, permission, approved));
+  ipcMain.handle(IPC.aiConfigList, () => host.aiConfigList());
+  ipcMain.handle(IPC.aiConfigUpsert, (_event, config: Omit<AiProviderConfigDto, 'hasSecret'>) => host.aiConfigUpsert(config));
   return host;
 }

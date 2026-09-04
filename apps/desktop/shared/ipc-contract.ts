@@ -39,6 +39,8 @@ export const IPC = {
   pluginList: 'plugin:list',
   pluginSetEnabled: 'plugin:set-enabled',
   pluginApproveHighRisk: 'plugin:approve-high-risk',
+  aiConfigList: 'ai-config:list',
+  aiConfigUpsert: 'ai-config:upsert',
 } as const;
 
 export interface RpcError {
@@ -97,6 +99,24 @@ export interface RevisionDto {
   readonly createdAt: string;
   readonly bytes: number;
   readonly sha256: string;
+}
+
+export interface AiProviderConfigDto {
+  readonly id: string;
+  readonly displayName: string;
+  readonly kind: 'local' | 'external';
+  readonly endpoint?: string;
+  readonly model?: string;
+  readonly enabled: boolean;
+  readonly semanticSearchEnabled: boolean;
+  readonly sendsVaultContent: boolean;
+  readonly disclosureConfirmed: boolean;
+  readonly hasSecret: boolean;
+}
+
+export interface AiConfigStatusDto {
+  readonly providers: readonly AiProviderConfigDto[];
+  readonly secureStorageAvailable: boolean;
 }
 
 export interface PluginDto {
@@ -190,6 +210,8 @@ export interface BridgeApi {
   listPlugins(): Promise<RpcResult<readonly PluginDto[]>>;
   setPluginEnabled(pluginId: string, enabled: boolean): Promise<RpcResult<readonly PluginDto[]>>;
   approvePluginHighRisk(pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean): Promise<RpcResult<readonly PluginDto[]>>;
+  aiConfigList(): Promise<RpcResult<AiConfigStatusDto>>;
+  aiConfigUpsert(config: Omit<AiProviderConfigDto, 'hasSecret'>): Promise<RpcResult<AiProviderConfigDto>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */
