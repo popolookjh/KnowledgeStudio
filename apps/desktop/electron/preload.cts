@@ -34,6 +34,9 @@ const IPC = {
   mcpStatus: 'mcp:status',
   mcpStart: 'mcp:start',
   mcpStop: 'mcp:stop',
+  pluginList: 'plugin:list',
+  pluginSetEnabled: 'plugin:set-enabled',
+  pluginApproveHighRisk: 'plugin:approve-high-risk',
 } as const;
 
 /**
@@ -70,6 +73,9 @@ const api: BridgeApi = {
   mcpStatus: () => ipcRenderer.invoke(IPC.mcpStatus),
   mcpStart: (port) => ipcRenderer.invoke(IPC.mcpStart, port),
   mcpStop: () => ipcRenderer.invoke(IPC.mcpStop),
+  listPlugins: () => ipcRenderer.invoke(IPC.pluginList),
+  setPluginEnabled: (pluginId, enabled) => ipcRenderer.invoke(IPC.pluginSetEnabled, pluginId, enabled),
+  approvePluginHighRisk: (pluginId, permission, approved) => ipcRenderer.invoke(IPC.pluginApproveHighRisk, pluginId, permission, approved),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

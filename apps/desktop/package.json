@@ -24,6 +24,7 @@
     "@knowledge-studio/mcp": "workspace:*",
     "@knowledge-studio/mcp-host": "workspace:*",
     "@knowledge-studio/metadata": "workspace:*",
+    "@knowledge-studio/plugin-host": "workspace:*",
     "@knowledge-studio/search": "workspace:*",
     "@knowledge-studio/shared": "workspace:*",
     "@knowledge-studio/tags": "workspace:*",

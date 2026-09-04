@@ -13,9 +13,11 @@ import { SearchIndex } from '@knowledge-studio/search';
 import { RevisionStore } from '@knowledge-studio/history';
 import { GitClient } from '@knowledge-studio/git';
 import { ActiveVaultMcpHost } from '@knowledge-studio/mcp-host';
+import { LocalPluginHost } from '@knowledge-studio/plugin-host';
 import { createVaultMcpDataSource } from './mcp-vault-source.js';
 import { IPC } from '../shared/ipc-contract.js';
 import type {
+  PluginDto,
   McpStatusDto,
   GitDiffDto,
   GitStatusDto,
@@ -68,6 +70,10 @@ class VaultHost {
   private searchIndex = new SearchIndex();
   private history: RevisionStore | null = null;
   private readonly mcpHost = new ActiveVaultMcpHost();
+  private readonly pluginHost = new LocalPluginHost(
+    path.join(app.getPath('userData'), 'plugins'),
+    path.join(app.getPath('userData'), 'plugin-policy'),
+  );
 
   bindWindow(win: BrowserWindow): void {
     this.renderer = win;
@@ -150,6 +156,35 @@ class VaultHost {
     } catch {
       return rpc({ selectedVault: null, openTabs: [], activePath: null, editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 });
     }
+  }
+
+  async listPlugins(): Promise<RpcResult<readonly PluginDto[]>> {
+    try {
+      return rpc((await this.pluginHost.discover()).map((entry) => ({
+        id: entry.manifest.id,
+        name: entry.manifest.name,
+        version: entry.manifest.version,
+        description: entry.manifest.description,
+        requestedPermissions: entry.requestedPermissions,
+        trusted: entry.manifest.trusted,
+        enabled: entry.enabled,
+        approvedHighRisk: entry.approvedHighRisk,
+        ...(entry.reason ? { reason: entry.reason } : {}),
+        runtime: entry.runtime,
+      })));
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
+  }
+
+  async setPluginEnabled(pluginId: string, enabled: boolean): Promise<RpcResult<readonly PluginDto[]>> {
+    await this.pluginHost.setEnabled(pluginId, enabled);
+    return this.listPlugins();
+  }
+
+  async approvePluginHighRisk(pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean): Promise<RpcResult<readonly PluginDto[]>> {
+    await this.pluginHost.approveHighRisk(pluginId, permission, approved);
+    return this.listPlugins();
   }
 
   mcpStatus(): RpcResult<McpStatusDto> {
@@ -483,5 +518,8 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.mcpStatus, () => host.mcpStatus());
   ipcMain.handle(IPC.mcpStart, (_event, port?: number) => host.mcpStart(port));
   ipcMain.handle(IPC.mcpStop, () => host.mcpStop());
+  ipcMain.handle(IPC.pluginList, () => host.listPlugins());
+  ipcMain.handle(IPC.pluginSetEnabled, (_event, pluginId: string, enabled: boolean) => host.setPluginEnabled(pluginId, enabled));
+  ipcMain.handle(IPC.pluginApproveHighRisk, (_event, pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean) => host.approvePluginHighRisk(pluginId, permission, approved));
   return host;
 }

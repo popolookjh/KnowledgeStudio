@@ -36,6 +36,9 @@ export const IPC = {
   mcpStatus: 'mcp:status',
   mcpStart: 'mcp:start',
   mcpStop: 'mcp:stop',
+  pluginList: 'plugin:list',
+  pluginSetEnabled: 'plugin:set-enabled',
+  pluginApproveHighRisk: 'plugin:approve-high-risk',
 } as const;
 
 export interface RpcError {
@@ -94,6 +97,19 @@ export interface RevisionDto {
   readonly createdAt: string;
   readonly bytes: number;
   readonly sha256: string;
+}
+
+export interface PluginDto {
+  readonly id: string;
+  readonly name: string;
+  readonly version: string;
+  readonly description: string;
+  readonly requestedPermissions: readonly string[];
+  readonly trusted: boolean;
+  readonly enabled: boolean;
+  readonly approvedHighRisk: readonly string[];
+  readonly reason?: string;
+  readonly runtime: 'deferred';
 }
 
 export interface McpStatusDto {
@@ -171,6 +187,9 @@ export interface BridgeApi {
   mcpStatus(): Promise<RpcResult<McpStatusDto>>;
   mcpStart(port?: number): Promise<RpcResult<McpStatusDto>>;
   mcpStop(): Promise<RpcResult<McpStatusDto>>;
+  listPlugins(): Promise<RpcResult<readonly PluginDto[]>>;
+  setPluginEnabled(pluginId: string, enabled: boolean): Promise<RpcResult<readonly PluginDto[]>>;
+  approvePluginHighRisk(pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean): Promise<RpcResult<readonly PluginDto[]>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

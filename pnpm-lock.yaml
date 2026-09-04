@@ -80,6 +80,9 @@ importers:
       '@knowledge-studio/metadata':
         specifier: workspace:*
         version: link:../../packages/metadata
+      '@knowledge-studio/plugin-host':
+        specifier: workspace:*
+        version: link:../../packages/plugin-host
       '@knowledge-studio/search':
         specifier: workspace:*
         version: link:../../packages/search

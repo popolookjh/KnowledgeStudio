@@ -895,3 +895,10 @@ button {
 .git-panel__diff { max-height: 160px; overflow: auto; padding: 6px; background: var(--bg-app); font-size: 10px; white-space: pre-wrap; }
 .git-panel__message { width: 100%; box-sizing: border-box; margin: 6px 0; padding: 4px; border: 1px solid var(--border-subtle); border-radius: 3px; background: var(--bg-app); color: var(--text-primary); font: inherit; font-size: 12px; }
 .git-panel__notice { color: var(--text-secondary); font-size: 12px; }
+
+/* Local manifest plugin policy panel */
+.plugin-panel__entry { margin-top: 8px; padding: 6px; border: 1px solid var(--border-subtle); border-radius: 4px; font-size: 11px; }
+.plugin-panel__entry p { margin: 4px 0; color: var(--text-secondary); overflow-wrap: anywhere; }
+.plugin-panel__entry label { display: block; margin-top: 4px; }
+.plugin-panel__sensitive { color: var(--warning); }
+.plugin-panel__notice { color: var(--text-secondary); font-size: 12px; }
