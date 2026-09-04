@@ -33,17 +33,24 @@ export const CanvasEdgeSchema = z.object({
   color: z.string().optional(),
 });
 
+const CanvasViewportSchema = z.object({
+  x: z.number().finite(),
+  y: z.number().finite(),
+  zoom: z.number().positive().finite(),
+});
+
 export const CanvasDocumentSchema = z.object({
   format: z.literal('knowledge-studio.canvas'),
   version: z.literal(1),
   title: z.string().default('Untitled canvas'),
-  viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number().positive() }).default({ x: 0, y: 0, zoom: 1 }),
+  viewport: CanvasViewportSchema.default({ x: 0, y: 0, zoom: 1 }),
   nodes: z.array(CanvasNodeSchema).default([]),
   edges: z.array(CanvasEdgeSchema).default([]),
 });
 
 export type CanvasPoint = z.infer<typeof CanvasPointSchema>;
 export type CanvasSize = z.infer<typeof CanvasSizeSchema>;
+export type CanvasViewport = z.infer<typeof CanvasViewportSchema>;
 export type CanvasNode = z.infer<typeof CanvasNodeSchema>;
 export type CanvasEdge = z.infer<typeof CanvasEdgeSchema>;
 export type CanvasDocument = z.infer<typeof CanvasDocumentSchema>;
@@ -59,6 +66,13 @@ export function parseCanvas(raw: unknown): { ok: true; value: CanvasDocument } |
 
 export function serializeCanvas(document: CanvasDocument): string {
   return `${JSON.stringify(CanvasDocumentSchema.parse(document), null, 2)}\n`;
+}
+
+export function updateViewport(
+  document: CanvasDocument,
+  patch: Partial<CanvasViewport>,
+): CanvasDocument {
+  return { ...document, viewport: CanvasViewportSchema.parse({ ...document.viewport, ...patch }) };
 }
 
 export function addNode(document: CanvasDocument, node: CanvasNode): CanvasDocument {

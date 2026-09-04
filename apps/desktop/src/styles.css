@@ -849,3 +849,10 @@ button {
 .canvas-node__header button:hover { color: var(--danger); }
 .canvas-node__body { padding: 12px; color: var(--text-primary); white-space: pre-wrap; overflow: auto; max-height: calc(100% - 30px); }
 .canvas--empty { align-items: center; justify-content: center; color: var(--text-secondary); }
+
+/* Canvas interaction hardening */
+.canvas__board.is-panning { cursor: grabbing; }
+.canvas__board { cursor: grab; }
+.canvas-node.is-selected { outline: 2px solid var(--accent); outline-offset: 2px; z-index: 2; }
+.canvas-node__resize { position: absolute; right: -5px; bottom: -5px; width: 13px; height: 13px; padding: 0; border: 2px solid var(--bg-surface); border-radius: 3px; background: var(--accent); cursor: nwse-resize; }
+.canvas-node__resize:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
