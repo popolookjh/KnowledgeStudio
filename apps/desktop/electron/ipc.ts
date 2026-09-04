@@ -11,8 +11,11 @@ import {
 } from '@knowledge-studio/vault';
 import { SearchIndex } from '@knowledge-studio/search';
 import { RevisionStore } from '@knowledge-studio/history';
+import { GitClient } from '@knowledge-studio/git';
 import { IPC } from '../shared/ipc-contract.js';
 import type {
+  GitDiffDto,
+  GitStatusDto,
   EntryDto,
   InitInfo,
   ReadNoteResult,
@@ -142,6 +145,27 @@ class VaultHost {
     } catch {
       return rpc({ selectedVault: null, openTabs: [], activePath: null, editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 });
     }
+  }
+
+  async gitStatus(): Promise<RpcResult<GitStatusDto>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    const status = await new GitClient({ cwd: vault.root }).status();
+    return rpc(status);
+  }
+
+  async gitDiff(paths: readonly string[]): Promise<RpcResult<GitDiffDto>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    const result = await new GitClient({ cwd: vault.root }).diff(paths);
+    return result.ok ? rpc(result.value) : { ok: false, error: { code: 'GIT_DIFF_FAILED', message: result.error } };
+  }
+
+  async gitCommitSelected(paths: readonly string[], message: string): Promise<RpcResult<{ hash: string }>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    const result = await new GitClient({ cwd: vault.root }).commitSelected(paths, message);
+    return result.ok ? rpc({ hash: result.hash }) : { ok: false, error: { code: 'GIT_COMMIT_FAILED', message: result.error } };
   }
 
   async listHistory(notePath: string): Promise<RpcResult<readonly RevisionDto[]>> {
@@ -426,5 +450,8 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.writeCanvas, (_event, canvasPath: string, content: string) => host.writeCanvas(canvasPath, content));
   ipcMain.handle(IPC.historyList, (_event, notePath: string) => host.listHistory(notePath));
   ipcMain.handle(IPC.historyRead, (_event, notePath: string, revisionId: string) => host.readHistory(notePath, revisionId));
+  ipcMain.handle(IPC.gitStatus, () => host.gitStatus());
+  ipcMain.handle(IPC.gitDiff, (_event, paths: readonly string[]) => host.gitDiff(paths));
+  ipcMain.handle(IPC.gitCommitSelected, (_event, paths: readonly string[], message: string) => host.gitCommitSelected(paths, message));
   return host;
 }

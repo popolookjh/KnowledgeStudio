@@ -30,6 +30,9 @@ export const IPC = {
   writeCanvas: 'canvas:write',
   historyList: 'history:list',
   historyRead: 'history:read',
+  gitStatus: 'git:status',
+  gitDiff: 'git:diff',
+  gitCommitSelected: 'git:commit-selected',
 } as const;
 
 export interface RpcError {
@@ -90,6 +93,24 @@ export interface RevisionDto {
   readonly sha256: string;
 }
 
+export interface GitStatusEntryDto {
+  readonly path: string;
+  readonly index: string;
+  readonly worktree: string;
+}
+
+export interface GitStatusDto {
+  readonly available: boolean;
+  readonly branch: string | null;
+  readonly entries: readonly GitStatusEntryDto[];
+  readonly error?: string;
+}
+
+export interface GitDiffDto {
+  readonly text: string;
+  readonly paths: readonly string[];
+}
+
 export interface WorkspaceStateDto {
   readonly selectedVault: string | null;
   readonly openTabs: readonly string[];
@@ -132,6 +153,9 @@ export interface BridgeApi {
   writeCanvas(path: string, content: string): Promise<RpcResult<true>>;
   listHistory(notePath: string): Promise<RpcResult<readonly RevisionDto[]>>;
   readHistory(notePath: string, revisionId: string): Promise<RpcResult<string>>;
+  gitStatus(): Promise<RpcResult<GitStatusDto>>;
+  gitDiff(paths: readonly string[]): Promise<RpcResult<GitDiffDto>>;
+  gitCommitSelected(paths: readonly string[], message: string): Promise<RpcResult<{ hash: string }>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

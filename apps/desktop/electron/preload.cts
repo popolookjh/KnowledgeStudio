@@ -28,6 +28,9 @@ const IPC = {
   writeCanvas: 'canvas:write',
   historyList: 'history:list',
   historyRead: 'history:read',
+  gitStatus: 'git:status',
+  gitDiff: 'git:diff',
+  gitCommitSelected: 'git:commit-selected',
 } as const;
 
 /**
@@ -58,6 +61,9 @@ const api: BridgeApi = {
   writeCanvas: (path, content) => ipcRenderer.invoke(IPC.writeCanvas, path, content),
   listHistory: (notePath) => ipcRenderer.invoke(IPC.historyList, notePath),
   readHistory: (notePath, revisionId) => ipcRenderer.invoke(IPC.historyRead, notePath, revisionId),
+  gitStatus: () => ipcRenderer.invoke(IPC.gitStatus),
+  gitDiff: (paths) => ipcRenderer.invoke(IPC.gitDiff, paths),
+  gitCommitSelected: (paths, message) => ipcRenderer.invoke(IPC.gitCommitSelected, paths, message),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

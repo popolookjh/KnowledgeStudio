@@ -56,6 +56,9 @@ importers:
       '@knowledge-studio/canvas':
         specifier: workspace:*
         version: link:../../packages/canvas
+      '@knowledge-studio/git':
+        specifier: workspace:*
+        version: link:../../packages/git
       '@knowledge-studio/history':
         specifier: workspace:*
         version: link:../../packages/history
