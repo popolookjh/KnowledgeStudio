@@ -404,6 +404,19 @@ class Store {
     await this.openNote(path);
   }
 
+  async restoreHistoryRevision(vaultPath: string, revisionId: string): Promise<boolean> {
+    const api = this.state.bridge;
+    const tab = this.state.tabs.find((entry) => entry.path === vaultPath);
+    if (!api || !tab) return false;
+    const revision = await api.readHistory(vaultPath, revisionId);
+    if (!revision.ok) {
+      this.setStatus(`Revision restore failed: ${revision.error.message}`, 'error');
+      return false;
+    }
+    this.updateContent(vaultPath, revision.value);
+    return this.saveNote(vaultPath);
+  }
+
   async createNoteFromLink(target: string, heading: string | null): Promise<void> {
     const api = this.state.bridge;
     if (!api || !this.state.sessionRoot) {

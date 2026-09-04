@@ -873,3 +873,17 @@ button {
 }
 .optional-view-fallback p { margin: 0; }
 .optional-view-fallback__actions { display: flex; gap: 8px; }
+
+/* Local revision history */
+.history-panel__status { margin: 6px 0; color: var(--text-secondary); font-size: 12px; }
+.history-panel__list { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 4px; }
+.history-panel__list li { display: flex; gap: 4px; align-items: center; }
+.history-panel__list li.is-selected { background: var(--accent-soft); border-radius: 4px; }
+.history-panel__revision { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 3px 5px; border: none; background: transparent; color: var(--text-primary); text-align: left; cursor: pointer; font-size: 11px; }
+.history-panel__restore { border: 1px solid var(--border-subtle); border-radius: 3px; background: transparent; color: var(--text-secondary); font-size: 11px; cursor: pointer; }
+.history-panel__diff { max-height: 180px; overflow: auto; font-size: 11px; }
+.history-panel__diff-line { margin: 0; padding: 1px 4px; white-space: pre-wrap; }
+.history-panel__diff-line--added { background: color-mix(in srgb, #3ca370 18%, transparent); }
+.history-panel__diff-line--removed { background: color-mix(in srgb, var(--danger) 18%, transparent); }
+.history-panel__confirm { padding: 8px; border: 1px solid var(--warning); border-radius: 4px; font-size: 12px; }
+.history-panel__confirm p { margin-top: 0; }

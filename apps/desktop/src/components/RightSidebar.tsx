@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { extractOutline, readFrontmatter } from '@knowledge-studio/markdown';
 import { useAppState } from '../state/store';
+import { HistoryPanel } from './HistoryPanel';
 import { LinksPanel } from './LinksPanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { TagBrowser } from './TagBrowser';
@@ -42,6 +43,7 @@ export function RightSidebar(): React.JSX.Element {
         )}
       </section>
       <LinksPanel />
+      <HistoryPanel />
       <TagBrowser />
     </aside>
   );

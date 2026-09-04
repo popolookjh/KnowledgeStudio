@@ -26,6 +26,8 @@ const IPC = {
   saveWorkspace: 'workspace:save',
   readCanvas: 'canvas:read',
   writeCanvas: 'canvas:write',
+  historyList: 'history:list',
+  historyRead: 'history:read',
 } as const;
 
 /**
@@ -54,6 +56,8 @@ const api: BridgeApi = {
   saveWorkspace: (state) => ipcRenderer.invoke(IPC.saveWorkspace, state),
   readCanvas: (path) => ipcRenderer.invoke(IPC.readCanvas, path),
   writeCanvas: (path, content) => ipcRenderer.invoke(IPC.writeCanvas, path, content),
+  listHistory: (notePath) => ipcRenderer.invoke(IPC.historyList, notePath),
+  readHistory: (notePath, revisionId) => ipcRenderer.invoke(IPC.historyRead, notePath, revisionId),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

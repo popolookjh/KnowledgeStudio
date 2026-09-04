@@ -10,11 +10,13 @@ import {
   type VaultEntry,
 } from '@knowledge-studio/vault';
 import { SearchIndex } from '@knowledge-studio/search';
+import { RevisionStore } from '@knowledge-studio/history';
 import { IPC } from '../shared/ipc-contract.js';
 import type {
   EntryDto,
   InitInfo,
   ReadNoteResult,
+  RevisionDto,
   RpcError,
   RpcResult,
   SearchHitDto,
@@ -58,6 +60,7 @@ class VaultHost {
   private watcherDisposer: { close(): void } | null = null;
   private renderer: BrowserWindow | null = null;
   private searchIndex = new SearchIndex();
+  private history: RevisionStore | null = null;
 
   bindWindow(win: BrowserWindow): void {
     this.renderer = win;
@@ -93,6 +96,7 @@ class VaultHost {
   private async adoptVault(vault: Vault): Promise<VaultSessionInfo> {
     this.closeInternal();
     this.vault = vault;
+    this.history = new RevisionStore(path.join(vault.appDir, 'history'));
     await this.rememberVault(vault.root);
     await this.startWatcher();
     await this.rebuildSearchIndex();
@@ -140,6 +144,27 @@ class VaultHost {
     }
   }
 
+  async listHistory(notePath: string): Promise<RpcResult<readonly RevisionDto[]>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    if (!this.history) return { ok: false, error: { code: 'HISTORY_UNAVAILABLE', message: 'History is unavailable' } };
+    try {
+      return rpc(await this.history.list(notePath));
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
+  }
+
+  async readHistory(notePath: string, revisionId: string): Promise<RpcResult<string>> {
+    const vault = this.requireVault();
+    if (!('root' in vault)) return { ok: false, error: vault };
+    if (!this.history) return { ok: false, error: { code: 'HISTORY_UNAVAILABLE', message: 'History is unavailable' } };
+    const content = await this.history.read(notePath, revisionId);
+    return content === null
+      ? { ok: false, error: { code: 'HISTORY_REVISION_NOT_FOUND', message: 'Revision was not found' } }
+      : rpc(content);
+  }
+
   async readCanvas(canvasPath: string): Promise<RpcResult<string>> {
     const vault = this.requireVault();
     if (!('root' in vault)) return { ok: false, error: vault };
@@ -182,6 +207,7 @@ class VaultHost {
     this.watcherDisposer = null;
     this.vault?.close();
     this.vault = null;
+    this.history = null;
     this.searchIndex.close();
   }
 
@@ -227,6 +253,15 @@ class VaultHost {
     const vault = this.requireVault();
     if (!('root' in vault)) {
       return { ok: false, error: vault };
+    }
+    const current = await vault.readFile(vaultPath);
+    if (current.ok && current.value.content !== content && this.history) {
+      try {
+        await this.history.record(vaultPath, current.value.content);
+      } catch {
+        // Revision recording must never prevent a user save; the save path
+        // remains atomic and conflict-aware in the vault engine.
+      }
     }
     const result = await vault.writeFile(vaultPath, content, { expectedMtimeMs });
     return result.ok
@@ -389,5 +424,7 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.saveWorkspace, (_event, state: WorkspaceStateDto) => host.saveWorkspace(state));
   ipcMain.handle(IPC.readCanvas, (_event, canvasPath: string) => host.readCanvas(canvasPath));
   ipcMain.handle(IPC.writeCanvas, (_event, canvasPath: string, content: string) => host.writeCanvas(canvasPath, content));
+  ipcMain.handle(IPC.historyList, (_event, notePath: string) => host.listHistory(notePath));
+  ipcMain.handle(IPC.historyRead, (_event, notePath: string, revisionId: string) => host.readHistory(notePath, revisionId));
   return host;
 }

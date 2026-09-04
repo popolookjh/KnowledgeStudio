@@ -16,6 +16,7 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.38.1",
     "@knowledge-studio/canvas": "workspace:*",
+    "@knowledge-studio/history": "workspace:*",
     "@knowledge-studio/links": "workspace:*",
     "@knowledge-studio/markdown": "workspace:*",
     "@knowledge-studio/metadata": "workspace:*",

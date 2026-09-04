@@ -28,6 +28,8 @@ export const IPC = {
   saveWorkspace: 'workspace:save',
   readCanvas: 'canvas:read',
   writeCanvas: 'canvas:write',
+  historyList: 'history:list',
+  historyRead: 'history:read',
 } as const;
 
 export interface RpcError {
@@ -80,6 +82,14 @@ export interface IndexStatusDto {
   readonly indexedNotes: number;
 }
 
+export interface RevisionDto {
+  readonly id: string;
+  readonly notePath: string;
+  readonly createdAt: string;
+  readonly bytes: number;
+  readonly sha256: string;
+}
+
 export interface WorkspaceStateDto {
   readonly selectedVault: string | null;
   readonly openTabs: readonly string[];
@@ -120,6 +130,8 @@ export interface BridgeApi {
   saveWorkspace(state: WorkspaceStateDto): Promise<RpcResult<true>>;
   readCanvas(path: string): Promise<RpcResult<string>>;
   writeCanvas(path: string, content: string): Promise<RpcResult<true>>;
+  listHistory(notePath: string): Promise<RpcResult<readonly RevisionDto[]>>;
+  readHistory(notePath: string, revisionId: string): Promise<RpcResult<string>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */
