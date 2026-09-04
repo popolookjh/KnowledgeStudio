@@ -1,4 +1,4 @@
-import { ReadOnlyMcpServer } from '@knowledge-studio/mcp';
+import { ReadOnlyMcpServer } from '../packages/mcp/dist/src/index.js';
 
 const server = new ReadOnlyMcpServer({
   searchNotes: async (query) => [{ path: 'smoke.md', content: query }],

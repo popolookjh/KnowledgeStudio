@@ -1,9 +1,11 @@
 import path from 'node:path';
+import process from 'node:process';
 import { expect, test } from '@playwright/test';
 import { assertNoRuntimeErrors, closeFixture, launchFixture, type E2eFixture, waitForCanvasZoom } from './fixture';
 
 let fixture!: E2eFixture;
 let launched = false;
+test.skip(!process.env['ELECTRON_E2E_EXECUTABLE'], 'Packaged suite requires ELECTRON_E2E_EXECUTABLE');
 
 test.beforeEach(async () => { fixture = await launchFixture('packaged'); launched = true; });
 test.afterEach(async () => { if (launched) { assertNoRuntimeErrors(fixture); await closeFixture(fixture); } launched = false; });
