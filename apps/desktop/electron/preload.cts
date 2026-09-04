@@ -1,6 +1,32 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC } from '../shared/ipc-contract.js';
 import type { BridgeApi, VaultEventDto } from '../shared/ipc-contract.js';
+
+/**
+ * CJS preload cannot require the renderer's ESM contract output under the
+ * desktop package's `type: module`. Keep this runtime-only mirror local to
+ * the preload; BridgeApi remains imported as a type so its public surface is
+ * still checked against the shared IPC contract at compile time.
+ */
+const IPC = {
+  init: 'app:init',
+  pickVault: 'vault:pick',
+  createVault: 'vault:create',
+  reopenVault: 'vault:reopen',
+  closeVault: 'vault:close',
+  listEntries: 'vault:list',
+  readNote: 'vault:read',
+  writeNote: 'vault:write',
+  createNote: 'vault:create-note',
+  renameEntry: 'vault:rename',
+  deleteEntry: 'vault:delete',
+  vaultEvent: 'vault:event',
+  search: 'search:query',
+  rebuildIndex: 'search:rebuild',
+  loadWorkspace: 'workspace:load',
+  saveWorkspace: 'workspace:save',
+  readCanvas: 'canvas:read',
+  writeCanvas: 'canvas:write',
+} as const;
 
 /**
  * Preload bridge. Runs with `sandbox: true`; the renderer gets exactly this

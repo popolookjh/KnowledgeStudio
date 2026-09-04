@@ -856,3 +856,20 @@ button {
 .canvas-node.is-selected { outline: 2px solid var(--accent); outline-offset: 2px; z-index: 2; }
 .canvas-node__resize { position: absolute; right: -5px; bottom: -5px; width: 13px; height: 13px; padding: 0; border: 2px solid var(--bg-surface); border-radius: 3px; background: var(--accent); cursor: nwse-resize; }
 .canvas-node__resize:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+
+/* Optional code-split view fallback */
+.optional-view-fallback {
+  display: flex;
+  flex: 1;
+  min-height: 140px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: column;
+  padding: 24px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  text-align: center;
+}
+.optional-view-fallback p { margin: 0; }
+.optional-view-fallback__actions { display: flex; gap: 8px; }

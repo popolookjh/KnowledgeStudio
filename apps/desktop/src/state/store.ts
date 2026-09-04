@@ -1,3 +1,4 @@
+import { readMetadata, writeMetadata } from '@knowledge-studio/metadata';
 import { useSyncExternalStore } from 'react';
 import type { BridgeApi, EntryDto, VaultEventDto } from '../../shared/ipc-contract';
 import { noteTitleFromPath } from '../../shared/ipc-contract';
@@ -432,7 +433,6 @@ class Store {
     if (!api || !tab) {
       return;
     }
-    const { readMetadata, writeMetadata } = await import('@knowledge-studio/metadata');
     const { data } = readMetadata(tab.content);
     const patch = { ...data };
     if (value === null || value === '' || (Array.isArray(value) && value.length === 0)) {

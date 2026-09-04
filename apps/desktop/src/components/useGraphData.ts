@@ -63,6 +63,6 @@ function buildGraphData(): GraphData {
 }
 
 export function useGraphData(): GraphData {
-  useSyncExternalStore(linkIndex.subscribe, linkIndex.getSnapshot, linkIndex.getSnapshot);
-  return useMemo(buildGraphData, [linkIndex.getSnapshot().version]);
+  const version = useSyncExternalStore(linkIndex.subscribe, linkIndex.getSnapshot, linkIndex.getSnapshot);
+  return useMemo(buildGraphData, [version]);
 }

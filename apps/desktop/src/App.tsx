@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
-import { CanvasView } from './components/CanvasView';
+import { lazy, Suspense, useEffect } from 'react';
 import { EditorPane } from './components/EditorPane';
 import { Explorer } from './components/Explorer';
-import { GraphView } from './components/GraphView';
+import { OptionalViewBoundary } from './components/OptionalViewBoundary';
 import { PreviewPane } from './components/PreviewPane';
 import { RightSidebar } from './components/RightSidebar';
 import { SearchOverlay } from './components/SearchOverlay';
@@ -10,6 +9,20 @@ import { StatusBar } from './components/StatusBar';
 import { TabsBar } from './components/TabsBar';
 import { WelcomeView } from './components/WelcomeView';
 import { store, useAppState } from './state/store';
+
+const LazyGraphView = lazy(async () => {
+  const module = await import('./components/GraphView');
+  return { default: module.GraphView };
+});
+
+const LazyCanvasView = lazy(async () => {
+  const module = await import('./components/CanvasView');
+  return { default: module.CanvasView };
+});
+
+function OptionalViewLoading({ name }: { readonly name: string }): React.JSX.Element {
+  return <div className="optional-view-fallback" role="status">Loading {name}…</div>;
+}
 
 /**
  * Application layout:
@@ -158,7 +171,13 @@ export default function App(): React.JSX.Element {
       )}
       <StatusBar />
       <SearchOverlay />
-      {graphOpen && <GraphView />}
+      {graphOpen && (
+        <OptionalViewBoundary name="Knowledge graph" onClose={() => store.closeGraph()}>
+          <Suspense fallback={<OptionalViewLoading name="Knowledge graph" />}>
+            <LazyGraphView />
+          </Suspense>
+        </OptionalViewBoundary>
+      )}
       {canvasOpen && (
         <div className="canvas-overlay" onClick={() => store.closeCanvas()}>
           <div className="canvas-overlay__panel" onClick={(event) => event.stopPropagation()}>
@@ -166,7 +185,11 @@ export default function App(): React.JSX.Element {
               <span>Canvas board</span>
               <button type="button" className="btn btn--small" onClick={() => store.closeCanvas()}>Close</button>
             </div>
-            <CanvasView />
+            <OptionalViewBoundary name="Canvas board" onClose={() => store.closeCanvas()}>
+              <Suspense fallback={<OptionalViewLoading name="Canvas board" />}>
+                <LazyCanvasView />
+              </Suspense>
+            </OptionalViewBoundary>
           </div>
         </div>
       )}

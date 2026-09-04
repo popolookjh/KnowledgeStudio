@@ -43,7 +43,8 @@ class LinkIndexService {
     };
   };
 
-  getSnapshot = (): LinkIndexSnapshot => ({ version: this.version });
+  /** A stable primitive snapshot for React's useSyncExternalStore contract. */
+  getSnapshot = (): number => this.version;
 
   private emit(): void {
     this.version += 1;
