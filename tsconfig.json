@@ -20,6 +20,7 @@
     { "path": "packages/mcp" },
     { "path": "packages/mcp-host" },
     { "path": "packages/ai-bridge" },
+    { "path": "packages/ai-config" },
     { "path": "packages/semantic-search" },
     { "path": "packages/security" },
     { "path": "packages/import-export" },

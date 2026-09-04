@@ -1,0 +1,11 @@
+{
+  "name": "@knowledge-studio/ai-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Provider-neutral persisted AI configuration with secure secret-store abstraction.",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" },
+  "dependencies": { "@knowledge-studio/ai-bridge": "workspace:*" }
+}

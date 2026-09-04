@@ -53,6 +53,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.38.1
         version: 6.43.9
+      '@knowledge-studio/ai-config':
+        specifier: workspace:*
+        version: link:../../packages/ai-config
       '@knowledge-studio/canvas':
         specifier: workspace:*
         version: link:../../packages/canvas
@@ -131,6 +134,12 @@ importers:
         version: 9.1.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
 
   packages/ai-bridge: {}
+
+  packages/ai-config:
+    dependencies:
+      '@knowledge-studio/ai-bridge':
+        specifier: workspace:*
+        version: link:../ai-bridge
 
   packages/attachments:
     dependencies:
