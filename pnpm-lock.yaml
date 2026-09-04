@@ -209,6 +209,12 @@ importers:
         specifier: workspace:*
         version: link:../security
 
+  packages/plugin-host:
+    dependencies:
+      '@knowledge-studio/plugin-sdk':
+        specifier: workspace:*
+        version: link:../plugin-sdk
+
   packages/plugin-sdk:
     dependencies:
       zod:

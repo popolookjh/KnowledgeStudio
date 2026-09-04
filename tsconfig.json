@@ -16,6 +16,7 @@
     { "path": "packages/history" },
     { "path": "packages/git" },
     { "path": "packages/plugin-sdk" },
+    { "path": "packages/plugin-host" },
     { "path": "packages/mcp" },
     { "path": "packages/ai-bridge" },
     { "path": "packages/semantic-search" },
