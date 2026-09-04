@@ -4,6 +4,7 @@ import { useAppState } from '../state/store';
 import { GitPanel } from './GitPanel';
 import { HistoryPanel } from './HistoryPanel';
 import { LinksPanel } from './LinksPanel';
+import { McpPanel } from './McpPanel';
 import { PluginPanel } from './PluginPanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { TagBrowser } from './TagBrowser';
@@ -48,6 +49,7 @@ export function RightSidebar(): React.JSX.Element {
       <HistoryPanel />
       <GitPanel />
       <PluginPanel />
+      <McpPanel />
       <TagBrowser />
     </aside>
   );

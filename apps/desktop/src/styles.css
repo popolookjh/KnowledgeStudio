@@ -902,3 +902,7 @@ button {
 .plugin-panel__entry label { display: block; margin-top: 4px; }
 .plugin-panel__sensitive { color: var(--warning); }
 .plugin-panel__notice { color: var(--text-secondary); font-size: 12px; }
+
+/* Local read-only MCP status panel */
+.mcp-panel p { margin: 4px 0; color: var(--text-secondary); font-size: 11px; overflow-wrap: anywhere; }
+.mcp-panel__notice { color: var(--warning) !important; }
