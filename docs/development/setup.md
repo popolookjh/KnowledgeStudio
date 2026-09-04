@@ -32,6 +32,12 @@ corepack pnpm test
 | `corepack pnpm test:watch` | Watch mode |
 | `corepack pnpm lint` / `format:check` | Lint / formatting checks |
 | `corepack pnpm typecheck` | `tsc -b` across all project references |
+| `corepack pnpm package:stage` | Build and materialize the self-contained production staging tree |
+| `corepack pnpm package:audit:stage` | Run the targeted staging security audit |
+| `corepack pnpm package:win:unpacked` | Build Windows x64 `win-unpacked` without running an installer |
+| `corepack pnpm package:smoke` | Run packaged executable Playwright smoke against `win-unpacked` |
+| `corepack pnpm package:win:nsis` | Revalidate unpacked smoke, then build an unsigned NSIS artifact |
+| `corepack pnpm package:audit` | Audit staging and packaged ASAR contents |
 
 ## Platform notes
 

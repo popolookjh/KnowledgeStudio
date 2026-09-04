@@ -13,6 +13,9 @@ export default tseslint.config(
       '**/dist-tsc/**',
       '**/coverage/**',
       'tests/e2e/.tsbuild/**',
+      'release/**',
+      'scripts/package-*.mjs',
+      'scripts/mcp-http-smoke.mjs',
       // Root-level config files have no owning tsconfig project; Node
       // syntax-checks them on load, so untyped linting suffices.
       'eslint.config.mjs',

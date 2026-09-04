@@ -4,4 +4,6 @@ packages:
   - tests/*
 
 allowBuilds:
+  electron: true
+  electron-winstaller: false
   esbuild: true

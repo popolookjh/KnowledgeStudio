@@ -19,9 +19,33 @@ node scripts/search-benchmark.mjs 1000
 Expected: all commands exit successfully; the benchmark returns JSON with 1,000
 matches. The benchmark uses in-memory synthetic data only.
 
+## Windows packaging validation
+
+The local packaging flow uses electron-builder only. It is unsigned, never published, and the NSIS artifact is never executed or installed:
+
+```bash
+corepack pnpm package:stage
+corepack pnpm package:audit:stage
+corepack pnpm package:win:unpacked
+corepack pnpm package:smoke
+corepack pnpm package:win:nsis
+corepack pnpm package:audit
+```
+
+The self-contained production staging tree is `release/stage/`; electron-builder writes
+`release/out/win-unpacked/` and an unsigned `release/out/Knowledge-Studio-0.1.0-setup.exe`.
+The packaged smoke launches the actual `KnowledgeStudio.exe` without a source app-directory
+argument, with isolated project-local user data. It verifies the preload bridge, sandboxed
+renderer, local vault workflows, Graph/Canvas, History, Git, Plugin policy, MCP loopback,
+and offline AI settings. The targeted audit checks required runtime files and rejects source,
+test fixtures, user data, secrets, local absolute paths, and LuckyAI references; it is not an
+exhaustive secret scanner. Windows SmartScreen may warn because no certificate is used. An
+installer is built for structural validation only and must not be installed on a development
+machine. Attachment safe-copy remains deferred because no operational UI/IPC exists; Plugin
+runtime execution and AI secure secret-entry UX remain intentionally deferred.
 ## Electron smoke
 
-1. Start the built desktop app (`apps/desktop/node_modules/.bin/electron apps/desktop`).
+ (`apps/desktop/node_modules/.bin/electron apps/desktop`).
 2. Confirm the Electron main, renderer, GPU, and utility processes are alive.
 3. Confirm no startup errors are written to stdout/stderr.
 4. Close the process cleanly.

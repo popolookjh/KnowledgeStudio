@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import process from 'node:process';
 import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
 
 export interface E2eFixture {
@@ -11,6 +12,8 @@ export interface E2eFixture {
   readonly page: Page;
   readonly runtimeErrors: string[];
   readonly consoleErrors: string[];
+  readonly externalRequests: string[];
+  readonly launchMode: 'development' | 'packaged';
 }
 
 const TEMP_ROOT = path.resolve(process.cwd(), 'tests/e2e/.tmp');
@@ -44,17 +47,37 @@ export async function restartFixture(fixture: E2eFixture): Promise<E2eFixture> {
 }
 
 async function launchAt(root: string, vault: string, userData: string): Promise<E2eFixture> {
+  const packagedExecutable = process.env['ELECTRON_E2E_EXECUTABLE'];
+  const launchMode = packagedExecutable ? 'packaged' : 'development';
   const desktop = path.resolve(process.cwd(), 'apps/desktop');
-  const executablePath = path.join(desktop, 'node_modules', 'electron', 'dist', 'electron.exe');
-  const app = await electron.launch({ executablePath, args: [`--user-data-dir=${userData}`, desktop] });
+  const executablePath = packagedExecutable ? path.resolve(process.cwd(), packagedExecutable) : path.join(desktop, 'node_modules', 'electron', 'dist', 'electron.exe');
+  await fs.access(executablePath);
+  const env: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) if (value !== undefined && key !== 'VITE_DEV_SERVER_URL') env[key] = value;
+  const app = await electron.launch({ executablePath, args: [`--user-data-dir=${userData}`, ...(launchMode === 'development' ? [desktop] : [])], env });
   try {
     const page = await app.firstWindow();
     const runtimeErrors: string[] = [];
     const consoleErrors: string[] = [];
+    const externalRequests: string[] = [];
     page.on('pageerror', (error) => runtimeErrors.push(error.message));
     page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+    await page.route('**/*', async (route) => {
+      const url = route.request().url();
+      try {
+        const parsed = new URL(url);
+        if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') && !['127.0.0.1', '::1', 'localhost'].includes(parsed.hostname)) {
+          externalRequests.push(url);
+          await route.abort();
+          return;
+        }
+      } catch {
+        // Non-network schemes, including packaged file://, are allowed.
+      }
+      await route.continue();
+    });
     await page.waitForSelector('.workbench');
-    return { root, vault, userData, app, page, runtimeErrors, consoleErrors };
+    return { root, vault, userData, app, page, runtimeErrors, consoleErrors, externalRequests, launchMode };
   } catch (error) {
     await app.close().catch(() => undefined);
     await removeFixtureDirectory(root);
@@ -108,8 +131,8 @@ export async function closeFixture(fixture: E2eFixture): Promise<void> {
 }
 
 export function assertNoRuntimeErrors(fixture: E2eFixture): void {
-  if (fixture.runtimeErrors.length > 0 || fixture.consoleErrors.length > 0) {
-    throw new Error(`Renderer errors: ${[...fixture.runtimeErrors, ...fixture.consoleErrors].join('\n')}`);
+  if (fixture.runtimeErrors.length > 0 || fixture.consoleErrors.length > 0 || fixture.externalRequests.length > 0) {
+    throw new Error(`Renderer errors: ${[...fixture.runtimeErrors, ...fixture.consoleErrors, ...fixture.externalRequests].join('\n')}`);
   }
 }
 

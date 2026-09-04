@@ -1,0 +1,32 @@
+appId: com.knowledge-studio.desktop
+productName: Knowledge Studio
+executableName: KnowledgeStudio
+electronVersion: 44.0.0
+asar: true
+directories:
+  output: ../out
+files:
+  - package.json
+  - dist/**/*
+  - dist-electron/**/*
+  - node_modules/**/*
+  - '!**/*.map'
+  - '!**/.git/**'
+  - '!**/.env'
+  - '!**/.env.*'
+  - '!**/tests/**'
+  - '!**/test/**'
+  - '!**/coverage/**'
+  - '!**/.tsbuild/**'
+  - '!**/*.tsbuildinfo'
+  - '!**/*.log'
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ${productName}-${version}-setup.${ext}
