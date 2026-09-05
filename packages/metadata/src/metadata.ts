@@ -1,4 +1,4 @@
-import { err, ok, type Result } from '@knowledge-studio/shared';
+import { createDocumentId, err, isUuidV4, ok, type Result } from '@knowledge-studio/shared';
 import { splitFrontmatter } from '@knowledge-studio/markdown';
 import { parse, stringify } from 'yaml';
 
@@ -83,6 +83,11 @@ export function readMetadata(content: string): {
     }
   }
   const confidence = raw['confidence'];
+  const id = raw['id'];
+  if (id !== undefined && !isUuidV4(id)) {
+    issues.push({ key: 'id', message: 'id must be a canonical UUIDv4' });
+    delete data['id'];
+  }
   if (
     confidence !== undefined &&
     (typeof confidence !== 'number' || Number.isNaN(confidence))
@@ -91,6 +96,15 @@ export function readMetadata(content: string): {
     delete data['confidence'];
   }
   return { data, issues };
+}
+
+export function ensureDocumentId(content: string): Result<{ content: string; documentId: string; assigned: boolean }, readonly MetadataIssue[]> {
+  const { data, issues } = readMetadata(content);
+  if (issues.some((issue) => issue.key === 'id')) return err(issues);
+  if (data.id && isUuidV4(data.id)) return ok({ content, documentId: data.id, assigned: false });
+  const documentId = createDocumentId();
+  const written = writeMetadata(content, { ...data, id: documentId });
+  return written.ok ? ok({ content: written.value, documentId, assigned: true }) : written;
 }
 
 /**

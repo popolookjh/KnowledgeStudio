@@ -1,5 +1,6 @@
 import {
   createId,
+  createVaultId,
   err,
   getVaultExtension,
   normalizeVaultPath,
@@ -95,12 +96,14 @@ const TRASH_MANIFEST_FILE = 'entry.json';
  */
 export class Vault {
   readonly root: string;
+  readonly vaultId: string;
   private readonly rootReal: string;
   private watcher: { close(): void } | null = null;
 
-  private constructor(root: string, rootReal: string) {
+  private constructor(root: string, rootReal: string, vaultId: string) {
     this.root = root;
     this.rootReal = rootReal;
+    this.vaultId = vaultId;
   }
 
   /** Opens an existing directory as a vault (initializing the app dir). */
@@ -132,7 +135,24 @@ export class Vault {
         cause: error,
       }));
     }
-    return ok(new Vault(absolute, real));
+    const manifestPath = path.join(appDir, 'vault.json');
+    let vaultId: string;
+    try {
+      const raw = await fs.readFile(manifestPath, 'utf8').catch(() => null);
+      if (raw === null) {
+        vaultId = createVaultId();
+        await atomicWriteFile(manifestPath, `${JSON.stringify({ schemaVersion: 1, vaultId })}\n`);
+      } else {
+        const parsed: unknown = JSON.parse(raw);
+        if (typeof parsed !== 'object' || parsed === null || (parsed as Record<string, unknown>)['schemaVersion'] !== 1 || typeof (parsed as Record<string, unknown>)['vaultId'] !== 'string') {
+          return err(new VaultError('VAULT_IDENTITY_INVALID', 'Vault identity manifest is invalid'));
+        }
+        vaultId = (parsed as { vaultId: string }).vaultId;
+      }
+    } catch (error) {
+      return err(new VaultError('VAULT_IDENTITY_INVALID', 'Cannot initialize vault identity', { cause: error }));
+    }
+    return ok(new Vault(absolute, real, vaultId));
   }
 
   /**

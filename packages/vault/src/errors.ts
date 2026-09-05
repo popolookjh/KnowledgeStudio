@@ -22,6 +22,7 @@ export type VaultErrorCode =
   | 'VAULT_TRASH_ENTRY_NOT_FOUND'
   | 'VAULT_WATCH_FAILED'
   | 'VAULT_APP_DIR_LOCKED'
+  | 'VAULT_IDENTITY_INVALID'
   | 'VAULT_EMPTY_PATH';
 
 export class VaultError extends StudioError {

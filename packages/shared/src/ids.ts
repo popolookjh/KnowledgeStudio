@@ -1,4 +1,11 @@
-/** Generates a RFC 4122 version 4 identifier for notes, revisions and events. */
+export function isUuidV4(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
+}
+
+export function createDocumentId(): string { return createId(); }
+export function createVaultId(): string { return createId(); }
+export function sourceIdFor(vaultId: string, documentId: string): string { return `ks:${vaultId}:${documentId}`; }
+
 export function createId(): string {
   const cryptoRef = globalThis.crypto;
   if (cryptoRef && typeof cryptoRef.randomUUID === 'function') {

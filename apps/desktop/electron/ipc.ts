@@ -10,6 +10,7 @@ import {
   type VaultEntry,
 } from '@knowledge-studio/vault';
 import { copyAttachment, findMissingAttachments, findOrphanAttachments } from '@knowledge-studio/attachments';
+import { ensureDocumentId } from '@knowledge-studio/metadata';
 import { SearchIndex } from '@knowledge-studio/search';
 import { RevisionStore } from '@knowledge-studio/history';
 import { GitClient } from '@knowledge-studio/git';
@@ -418,7 +419,9 @@ class VaultHost {
         // remains atomic and conflict-aware in the vault engine.
       }
     }
-    const result = await vault.writeFile(vaultPath, content, { expectedMtimeMs });
+    const identified = vaultPath.endsWith('.md') ? ensureDocumentId(content) : { ok: true as const, value: { content, documentId: '', assigned: false } };
+    if (!identified.ok) return { ok: false, error: { code: 'DOCUMENT_ID_INVALID', message: identified.error.map((issue) => issue.message).join('; ') } };
+    const result = await vault.writeFile(vaultPath, identified.value.content, { expectedMtimeMs });
     return result.ok
       ? rpc({ mtimeMs: result.value.mtimeMs })
       : { ok: false, error: serializeFailure(result.error) };
@@ -436,7 +439,9 @@ class VaultHost {
     if (exists.value) {
       return { ok: false, error: { code: 'VAULT_PATH_EXISTS', message: 'A file with that name already exists' } };
     }
-    const written = await vault.writeFile(vaultPath, content);
+    const identified = vaultPath.endsWith('.md') ? ensureDocumentId(content) : { ok: true as const, value: { content, documentId: '', assigned: false } };
+    if (!identified.ok) return { ok: false, error: { code: 'DOCUMENT_ID_INVALID', message: identified.error.map((issue) => issue.message).join('; ') } };
+    const written = await vault.writeFile(vaultPath, identified.value.content);
     return written.ok ? rpc(vaultPath) : { ok: false, error: serializeFailure(written.error) };
   }
 

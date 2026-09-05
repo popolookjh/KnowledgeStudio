@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { readMetadata, serializeMetadata, writeMetadata, withUpdatedStamp } from '../src/index.js';
+import { ensureDocumentId, readMetadata, serializeMetadata, writeMetadata, withUpdatedStamp } from '../src/index.js';
 
 describe('readMetadata', () => {
   it('reads canonical properties with types intact', () => {
     const { data, issues } = readMetadata(
-      '---\nid: abc\ntitle: آزمایش\ntags: [a, b]\nconfidence: 0.9\n---\nbody',
+      '---\nid: 123e4567-e89b-42d3-a456-426614174000\ntitle: آزمایش\ntags: [a, b]\nconfidence: 0.9\n---\nbody',
     );
     expect(issues).toEqual([]);
-    expect(data.id).toBe('abc');
+    expect(data.id).toBe('123e4567-e89b-42d3-a456-426614174000');
     expect(data.title).toBe('آزمایش');
     expect(data.tags).toEqual(['a', 'b']);
     expect(data.confidence).toBe(0.9);
@@ -39,6 +39,18 @@ describe('readMetadata', () => {
   it('preserves unknown properties', () => {
     const { data } = readMetadata('---\ncustom:\n  nested: true\n---\nbody');
     expect(data['custom']).toEqual({ nested: true });
+  });
+
+  it('assigns a stable UUID lazily without changing the note body', () => {
+    const result = ensureDocumentId('---\ntitle: فارسی\n---\nbody\n');
+    if (!result.ok) throw new Error('identity assignment failed');
+    expect(result.value.assigned).toBe(true);
+    expect(result.value.documentId).toMatch(/^[0-9a-f-]{36}$/);
+    expect(result.value.content).toContain('body\n');
+    const repeated = ensureDocumentId(result.value.content);
+    if (!repeated.ok) throw new Error('identity read failed');
+    expect(repeated.value.documentId).toBe(result.value.documentId);
+    expect(repeated.value.assigned).toBe(false);
   });
 });
 

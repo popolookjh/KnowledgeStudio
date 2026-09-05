@@ -1,5 +1,6 @@
 import { extractOutgoingLinks } from '@knowledge-studio/links';
 import { readMetadata } from '@knowledge-studio/metadata';
+import { sourceIdFor } from '@knowledge-studio/shared';
 import type { McpDataSource, NoteRecord } from '@knowledge-studio/mcp';
 import { extractTags } from '@knowledge-studio/tags';
 import { walkVault, type Vault } from '@knowledge-studio/vault';
@@ -13,7 +14,11 @@ export function createVaultMcpDataSource(vault: Vault): McpDataSource {
     for (const entry of entries.value) {
       if (entry.kind !== 'note') continue;
       const read = await vault.readFile(entry.path);
-      if (read.ok) records.push({ path: entry.path, content: read.value.content, metadata: readMetadata(read.value.content).data });
+      if (read.ok) {
+        const metadata = readMetadata(read.value.content).data;
+        const documentId = typeof metadata.id === 'string' ? metadata.id : null;
+        records.push({ path: entry.path, content: read.value.content, metadata, documentId, sourceId: documentId ? sourceIdFor(vault.vaultId, documentId) : null });
+      }
     }
     return records;
   };
@@ -24,7 +29,10 @@ export function createVaultMcpDataSource(vault: Vault): McpDataSource {
     },
     async readNote(notePath) {
       const read = await vault.readFile(notePath);
-      return read.ok ? { path: notePath, content: read.value.content, metadata: readMetadata(read.value.content).data } : null;
+      if (!read.ok) return null;
+      const metadata = readMetadata(read.value.content).data;
+      const documentId = typeof metadata.id === 'string' ? metadata.id : null;
+      return { path: notePath, content: read.value.content, metadata, documentId, sourceId: documentId ? sourceIdFor(vault.vaultId, documentId) : null };
     },
     async listNotes() { return notes(); },
     async getMetadata(notePath) {

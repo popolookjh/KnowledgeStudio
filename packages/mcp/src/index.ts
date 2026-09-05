@@ -6,7 +6,7 @@ import http from 'node:http';
  * filesystem access, and write operations. It binds loopback only.
  */
 
-export interface NoteRecord { readonly path: string; readonly content: string; readonly metadata?: Record<string, unknown>; }
+export interface NoteRecord { readonly path: string; readonly content: string; readonly documentId?: string | null; readonly sourceId?: string | null; readonly metadata?: Record<string, unknown>; }
 export interface McpDataSource {
   searchNotes(query: string): Promise<readonly NoteRecord[]>;
   readNote(path: string): Promise<NoteRecord | null>;
