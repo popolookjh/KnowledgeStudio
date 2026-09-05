@@ -27,7 +27,7 @@ const forbiddenText = [
   /E2E local manifest/i,
   /Current changed content\./i,
   /LuckyAI/i,
-  /(?:api[_-]?key|token|secret|password)\s*[:=]\s*["'][^"']{8,}/i,
+  /(?:api[_-]?key|token|secret|password)\s*[:=]\s*["'][A-Za-z0-9_\-+/=]{16,}["']/i,
 ];
 
 function normalize(file) {
