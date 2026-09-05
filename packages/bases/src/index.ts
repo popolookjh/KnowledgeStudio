@@ -1,4 +1,5 @@
 import { readMetadata } from '@knowledge-studio/metadata';
+export { BaseStore, type StoredBase } from './store.js';
 export type BaseViewType = 'table' | 'card' | 'kanban';
 export type Filter = { readonly field: string; readonly op: 'exists' | 'missing' | 'equals' | 'contains' | 'startsWith' | 'gt' | 'lt'; readonly value?: string | number };
 export interface BaseDefinition { readonly schemaVersion: 1; readonly id: string; readonly name: string; readonly view: BaseViewType; readonly folder?: string; readonly tags?: readonly string[]; readonly filters: readonly Filter[]; readonly sort?: { readonly field: string; readonly direction: 'asc' | 'desc' }; readonly fields: readonly string[]; readonly groupBy?: string; }

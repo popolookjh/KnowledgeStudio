@@ -167,6 +167,12 @@ importers:
       '@knowledge-studio/metadata':
         specifier: workspace:*
         version: link:../metadata
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@knowledge-studio/vault':
+        specifier: workspace:*
+        version: link:../vault
 
   packages/canvas:
     dependencies:
