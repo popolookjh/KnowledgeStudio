@@ -26,6 +26,7 @@
     { "path": "packages/import-export" },
     { "path": "packages/rtl" },
     { "path": "packages/observability" },
+    { "path": "packages/provenance" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" },

@@ -257,6 +257,18 @@ importers:
         specifier: ^4.5.4
         version: 4.5.4
 
+  packages/provenance:
+    dependencies:
+      '@knowledge-studio/metadata':
+        specifier: workspace:*
+        version: link:../metadata
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@knowledge-studio/vault':
+        specifier: workspace:*
+        version: link:../vault
+
   packages/rtl:
     dependencies:
       '@knowledge-studio/markdown':

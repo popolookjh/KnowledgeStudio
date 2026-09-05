@@ -1,0 +1,17 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { createId, sourceIdFor } from '@knowledge-studio/shared';
+import { Vault } from '@knowledge-studio/vault';
+import { ProvenanceStore, renderCompactCitation, toMachineCitation, type ProvenanceRecord } from '../src/index.js';
+
+async function fixture() { const root = await mkdtemp(path.join(tmpdir(), 'ks-prov-')); const vault = await Vault.create(root); if (!vault.ok) throw vault.error; return { root, vault: vault.value }; }
+function record(vaultId: string, documentId = createId()): ProvenanceRecord { return { id: createId(), sourceId: sourceIdFor(vaultId, documentId), documentId, sourceType: 'markdown', origin: 'local', title: 'یادداشت Architecture', locator: { heading: 'Security' } }; }
+
+describe('provenance', () => {
+  it('stores a versioned metadata-only snapshot atomically', async () => { const { root, vault } = await fixture(); const store = new ProvenanceStore(vault); const entry = record(vault.vaultId); const saved = await store.upsert(entry); expect(saved.ok).toBe(true); if (saved.ok) expect(saved.value.revision).toBe(1); const loaded = await store.load(); expect(loaded.ok && loaded.value.records[0]).toEqual(entry); await rm(root, { recursive: true, force: true }); });
+  it('renders deterministic compact and machine citations', () => { const entry = { ...record(createId()), sourceType: 'pdf' as const, title: 'مقاله', locator: { page: 12 } }; expect(renderCompactCitation(entry)).toBe('مقاله, p. 12'); expect(toMachineCitation(entry)).toMatchObject({ sourceId: entry.sourceId, sourceType: 'pdf', locator: { page: 12 } }); });
+  it('keeps stable resolution across a rename and reports duplicate/missing identities', async () => { const { root, vault } = await fixture(); const id = createId(); await vault.writeFile('پژوهش.md', `---\nid: ${id}\ntitle: پژوهش\n---\n`); const store = new ProvenanceStore(vault); const first = await store.resolveDocumentProvenance(id); expect(first.ok && first.value.state).toBe('resolved'); await vault.rename('پژوهش.md', 'notes/Research.md'); const moved = await store.resolveDocumentProvenance(id); expect(moved.ok && moved.value).toMatchObject({ state: 'resolved', path: 'notes/Research.md' }); await vault.writeFile('copy.md', `---\nid: ${id}\n---\n`); const duplicate = await store.resolveDocumentProvenance(id); expect(duplicate.ok && duplicate.value).toMatchObject({ state: 'ambiguous', paths: ['copy.md', 'notes/Research.md'] }); await vault.deleteToTrash('copy.md'); await vault.deleteToTrash('notes/Research.md'); const missing = await store.resolveDocumentProvenance(id); expect(missing.ok && missing.value.state).toBe('missing'); await rm(root, { recursive: true, force: true }); });
+  it('does not mutate legacy notes and rejects malformed provenance', async () => { const { root, vault } = await fixture(); await vault.writeFile('legacy.md', '# legacy'); const store = new ProvenanceStore(vault); const result = await store.resolveDocumentProvenance(createId()); expect(result.ok && result.value.state).toBe('missing'); const read = await vault.readFile('legacy.md'); expect(read.ok && read.value.content).toBe('# legacy'); await writeFile(path.join(vault.appDir, 'provenance.json'), '{bad'); expect((await store.load()).ok).toBe(false); await rm(root, { recursive: true, force: true }); });
+});
