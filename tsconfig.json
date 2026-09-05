@@ -28,6 +28,7 @@
     { "path": "packages/observability" },
     { "path": "packages/provenance" },
     { "path": "packages/change-feed" },
+    { "path": "packages/bases" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" },

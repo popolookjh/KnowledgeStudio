@@ -162,6 +162,12 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  packages/bases:
+    dependencies:
+      '@knowledge-studio/metadata':
+        specifier: workspace:*
+        version: link:../metadata
+
   packages/canvas:
     dependencies:
       zod:
