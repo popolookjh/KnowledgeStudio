@@ -94,6 +94,11 @@ test('plugin MCP and AI operational controls preserve safety boundaries', async 
   await ai.getByPlaceholder('Display name').fill('Local Fixture');
   await ai.getByRole('button', { name: 'Save provider metadata' }).click();
   await expect(ai.getByText('Local Fixture', { exact: true })).toBeVisible();
+  await ai.locator('.ai-panel__entry').filter({ hasText: 'Local Fixture' }).getByRole('button', { name: 'Set credential' }).click();
+  const credential = ai.locator('input[type="password"]');
+  await credential.fill('fixture-secret-never-returned');
+  await credential.fill('');
+  await expect(credential).toHaveValue('');
   await ai.getByPlaceholder('provider.id').fill('external.fixture');
   await ai.getByPlaceholder('Display name').fill('External Fixture');
   await ai.locator('select').selectOption('external');
@@ -102,7 +107,7 @@ test('plugin MCP and AI operational controls preserve safety boundaries', async 
   await ai.getByRole('button', { name: 'Save provider metadata' }).click();
   await expect(ai.getByText(/requires explicit user confirmation/)).toBeVisible();
   expect(externalRequests).toEqual([]);
-  await expect(ai.getByText('Secret entry is intentionally unavailable in renderer UI; plaintext secrets are never stored in renderer state.')).toBeVisible();
+  await expect(ai.getByText(/Credential entry is transient/)).toBeVisible();
 });
 
 test('lazy Graph and Canvas open, interact, save, and close', async () => {

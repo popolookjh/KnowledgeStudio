@@ -39,6 +39,8 @@ const IPC = {
   pluginApproveHighRisk: 'plugin:approve-high-risk',
   aiConfigList: 'ai-config:list',
   aiConfigUpsert: 'ai-config:upsert',
+  aiConfigSetSecret: 'ai-config:set-secret',
+  aiConfigRemoveSecret: 'ai-config:remove-secret',
   attachmentPick: 'attachment:pick',
   attachmentIssues: 'attachment:issues',
 } as const;
@@ -82,6 +84,8 @@ const api: BridgeApi = {
   approvePluginHighRisk: (pluginId, permission, approved) => ipcRenderer.invoke(IPC.pluginApproveHighRisk, pluginId, permission, approved),
   aiConfigList: () => ipcRenderer.invoke(IPC.aiConfigList),
   aiConfigUpsert: (config) => ipcRenderer.invoke(IPC.aiConfigUpsert, config),
+  aiConfigSetSecret: (providerId, secret) => ipcRenderer.invoke(IPC.aiConfigSetSecret, providerId, secret),
+  aiConfigRemoveSecret: (providerId) => ipcRenderer.invoke(IPC.aiConfigRemoveSecret, providerId),
   pickAttachment: (notePath) => ipcRenderer.invoke(IPC.attachmentPick, notePath),
   attachmentIssues: (notePath) => ipcRenderer.invoke(IPC.attachmentIssues, notePath),
   onVaultEvent: (listener) => {

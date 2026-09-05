@@ -12,6 +12,8 @@ export function AiSettingsPanel(): React.JSX.Element {
   const [status, setStatus] = useState<AiConfigStatusDto | null>(null);
   const [form, setForm] = useState<Omit<AiProviderConfigDto, 'hasSecret'>>(DEFAULT_FORM);
   const [notice, setNotice] = useState<string | null>(null);
+  const [secretProviderId, setSecretProviderId] = useState('');
+  const [secret, setSecret] = useState('');
 
   const refresh = useCallback(async (): Promise<void> => {
     if (!bridge) return;
@@ -34,6 +36,22 @@ export function AiSettingsPanel(): React.JSX.Element {
     } else setNotice(result.error.message);
   };
 
+  const saveSecret = async (): Promise<void> => {
+    if (!bridge || !secretProviderId || !secret) return;
+    const result = await bridge.aiConfigSetSecret(secretProviderId, secret);
+    const message = result.ok ? 'Provider credential saved securely; the value is never displayed.' : result.error.message;
+    setSecret('');
+    if (result.ok) await refresh();
+    setNotice(message);
+  };
+
+  const removeSecret = async (providerId: string): Promise<void> => {
+    if (!bridge) return;
+    const result = await bridge.aiConfigRemoveSecret(providerId);
+    setNotice(result.ok ? 'Provider credential removed.' : result.error.message);
+    if (result.ok) await refresh();
+  };
+
   return (
     <section className="rightbar__section ai-panel">
       <h3 className="rightbar__heading">AI providers</h3>
@@ -44,8 +62,13 @@ export function AiSettingsPanel(): React.JSX.Element {
           <strong>{provider.displayName}</strong>
           <p>{provider.kind} · {provider.model ?? 'no model'} · {provider.enabled ? 'enabled' : 'disabled'}</p>
           <p>{provider.kind === 'external' ? `Endpoint: ${provider.endpoint ?? 'missing'}` : 'Local provider'}</p>
-          <p>Vault content transmission: {provider.sendsVaultContent ? (provider.disclosureConfirmed ? 'explicitly disclosed' : 'blocked pending disclosure') : 'off'}</p>
-          <p>Semantic search: {provider.semanticSearchEnabled ? 'configured' : 'off'} · Secret: {provider.hasSecret ? 'stored securely' : 'not configured'}</p>
+            <p>Vault content transmission: {provider.sendsVaultContent ? (provider.disclosureConfirmed ? 'explicitly disclosed' : 'blocked pending disclosure') : 'off'}</p>
+            <p>Semantic search: {provider.semanticSearchEnabled ? 'configured' : 'off'} · Secret: {provider.hasSecret ? 'stored securely' : 'not configured'}</p>
+            <div className="ai-panel__secret-actions">
+              {provider.hasSecret ? <button type="button" className="btn btn--small" onClick={() => void removeSecret(provider.id)}>Remove credential</button> : null}
+              <button type="button" className="btn btn--small" onClick={() => setSecretProviderId(provider.id)}>{provider.hasSecret ? 'Replace credential' : 'Set credential'}</button>
+            </div>
+
         </article>
       ))}
       <details className="ai-panel__form">
@@ -61,7 +84,14 @@ export function AiSettingsPanel(): React.JSX.Element {
         <label><input type="checkbox" checked={form.semanticSearchEnabled} onChange={(event) => setForm({ ...form, semanticSearchEnabled: event.target.checked })} /> Enable semantic search when a provider is explicitly activated</label>
         <label><input type="checkbox" checked={form.sendsVaultContent} onChange={(event) => setForm({ ...form, sendsVaultContent: event.target.checked })} /> This provider may receive vault content</label>
         {form.sendsVaultContent && <label className="ai-panel__disclosure"><input type="checkbox" checked={form.disclosureConfirmed} onChange={(event) => setForm({ ...form, disclosureConfirmed: event.target.checked })} /> I confirm the external content disclosure</label>}
-        <p className="rightbar__hint">Secret entry is intentionally unavailable in renderer UI; plaintext secrets are never stored in renderer state.</p>
+        <p className="rightbar__hint">Credential entry is transient and sent only to OS-backed secure storage. It is never returned or persisted in renderer state.</p>
+        {secretProviderId && <div className="ai-panel__secret-form">
+          <label>Credential for {secretProviderId}
+            <input type="password" autoComplete="new-password" value={secret} onChange={(event) => setSecret(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void saveSecret(); }} />
+          </label>
+          <button type="button" className="btn btn--small btn--primary" disabled={!status?.secureStorageAvailable || !secret} onClick={() => void saveSecret()}>Save credential securely</button>
+          <button type="button" className="btn btn--small" onClick={() => { setSecret(''); setSecretProviderId(''); }}>Cancel</button>
+        </div>}
         <button type="button" className="btn btn--small btn--primary" onClick={() => void save()}>Save provider metadata</button>
       </details>
       <button type="button" className="btn btn--small" onClick={() => void refresh()}>Refresh</button>

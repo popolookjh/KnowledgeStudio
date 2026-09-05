@@ -26,4 +26,12 @@ export class ElectronAiConfigHost {
   async upsert(config: Omit<ProviderConfig, 'hasSecret'>): Promise<ProviderConfig> {
     return this.store.upsert(config);
   }
+
+  async setSecret(providerId: string, secret: string): Promise<ProviderConfig> {
+    return this.store.setSecret(providerId, secret);
+  }
+
+  async removeSecret(providerId: string): Promise<ProviderConfig> {
+    return this.store.removeSecret(providerId);
+  }
 }

@@ -211,6 +211,22 @@ class VaultHost {
     }
   }
 
+  async aiConfigSetSecret(providerId: string, secret: string): Promise<RpcResult<AiProviderConfigDto>> {
+    try {
+      return rpc(await this.aiConfigHost.setSecret(providerId, secret));
+    } catch (error) {
+      return { ok: false, error: { code: 'AI_SECRET_SAVE_FAILED', message: error instanceof Error ? error.message : String(error) } };
+    }
+  }
+
+  async aiConfigRemoveSecret(providerId: string): Promise<RpcResult<AiProviderConfigDto>> {
+    try {
+      return rpc(await this.aiConfigHost.removeSecret(providerId));
+    } catch (error) {
+      return { ok: false, error: { code: 'AI_SECRET_REMOVE_FAILED', message: error instanceof Error ? error.message : String(error) } };
+    }
+  }
+
   async listPlugins(): Promise<RpcResult<readonly PluginDto[]>> {
     try {
       return rpc((await this.pluginHost.discover()).map((entry) => ({
@@ -576,6 +592,8 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.pluginApproveHighRisk, (_event, pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean) => host.approvePluginHighRisk(pluginId, permission, approved));
   ipcMain.handle(IPC.aiConfigList, () => host.aiConfigList());
   ipcMain.handle(IPC.aiConfigUpsert, (_event, config: Omit<AiProviderConfigDto, 'hasSecret'>) => host.aiConfigUpsert(config));
+  ipcMain.handle(IPC.aiConfigSetSecret, (_event, providerId: string, secret: string) => host.aiConfigSetSecret(providerId, secret));
+  ipcMain.handle(IPC.aiConfigRemoveSecret, (_event, providerId: string) => host.aiConfigRemoveSecret(providerId));
   ipcMain.handle(IPC.attachmentPick, (_event, notePath: string) => host.pickAttachment(notePath));
   ipcMain.handle(IPC.attachmentIssues, (_event, notePath: string) => host.attachmentIssues(notePath));
   return host;

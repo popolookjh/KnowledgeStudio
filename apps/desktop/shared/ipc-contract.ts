@@ -41,6 +41,8 @@ export const IPC = {
   pluginApproveHighRisk: 'plugin:approve-high-risk',
   aiConfigList: 'ai-config:list',
   aiConfigUpsert: 'ai-config:upsert',
+  aiConfigSetSecret: 'ai-config:set-secret',
+  aiConfigRemoveSecret: 'ai-config:remove-secret',
   attachmentPick: 'attachment:pick',
   attachmentIssues: 'attachment:issues',
 } as const;
@@ -226,6 +228,8 @@ export interface BridgeApi {
   approvePluginHighRisk(pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean): Promise<RpcResult<readonly PluginDto[]>>;
   aiConfigList(): Promise<RpcResult<AiConfigStatusDto>>;
   aiConfigUpsert(config: Omit<AiProviderConfigDto, 'hasSecret'>): Promise<RpcResult<AiProviderConfigDto>>;
+  aiConfigSetSecret(providerId: string, secret: string): Promise<RpcResult<AiProviderConfigDto>>;
+  aiConfigRemoveSecret(providerId: string): Promise<RpcResult<AiProviderConfigDto>>;
   pickAttachment(notePath: string): Promise<RpcResult<AttachmentDto> | null>;
   attachmentIssues(notePath: string): Promise<RpcResult<readonly AttachmentIssueDto[]>>;
 }
