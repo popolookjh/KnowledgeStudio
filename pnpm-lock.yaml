@@ -168,6 +168,15 @@ importers:
         specifier: ^4.1.0
         version: 4.5.4
 
+  packages/change-feed:
+    dependencies:
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@knowledge-studio/vault':
+        specifier: workspace:*
+        version: link:../vault
+
   packages/commands: {}
 
   packages/git: {}
