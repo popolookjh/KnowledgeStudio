@@ -130,7 +130,15 @@ class VaultHost {
     this.bases = new BasesHost(this.writer);
     this.clipper = new WebClipperHost(this.writer);
     this.pdf = new PdfHost(this.writer);
-    await this.mcpHost.attachVault(vault.root, createVaultMcpDataSource(vault));
+    await this.mcpHost.attachVault(vault.vaultId, createVaultMcpDataSource(vault, {
+      searchPaths: (query, limit) => {
+        if (!this.searchIndex.isOpen) return null;
+        const hits = this.searchIndex.search(query, { limit });
+        return hits.ok ? hits.value.map((hit) => hit.path) : null;
+      },
+      changeFeed: this.writer.feed,
+      bases: this.bases,
+    }));
     await this.rememberVault(vault.root);
     await this.startWatcher();
     await this.rebuildSearchIndex();

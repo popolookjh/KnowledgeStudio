@@ -36,12 +36,14 @@ export function McpPanel(): React.JSX.Element {
     <section className="rightbar__section mcp-panel">
       <h3 className="rightbar__heading">MCP (local)</h3>
       <p className="rightbar__hint">Loopback-only · read-only · no shell, process, or write tools.</p>
+      <p className="rightbar__hint">Retrieval V2: cited passages, change feed, PDF annotations, and Bases for local JSON-RPC clients; browser-originated requests are refused.</p>
       {!sessionRoot && <p className="rightbar__hint">Open a vault before starting MCP.</p>}
       {status && (
         <>
           <p>Status: {status.running ? 'running' : 'stopped'}</p>
           <p>Bind: {status.endpoint ?? 'not listening'}</p>
           <p>Mode: {status.readOnly ? 'read-only' : 'restricted'}</p>
+          {status.vaultId && <p>Vault ID: <code>{status.vaultId}</code></p>}
           <p>Tools: {status.tools.join(', ')}</p>
         </>
       )}
