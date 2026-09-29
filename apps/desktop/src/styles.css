@@ -990,3 +990,7 @@ button {
 .textLayer span[data-highlight="green"] { background: rgba(63, 163, 91, 0.35); }
 .textLayer span[data-highlight="blue"] { background: rgba(59, 130, 246, 0.35); }
 .textLayer span[data-highlight="pink"] { background: rgba(224, 82, 156, 0.35); }
+
+/* Zotero (Phase 37) */
+.zotero-panel__row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); }
+.zotero-panel__row input { width: 72px; padding: 3px 5px; background: var(--bg-app); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 3px; font: inherit; }

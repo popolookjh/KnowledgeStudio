@@ -11,6 +11,7 @@ import { PluginPanel } from './PluginPanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { TagBrowser } from './TagBrowser';
 import { WebClipPanel } from './WebClipPanel';
+import { ZoteroPanel } from './ZoteroPanel';
 
 /**
  * Right sidebar: editable properties, heading outline, and links.
@@ -57,6 +58,7 @@ export function RightSidebar(): React.JSX.Element {
       <TagBrowser />
       <AttachmentsPanel />
       <WebClipPanel />
+      <ZoteroPanel />
     </aside>
   );
 }

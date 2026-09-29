@@ -31,6 +31,7 @@
     { "path": "packages/bases" },
     { "path": "packages/web-clipper" },
     { "path": "packages/pdf-annotations" },
+    { "path": "packages/zotero" },
     { "path": "apps/desktop" },
     { "path": "apps/desktop/tsconfig.node.json" },
     { "path": "apps/desktop/tsconfig.electron.json" },

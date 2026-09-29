@@ -56,6 +56,8 @@ const IPC = {
   pdfAnnotationUpdate: 'pdf:annotation-update',
   pdfAnnotationRemove: 'pdf:annotation-remove',
   pdfExportNote: 'pdf:export-note',
+  zoteroImportFile: 'zotero:import-file',
+  zoteroSyncLocal: 'zotero:sync-local',
 } as const;
 
 /**
@@ -114,6 +116,8 @@ const api: BridgeApi = {
   pdfAnnotationUpdate: (path, id, patch, expectedRevision) => ipcRenderer.invoke(IPC.pdfAnnotationUpdate, path, id, patch, expectedRevision),
   pdfAnnotationRemove: (path, id, expectedRevision) => ipcRenderer.invoke(IPC.pdfAnnotationRemove, path, id, expectedRevision),
   pdfExportNote: (path, title) => ipcRenderer.invoke(IPC.pdfExportNote, path, title),
+  zoteroImportFile: () => ipcRenderer.invoke(IPC.zoteroImportFile),
+  zoteroSyncLocal: (port) => ipcRenderer.invoke(IPC.zoteroSyncLocal, port),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

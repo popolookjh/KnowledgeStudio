@@ -125,6 +125,9 @@ importers:
       '@knowledge-studio/web-clipper':
         specifier: workspace:*
         version: link:../../packages/web-clipper
+      '@knowledge-studio/zotero':
+        specifier: workspace:*
+        version: link:../../packages/zotero
       codemirror:
         specifier: ^6.0.2
         version: 6.0.2
@@ -373,6 +376,15 @@ importers:
       '@knowledge-studio/security':
         specifier: workspace:*
         version: link:../security
+      '@knowledge-studio/shared':
+        specifier: workspace:*
+        version: link:../shared
+
+  packages/zotero:
+    dependencies:
+      '@knowledge-studio/metadata':
+        specifier: workspace:*
+        version: link:../metadata
       '@knowledge-studio/shared':
         specifier: workspace:*
         version: link:../shared

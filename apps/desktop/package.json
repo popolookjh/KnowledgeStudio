@@ -36,6 +36,7 @@
     "@knowledge-studio/tags": "workspace:*",
     "@knowledge-studio/vault": "workspace:*",
     "@knowledge-studio/web-clipper": "workspace:*",
+    "@knowledge-studio/zotero": "workspace:*",
     "codemirror": "^6.0.2",
     "cytoscape": "^3.34.2",
     "react": "^19.2.8",

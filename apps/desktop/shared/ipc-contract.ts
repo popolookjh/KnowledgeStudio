@@ -61,6 +61,8 @@ export const IPC = {
   pdfAnnotationUpdate: 'pdf:annotation-update',
   pdfAnnotationRemove: 'pdf:annotation-remove',
   pdfExportNote: 'pdf:export-note',
+  zoteroImportFile: 'zotero:import-file',
+  zoteroSyncLocal: 'zotero:sync-local',
 } as const;
 
 export interface RpcError {
@@ -262,6 +264,14 @@ export interface PdfAnnotationsDto {
   readonly annotations: readonly PdfAnnotationDto[];
 }
 
+export interface ZoteroImportResultDto {
+  readonly created: number;
+  readonly updated: number;
+  readonly unchanged: number;
+  readonly failed: number;
+  readonly paths: readonly string[];
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -321,6 +331,8 @@ export interface BridgeApi {
   pdfAnnotationUpdate(path: string, id: string, patch: { color?: PdfAnnotationColor; note?: string }, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
   pdfAnnotationRemove(path: string, id: string, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
   pdfExportNote(path: string, title?: string): Promise<RpcResult<{ path: string }>>;
+  zoteroImportFile(): Promise<RpcResult<ZoteroImportResultDto> | null>;
+  zoteroSyncLocal(port: number): Promise<RpcResult<ZoteroImportResultDto>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */
