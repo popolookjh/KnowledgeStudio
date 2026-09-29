@@ -123,10 +123,14 @@ export function SearchOverlay(): React.JSX.Element | null {
               <span className="search-overlay__hit-title">{hit.title}</span>
               <span className="search-overlay__hit-path">{hit.path}</span>
               {hit.snippet.length > 0 && (
-                <span
-                  className="search-overlay__hit-snippet"
-                  dangerouslySetInnerHTML={{ __html: hit.snippet }}
-                />
+                <span className="search-overlay__hit-snippet" dir="auto">
+                  {/* Snippets are raw note text: render as text, never HTML. «…» marks FTS matches. */}
+                  {hit.snippet.split(/(«[^»]*»)/).map((part, partIndex) =>
+                    part.startsWith('«') && part.endsWith('»')
+                      ? <mark key={partIndex}>{part.slice(1, -1)}</mark>
+                      : part,
+                  )}
+                </span>
               )}
             </li>
           ))}
