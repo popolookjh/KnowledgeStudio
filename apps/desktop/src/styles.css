@@ -994,3 +994,9 @@ button {
 /* Zotero (Phase 37) */
 .zotero-panel__row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); }
 .zotero-panel__row input { width: 72px; padding: 3px 5px; background: var(--bg-app); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 3px; font: inherit; }
+
+/* Knowledge integrity (Tier 1 integration) */
+.integrity-panel__report { margin: 6px 0; font-size: 12px; }
+.integrity-panel__report div { display: flex; justify-content: space-between; gap: 8px; }
+.integrity-panel__report dt { color: var(--text-secondary); }
+.integrity-panel__report dd { margin: 0; text-align: end; overflow-wrap: anywhere; }

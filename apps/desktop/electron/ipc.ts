@@ -20,6 +20,7 @@ import { BasesHost } from './bases-host.js';
 import { WebClipperHost } from './clipper-host.js';
 import { PdfHost } from './pdf-host.js';
 import { ZoteroHost } from './zotero-host.js';
+import { IntegrityHost } from './integrity-host.js';
 import { TrustedNoteWriter } from './trusted-note-writer.js';
 import { createVaultMcpDataSource } from './mcp-vault-source.js';
 import { IPC } from '../shared/ipc-contract.js';
@@ -87,6 +88,7 @@ class VaultHost {
   private clipper: WebClipperHost | null = null;
   private pdf: PdfHost | null = null;
   private zotero: ZoteroHost | null = null;
+  private integrity: IntegrityHost | null = null;
   private readonly mcpHost = new ActiveVaultMcpHost();
   private readonly pluginHost = new LocalPluginHost(
     path.join(app.getPath('userData'), 'plugins'),
@@ -134,6 +136,7 @@ class VaultHost {
     this.clipper = new WebClipperHost(this.writer);
     this.pdf = new PdfHost(this.writer);
     this.zotero = new ZoteroHost(this.writer);
+    this.integrity = new IntegrityHost(this.writer);
     await this.mcpHost.attachVault(vault.vaultId, createVaultMcpDataSource(vault, {
       searchPaths: (query, limit) => {
         if (!this.searchIndex.isOpen) return null;
@@ -395,6 +398,7 @@ class VaultHost {
     this.clipper = null;
     this.pdf = null;
     this.zotero = null;
+    this.integrity = null;
     this.searchIndex.close();
   }
 
@@ -511,6 +515,15 @@ class VaultHost {
     if (!this.pdf) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
     try {
       return await call(this.pdf);
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
+  }
+
+  async integrityCall<T>(call: (integrity: IntegrityHost) => Promise<RpcResult<T>>): Promise<RpcResult<T>> {
+    if (!this.integrity) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    try {
+      return await call(this.integrity);
     } catch (error) {
       return { ok: false, error: serializeFailure(error) };
     }
@@ -691,6 +704,8 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.clipperClip, (_event, input: unknown) => host.clipperCall((clipper) => clipper.clip(input)));
   ipcMain.handle(IPC.clipperImportFile, () => host.clipperImportFile());
   // Zotero: file import via a main-process dialog; sync talks to 127.0.0.1 only (port validated in the package).
+  ipcMain.handle(IPC.integrityReport, () => host.integrityCall((integrity) => integrity.report()));
+  ipcMain.handle(IPC.integrityRepair, () => host.integrityCall((integrity) => integrity.repair()));
   ipcMain.handle(IPC.zoteroImportFile, () => host.zoteroImportFile());
   ipcMain.handle(IPC.zoteroSyncLocal, (_event, port: unknown) => host.zoteroSyncLocal(port));
   // PDF: arguments are `unknown` and validated by PdfHost; only vault-relative .pdf paths are accepted.

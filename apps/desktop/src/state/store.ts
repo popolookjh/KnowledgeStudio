@@ -566,11 +566,11 @@ class Store {
       await this.refreshEntries();
       return;
     }
-    if (event.kind === 'created') {
+    if (event.kind === 'created' && !openTab) {
       await this.refreshEntries();
       // Index the new file's content immediately so its links resolve.
       const api = this.state.bridge;
-      if (api && !openTab) {
+      if (api) {
         const read = await api.readNote(event.vaultPath);
         if (read.ok) {
           linkIndex.updateNote(event.vaultPath, read.value.content);
@@ -578,7 +578,9 @@ class Store {
       }
       return;
     }
-    // changed
+    // changed — or `created` for an open tab: the watcher reports the first
+    // event per path as `created`, so an external edit to an open note must
+    // still reload (clean buffer) or raise a conflict (dirty buffer).
     await this.refreshEntries();
     if (!openTab) {
       const api = this.state.bridge;

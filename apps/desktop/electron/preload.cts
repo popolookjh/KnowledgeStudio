@@ -58,6 +58,8 @@ const IPC = {
   pdfExportNote: 'pdf:export-note',
   zoteroImportFile: 'zotero:import-file',
   zoteroSyncLocal: 'zotero:sync-local',
+  integrityReport: 'integrity:report',
+  integrityRepair: 'integrity:repair',
 } as const;
 
 /**
@@ -118,6 +120,8 @@ const api: BridgeApi = {
   pdfExportNote: (path, title) => ipcRenderer.invoke(IPC.pdfExportNote, path, title),
   zoteroImportFile: () => ipcRenderer.invoke(IPC.zoteroImportFile),
   zoteroSyncLocal: (port) => ipcRenderer.invoke(IPC.zoteroSyncLocal, port),
+  integrityReport: () => ipcRenderer.invoke(IPC.integrityReport),
+  integrityRepair: () => ipcRenderer.invoke(IPC.integrityRepair),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

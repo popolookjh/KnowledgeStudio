@@ -63,6 +63,8 @@ export const IPC = {
   pdfExportNote: 'pdf:export-note',
   zoteroImportFile: 'zotero:import-file',
   zoteroSyncLocal: 'zotero:sync-local',
+  integrityReport: 'integrity:report',
+  integrityRepair: 'integrity:repair',
 } as const;
 
 export interface RpcError {
@@ -272,6 +274,17 @@ export interface ZoteroImportResultDto {
   readonly paths: readonly string[];
 }
 
+export interface IntegrityReportDto {
+  readonly vaultId: string;
+  readonly notes: number;
+  readonly withId: number;
+  readonly missingId: readonly string[];
+  readonly duplicateIds: readonly { readonly id: string; readonly paths: readonly string[] }[];
+  readonly invalidFrontmatter: readonly string[];
+  readonly provenance: { readonly records: number; readonly bySourceType: Readonly<Record<string, number>>; readonly unresolved: readonly string[]; readonly error: string | null };
+  readonly changeFeed: { readonly cursor: string; readonly retained: number; readonly error: string | null };
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -333,6 +346,8 @@ export interface BridgeApi {
   pdfExportNote(path: string, title?: string): Promise<RpcResult<{ path: string }>>;
   zoteroImportFile(): Promise<RpcResult<ZoteroImportResultDto> | null>;
   zoteroSyncLocal(port: number): Promise<RpcResult<ZoteroImportResultDto>>;
+  integrityReport(): Promise<RpcResult<IntegrityReportDto>>;
+  integrityRepair(): Promise<RpcResult<{ assigned: number; reassigned: number; report: IntegrityReportDto }>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */
