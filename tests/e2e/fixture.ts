@@ -18,7 +18,7 @@ export interface E2eFixture {
 
 const TEMP_ROOT = path.resolve(process.cwd(), 'tests/e2e/.tmp');
 
-export async function launchFixture(name: string): Promise<E2eFixture> {
+export async function launchFixture(name: string, extraFiles: Readonly<Record<string, string>> = {}): Promise<E2eFixture> {
   const root = path.join(TEMP_ROOT, `${name}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const vault = path.join(root, 'vault');
   const userData = path.join(root, 'user-data');
@@ -28,6 +28,10 @@ export async function launchFixture(name: string): Promise<E2eFixture> {
     await fs.writeFile(path.join(vault, 'Smoke.md'), '# Smoke Note\n\nCurrent changed content.\n', 'utf8');
     await fs.writeFile(path.join(vault, 'Second.md'), '# Second Note\n\n[[Smoke]]\n\n#persian فارسی\n', 'utf8');
     await createFixtureGitRepository(vault);
+    for (const [relative, content] of Object.entries(extraFiles)) {
+      await fs.mkdir(path.dirname(path.join(vault, relative)), { recursive: true });
+      await fs.writeFile(path.join(vault, relative), content, 'utf8');
+    }
     await createHistoryFixture(vault);
     await fs.writeFile(path.join(userData, 'knowledge-studio.json'), JSON.stringify({ lastVaultPath: vault }), 'utf8');
     await fs.writeFile(path.join(userData, 'workspace.json'), JSON.stringify({ selectedVault: vault, openTabs: ['Smoke.md'], activePath: 'Smoke.md', editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 }), 'utf8');
@@ -123,6 +127,16 @@ export async function waitForCanvasZoom(vault: string): Promise<number> {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
   return 0;
+}
+
+/** Polls a vault file until it satisfies the predicate (atomic writes may be mid-rename). */
+export async function waitForFile(file: string, predicate: (content: string) => boolean): Promise<string | null> {
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const raw = await fs.readFile(file, 'utf8').catch(() => null);
+    if (raw !== null && predicate(raw)) return raw;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return null;
 }
 
 export async function closeFixture(fixture: E2eFixture): Promise<void> {

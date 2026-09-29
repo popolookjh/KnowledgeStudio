@@ -15,6 +15,11 @@ const LazyGraphView = lazy(async () => {
   return { default: module.GraphView };
 });
 
+const LazyBasesView = lazy(async () => {
+  const module = await import('./components/BasesView');
+  return { default: module.BasesView };
+});
+
 const LazyCanvasView = lazy(async () => {
   const module = await import('./components/CanvasView');
   return { default: module.CanvasView };
@@ -37,7 +42,7 @@ function OptionalViewLoading({ name }: { readonly name: string }): React.JSX.Ele
  * └──────────────────────────────────────────────────────┘
  */
 export default function App(): React.JSX.Element {
-  const { sessionRoot, mode, activePath, conflictPath, graphOpen, canvasOpen } = useAppState();
+  const { sessionRoot, mode, activePath, conflictPath, graphOpen, canvasOpen, basesOpen } = useAppState();
 
   useEffect(() => {
     void store.bootstrap();
@@ -89,6 +94,14 @@ export default function App(): React.JSX.Element {
                 onClick={() => store.openCanvas()}
               >
                 Canvas
+              </button>
+              <button
+                type="button"
+                className="btn btn--small"
+                title="Open metadata Bases (table, cards, Kanban)"
+                onClick={() => store.openBases()}
+              >
+                Bases
               </button>
               <button
                 type="button"
@@ -186,6 +199,28 @@ export default function App(): React.JSX.Element {
             <LazyGraphView />
           </Suspense>
         </OptionalViewBoundary>
+      )}
+      {basesOpen && (
+        <div className="canvas-overlay" onClick={() => store.closeBases()}>
+          <div
+            className="canvas-overlay__panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Bases"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement)) store.closeBases(); }}
+          >
+            <div className="canvas-overlay__header">
+              <span>Bases</span>
+              <button type="button" className="btn btn--small" onClick={() => store.closeBases()}>Close</button>
+            </div>
+            <OptionalViewBoundary name="Bases" onClose={() => store.closeBases()}>
+              <Suspense fallback={<OptionalViewLoading name="Bases" />}>
+                <LazyBasesView />
+              </Suspense>
+            </OptionalViewBoundary>
+          </div>
+        </div>
       )}
       {canvasOpen && (
         <div className="canvas-overlay" onClick={() => store.closeCanvas()}>

@@ -24,6 +24,7 @@
     "package:smoke": "node scripts/package-smoke.mjs",
     "package:win:nsis": "corepack pnpm package:win:unpacked && corepack pnpm package:smoke && electron-builder --projectDir release/stage --config electron-builder.yml --win --x64",
     "build": "corepack pnpm -r build",
+    "bench:bases": "node scripts/bases-benchmark.mjs 1000 10000",
     "dev": "corepack pnpm --filter @knowledge-studio/desktop dev"
   },
   "devDependencies": {

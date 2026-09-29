@@ -16,6 +16,8 @@ export default tseslint.config(
       'release/**',
       'scripts/package-*.mjs',
       'scripts/mcp-http-smoke.mjs',
+      // Benchmarks import built package output (dist) that has no typed project.
+      'scripts/*-benchmark.mjs',
       // Root-level config files have no owning tsconfig project; Node
       // syntax-checks them on load, so untyped linting suffices.
       'eslint.config.mjs',

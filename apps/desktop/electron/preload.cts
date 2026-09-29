@@ -43,6 +43,11 @@ const IPC = {
   aiConfigRemoveSecret: 'ai-config:remove-secret',
   attachmentPick: 'attachment:pick',
   attachmentIssues: 'attachment:issues',
+  basesList: 'bases:list',
+  basesSave: 'bases:save',
+  basesDelete: 'bases:delete',
+  basesQuery: 'bases:query',
+  basesSetField: 'bases:set-field',
 } as const;
 
 /**
@@ -88,6 +93,11 @@ const api: BridgeApi = {
   aiConfigRemoveSecret: (providerId) => ipcRenderer.invoke(IPC.aiConfigRemoveSecret, providerId),
   pickAttachment: (notePath) => ipcRenderer.invoke(IPC.attachmentPick, notePath),
   attachmentIssues: (notePath) => ipcRenderer.invoke(IPC.attachmentIssues, notePath),
+  basesList: () => ipcRenderer.invoke(IPC.basesList),
+  basesSave: (definition, expectedRevision) => ipcRenderer.invoke(IPC.basesSave, definition, expectedRevision),
+  basesDelete: (id, expectedRevision) => ipcRenderer.invoke(IPC.basesDelete, id, expectedRevision),
+  basesQuery: (id) => ipcRenderer.invoke(IPC.basesQuery, id),
+  basesSetField: (edit) => ipcRenderer.invoke(IPC.basesSetField, edit),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

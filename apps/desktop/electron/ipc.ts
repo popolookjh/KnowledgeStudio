@@ -10,13 +10,14 @@ import {
   type VaultEntry,
 } from '@knowledge-studio/vault';
 import { copyAttachment, findMissingAttachments, findOrphanAttachments } from '@knowledge-studio/attachments';
-import { ensureDocumentId } from '@knowledge-studio/metadata';
 import { SearchIndex } from '@knowledge-studio/search';
 import { RevisionStore } from '@knowledge-studio/history';
 import { GitClient } from '@knowledge-studio/git';
 import { ActiveVaultMcpHost } from '@knowledge-studio/mcp-host';
 import { LocalPluginHost } from '@knowledge-studio/plugin-host';
 import { ElectronAiConfigHost } from './ai-config-host.js';
+import { BasesHost } from './bases-host.js';
+import { TrustedNoteWriter } from './trusted-note-writer.js';
 import { createVaultMcpDataSource } from './mcp-vault-source.js';
 import { IPC } from '../shared/ipc-contract.js';
 import type {
@@ -76,6 +77,8 @@ class VaultHost {
   private renderer: BrowserWindow | null = null;
   private searchIndex = new SearchIndex();
   private history: RevisionStore | null = null;
+  private writer: TrustedNoteWriter | null = null;
+  private bases: BasesHost | null = null;
   private readonly mcpHost = new ActiveVaultMcpHost();
   private readonly pluginHost = new LocalPluginHost(
     path.join(app.getPath('userData'), 'plugins'),
@@ -118,6 +121,8 @@ class VaultHost {
     await this.closeInternal();
     this.vault = vault;
     this.history = new RevisionStore(path.join(vault.appDir, 'history'));
+    this.writer = new TrustedNoteWriter(vault, this.history);
+    this.bases = new BasesHost(this.writer);
     await this.mcpHost.attachVault(vault.root, createVaultMcpDataSource(vault));
     await this.rememberVault(vault.root);
     await this.startWatcher();
@@ -172,7 +177,9 @@ class VaultHost {
     const picked = await dialog.showOpenDialog({ title: 'Add attachment', properties: ['openFile', 'dontAddToRecent'] });
     if (picked.canceled || picked.filePaths.length === 0) return null;
     const copied = await copyAttachment({ vaultRoot: vault.root, sourcePath: picked.filePaths[0]!, notePath });
-    return copied.ok ? rpc(copied.value) : { ok: false, error: serializeFailure(copied.error) };
+    if (!copied.ok) return { ok: false, error: serializeFailure(copied.error) };
+    await this.writer?.recordChange({ type: 'attachment_added', path: copied.value.vaultPath, metadata: { notePath, bytes: copied.value.bytes } });
+    return rpc(copied.value);
   }
 
   async attachmentIssues(notePath: string): Promise<RpcResult<readonly AttachmentIssueDto[]>> {
@@ -364,6 +371,8 @@ class VaultHost {
     this.vault?.close();
     this.vault = null;
     this.history = null;
+    this.writer = null;
+    this.bases = null;
     this.searchIndex.close();
   }
 
@@ -410,21 +419,9 @@ class VaultHost {
     if (!('root' in vault)) {
       return { ok: false, error: vault };
     }
-    const current = await vault.readFile(vaultPath);
-    if (current.ok && current.value.content !== content && this.history) {
-      try {
-        await this.history.record(vaultPath, current.value.content);
-      } catch {
-        // Revision recording must never prevent a user save; the save path
-        // remains atomic and conflict-aware in the vault engine.
-      }
-    }
-    const identified = vaultPath.endsWith('.md') ? ensureDocumentId(content) : { ok: true as const, value: { content, documentId: '', assigned: false } };
-    if (!identified.ok) return { ok: false, error: { code: 'DOCUMENT_ID_INVALID', message: identified.error.map((issue) => issue.message).join('; ') } };
-    const result = await vault.writeFile(vaultPath, identified.value.content, { expectedMtimeMs });
-    return result.ok
-      ? rpc({ mtimeMs: result.value.mtimeMs })
-      : { ok: false, error: serializeFailure(result.error) };
+    if (!this.writer) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    const result = await this.writer.write(vaultPath, content, expectedMtimeMs !== undefined ? { expectedMtimeMs } : {});
+    return result.ok ? rpc({ mtimeMs: result.value.mtimeMs }) : result;
   }
 
   async createNote(vaultPath: string, content: string): Promise<RpcResult<string>> {
@@ -436,13 +433,11 @@ class VaultHost {
     if (!exists.ok) {
       return { ok: false, error: serializeFailure(exists.error) };
     }
-    if (exists.value) {
+    if (exists.value || !this.writer) {
       return { ok: false, error: { code: 'VAULT_PATH_EXISTS', message: 'A file with that name already exists' } };
     }
-    const identified = vaultPath.endsWith('.md') ? ensureDocumentId(content) : { ok: true as const, value: { content, documentId: '', assigned: false } };
-    if (!identified.ok) return { ok: false, error: { code: 'DOCUMENT_ID_INVALID', message: identified.error.map((issue) => issue.message).join('; ') } };
-    const written = await vault.writeFile(vaultPath, identified.value.content);
-    return written.ok ? rpc(vaultPath) : { ok: false, error: serializeFailure(written.error) };
+    const written = await this.writer.write(vaultPath, content, { createOnly: true });
+    return written.ok ? rpc(vaultPath) : written;
   }
 
   async renameEntry(from: string, to: string): Promise<RpcResult<string>> {
@@ -451,7 +446,9 @@ class VaultHost {
       return { ok: false, error: vault };
     }
     const result = await vault.rename(from, to);
-    return result.ok ? rpc(result.value) : { ok: false, error: serializeFailure(result.error) };
+    if (!result.ok) return { ok: false, error: serializeFailure(result.error) };
+    await this.writer?.recordChange({ type: 'document_moved', oldPath: from, path: result.value });
+    return rpc(result.value);
   }
 
   async deleteEntry(vaultPath: string): Promise<RpcResult<string>> {
@@ -460,7 +457,23 @@ class VaultHost {
       return { ok: false, error: vault };
     }
     const trashed = await vault.deleteToTrash(vaultPath);
-    return trashed.ok ? rpc(trashed.value.id) : { ok: false, error: serializeFailure(trashed.error) };
+    if (!trashed.ok) return { ok: false, error: serializeFailure(trashed.error) };
+    await this.writer?.recordChange({ type: 'document_deleted', path: vaultPath });
+    return rpc(trashed.value.id);
+  }
+
+  private requireBases(): BasesHost | RpcError {
+    return this.bases ?? { code: 'VAULT_NOT_OPEN', message: 'No vault is open' };
+  }
+
+  async basesCall<T>(call: (bases: BasesHost) => Promise<RpcResult<T>>): Promise<RpcResult<T>> {
+    const bases = this.requireBases();
+    if (!(bases instanceof BasesHost)) return { ok: false, error: bases };
+    try {
+      return await call(bases);
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
   }
 
   /** Rebuilds (or creates) the FTS5 index over every note in the vault. */
@@ -601,5 +614,11 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.aiConfigRemoveSecret, (_event, providerId: string) => host.aiConfigRemoveSecret(providerId));
   ipcMain.handle(IPC.attachmentPick, (_event, notePath: string) => host.pickAttachment(notePath));
   ipcMain.handle(IPC.attachmentIssues, (_event, notePath: string) => host.attachmentIssues(notePath));
+  // Bases: every argument is `unknown` here and runtime-validated in BasesHost.
+  ipcMain.handle(IPC.basesList, () => host.basesCall((bases) => bases.list()));
+  ipcMain.handle(IPC.basesSave, (_event, definition: unknown, expectedRevision: unknown) => host.basesCall((bases) => bases.save(definition, expectedRevision)));
+  ipcMain.handle(IPC.basesDelete, (_event, id: unknown, expectedRevision: unknown) => host.basesCall((bases) => bases.remove(id, expectedRevision)));
+  ipcMain.handle(IPC.basesQuery, (_event, id: unknown) => host.basesCall((bases) => bases.query(id)));
+  ipcMain.handle(IPC.basesSetField, (_event, edit: unknown) => host.basesCall((bases) => bases.setField(edit)));
   return host;
 }

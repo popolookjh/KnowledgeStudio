@@ -9,6 +9,8 @@
  * (`RpcError`), never Error instances.
  */
 
+import type { BaseDefinition, BaseRowView } from '@knowledge-studio/bases';
+
 export const IPC = {
   init: 'app:init',
   pickVault: 'vault:pick',
@@ -45,6 +47,11 @@ export const IPC = {
   aiConfigRemoveSecret: 'ai-config:remove-secret',
   attachmentPick: 'attachment:pick',
   attachmentIssues: 'attachment:issues',
+  basesList: 'bases:list',
+  basesSave: 'bases:save',
+  basesDelete: 'bases:delete',
+  basesQuery: 'bases:query',
+  basesSetField: 'bases:set-field',
 } as const;
 
 export interface RpcError {
@@ -186,6 +193,35 @@ export interface WorkspaceStateDto {
   readonly windowHeight: number;
 }
 
+export type BaseDefinitionDto = BaseDefinition;
+export type BaseRowDto = BaseRowView;
+
+export interface BaseSummaryDto {
+  readonly id: string;
+  readonly name: string;
+  readonly view: BaseDefinition['view'];
+  readonly revision: number;
+}
+
+export interface StoredBaseDto {
+  readonly revision: number;
+  readonly definition: BaseDefinitionDto;
+}
+
+export interface BaseQueryDto {
+  readonly base: StoredBaseDto;
+  readonly total: number;
+  readonly rows: readonly BaseRowDto[];
+  readonly elapsedMs: number;
+}
+
+export interface BaseFieldEditDto {
+  readonly path: string;
+  readonly key: string;
+  readonly value: string | number | boolean | null | readonly string[];
+  readonly expectedMtimeMs: number;
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -232,6 +268,11 @@ export interface BridgeApi {
   aiConfigRemoveSecret(providerId: string): Promise<RpcResult<AiProviderConfigDto>>;
   pickAttachment(notePath: string): Promise<RpcResult<AttachmentDto> | null>;
   attachmentIssues(notePath: string): Promise<RpcResult<readonly AttachmentIssueDto[]>>;
+  basesList(): Promise<RpcResult<readonly BaseSummaryDto[]>>;
+  basesSave(definition: BaseDefinitionDto, expectedRevision?: number): Promise<RpcResult<StoredBaseDto>>;
+  basesDelete(id: string, expectedRevision: number): Promise<RpcResult<true>>;
+  basesQuery(id: string): Promise<RpcResult<BaseQueryDto>>;
+  basesSetField(edit: BaseFieldEditDto): Promise<RpcResult<{ path: string; mtimeMs: number }>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

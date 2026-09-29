@@ -25,8 +25,9 @@ surfaces are unavailable.
 | Security | link schemes, secret redaction, file-size limits | unit |
 | Portability/RTL | non-destructive import/export, UTF-8, Persian/mixed direction/code LTR | unit |
 | Operations | content-redacted logs, recovery selection, synthetic benchmark | unit + benchmark smoke |
+| Bases | runtime-validated definitions/edits, vault-bound persistence, body-free row projection, trusted metadata edits (history, identity, change feed), 1k/10k benchmark | unit + temp vault + `bench:bases` |
 | Desktop | Electron process launch smoke | process smoke |
-| Electron E2E | project-local vault/user-data fixture, preload bridge, workbench, notes/search/workspace/wiki/tags, history, Git diff, Plugin policy, MCP loopback lifecycle, AI disclosure, Graph and Canvas persistence | Playwright Electron |
+| Electron E2E | project-local vault/user-data fixture, preload bridge, workbench, notes/search/workspace/wiki/tags, history, Git diff, Plugin policy, MCP loopback lifecycle, AI disclosure, Graph and Canvas persistence, Bases table/cards/RTL keyboard Kanban | Playwright Electron |
 
 Every defect should receive a regression test. All root gates run the full matrix:
 `lint`, `typecheck`, `test`, and `build`.

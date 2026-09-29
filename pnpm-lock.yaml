@@ -68,9 +68,15 @@ importers:
       '@knowledge-studio/attachments':
         specifier: workspace:*
         version: link:../../packages/attachments
+      '@knowledge-studio/bases':
+        specifier: workspace:*
+        version: link:../../packages/bases
       '@knowledge-studio/canvas':
         specifier: workspace:*
         version: link:../../packages/canvas
+      '@knowledge-studio/change-feed':
+        specifier: workspace:*
+        version: link:../../packages/change-feed
       '@knowledge-studio/git':
         specifier: workspace:*
         version: link:../../packages/git
@@ -95,6 +101,9 @@ importers:
       '@knowledge-studio/plugin-host':
         specifier: workspace:*
         version: link:../../packages/plugin-host
+      '@knowledge-studio/rtl':
+        specifier: workspace:*
+        version: link:../../packages/rtl
       '@knowledge-studio/search':
         specifier: workspace:*
         version: link:../../packages/search

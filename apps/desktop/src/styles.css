@@ -915,3 +915,39 @@ button {
 .ai-panel__form label { display: block; margin: 4px 0; }
 .ai-panel__disclosure { color: var(--warning); }
 .ai-panel__notice { color: var(--warning); font-size: 12px; }
+
+/* Bases (Phase 33): logical properties keep layout correct in RTL. */
+.bases { flex: 1; display: flex; min-height: 0; color: var(--text-primary); }
+.bases__sidebar { width: 230px; flex-shrink: 0; border-inline-end: 1px solid var(--border-subtle); padding: 8px; overflow: auto; }
+.bases__sidebar ul { list-style: none; margin: 0 0 12px; padding: 0; }
+.bases__base { width: 100%; text-align: start; padding: 5px 8px; border: none; border-radius: 4px; background: none; color: inherit; font: inherit; cursor: pointer; }
+.bases__base:hover, .bases__base.is-active { background: var(--accent-soft); }
+.bases__create { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.bases__create label { display: flex; flex-direction: column; gap: 2px; }
+.bases__create input, .bases__cell-input { padding: 4px 6px; background: var(--bg-app); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 3px; font: inherit; }
+.bases__main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.bases__toolbar { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border-subtle); }
+.bases__toolbar [role="tablist"] { display: flex; gap: 4px; }
+.bases__meta { margin-inline-start: auto; color: var(--text-secondary); font-size: 12px; }
+.bases__content { flex: 1; overflow: auto; padding: 10px; }
+.bases__table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.bases__caption { text-align: start; padding-bottom: 6px; color: var(--text-secondary); }
+.bases__table th, .bases__table td { border: 1px solid var(--border-subtle); padding: 2px 4px; text-align: start; }
+.bases__cell, .bases__open { width: 100%; text-align: start; border: none; background: none; color: inherit; font: inherit; padding: 3px 4px; cursor: pointer; }
+.bases__open { color: var(--accent); }
+.bases__cell:focus-visible, .bases__open:focus-visible, .bases__kanban-card:focus-visible, .bases__base:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bases__cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.bases__card { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 8px; background: var(--bg-elevated); }
+.bases__card h4 { margin: 0 0 6px; }
+.bases__card dl { margin: 0; font-size: 12px; }
+.bases__card-field { display: flex; gap: 6px; }
+.bases__card-field dt { color: var(--text-secondary); }
+.bases__card-field dd { margin: 0; }
+.bases__columns { display: flex; gap: 10px; align-items: flex-start; }
+.bases__column { min-width: 200px; flex: 1; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 6px; background: var(--bg-elevated); }
+.bases__column h4 { margin: 0 0 6px; font-size: 13px; }
+.bases__column ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.bases__kanban-card { padding: 6px 8px; border: 1px solid var(--border-subtle); border-radius: 4px; background: var(--bg-surface); cursor: default; }
+.bases__count { color: var(--text-secondary); font-weight: normal; }
+.bases__hint { color: var(--text-secondary); font-size: 12px; }
+.bases__live { min-height: 18px; margin: 0; padding: 4px 10px; color: var(--text-secondary); font-size: 12px; border-top: 1px solid var(--border-subtle); }
