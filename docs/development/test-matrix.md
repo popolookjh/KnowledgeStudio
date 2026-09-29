@@ -27,8 +27,9 @@ surfaces are unavailable.
 | Operations | content-redacted logs, recovery selection, synthetic benchmark | unit + benchmark smoke |
 | Bases | runtime-validated definitions/edits, vault-bound persistence, body-free row projection, trusted metadata edits (history, identity, change feed), 1k/10k benchmark | unit + temp vault + `bench:bases` |
 | Web clipper | non-executing HTML→Markdown, unsafe scheme/script/iframe removal, image-as-link, input limits, collision-safe paths, web provenance + `source_imported` | unit + temp vault + E2E |
+| PDF | vault-relative `.pdf` + signature checks, annotation sidecar validation/revisions, pdf provenance, annotation change events, cited Markdown export; pdf.js with WASM/XFA disabled, no eval, text layer only | unit + temp vault + E2E |
 | Desktop | Electron process launch smoke | process smoke |
-| Electron E2E | project-local vault/user-data fixture, preload bridge, workbench, notes/search/workspace/wiki/tags, history, Git diff, Plugin policy, MCP loopback lifecycle, AI disclosure, Graph and Canvas persistence, Bases table/cards/RTL keyboard Kanban, offline web clip ingestion | Playwright Electron |
+| Electron E2E | project-local vault/user-data fixture, preload bridge, workbench, notes/search/workspace/wiki/tags, history, Git diff, Plugin policy, MCP loopback lifecycle, AI disclosure, Graph and Canvas persistence, Bases table/cards/RTL keyboard Kanban, offline web clip ingestion, PDF reader highlights/notes/export | Playwright Electron |
 
 Every defect should receive a regression test. All root gates run the full matrix:
 `lint`, `typecheck`, `test`, and `build`.

@@ -48,6 +48,8 @@ export interface AppState {
   readonly sidebarCollapsed: boolean;
   readonly canvasOpen: boolean;
   readonly basesOpen: boolean;
+  /** Vault-relative PDF currently open in the reader overlay. */
+  readonly pdfPath: string | null;
 }
 
 const AUTOSAVE_DELAY_MS = 800;
@@ -72,6 +74,7 @@ class Store {
     sidebarCollapsed: false,
     canvasOpen: false,
     basesOpen: false,
+    pdfPath: null,
   };
 
   private readonly listeners = new Set<() => void>();
@@ -501,6 +504,8 @@ class Store {
   closeCanvas(): void { this.set({ canvasOpen: false }); }
   openBases(): void { this.set({ basesOpen: true }); }
   closeBases(): void { this.set({ basesOpen: false }); }
+  openPdf(vaultPath: string): void { this.set({ pdfPath: vaultPath }); }
+  closePdf(): void { this.set({ pdfPath: null }); }
 
   private async persistWorkspace(): Promise<void> {
     const api = this.state.bridge;

@@ -18,7 +18,7 @@ export interface E2eFixture {
 
 const TEMP_ROOT = path.resolve(process.cwd(), 'tests/e2e/.tmp');
 
-export async function launchFixture(name: string, extraFiles: Readonly<Record<string, string>> = {}): Promise<E2eFixture> {
+export async function launchFixture(name: string, extraFiles: Readonly<Record<string, string | Buffer>> = {}): Promise<E2eFixture> {
   const root = path.join(TEMP_ROOT, `${name}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const vault = path.join(root, 'vault');
   const userData = path.join(root, 'user-data');
@@ -30,7 +30,7 @@ export async function launchFixture(name: string, extraFiles: Readonly<Record<st
     await createFixtureGitRepository(vault);
     for (const [relative, content] of Object.entries(extraFiles)) {
       await fs.mkdir(path.dirname(path.join(vault, relative)), { recursive: true });
-      await fs.writeFile(path.join(vault, relative), content, 'utf8');
+      await fs.writeFile(path.join(vault, relative), content);
     }
     await createHistoryFixture(vault);
     await fs.writeFile(path.join(userData, 'knowledge-studio.json'), JSON.stringify({ lastVaultPath: vault }), 'utf8');
@@ -137,6 +137,34 @@ export async function waitForFile(file: string, predicate: (content: string) => 
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
   return null;
+}
+
+/** Builds a small valid multi-page text PDF (standard Helvetica font) for reader tests. */
+export function createTextPdf(title: string, pages: readonly string[]): Buffer {
+  const escape = (text: string): string => text.replace(/[\\()]/g, (character) => `\\${character}`);
+  const objects: string[] = [];
+  const pageIds = pages.map((_page, index) => 4 + index * 2);
+  objects[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+  objects[2] = `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(' ')}] /Count ${pages.length} >>`;
+  objects[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+  pages.forEach((text, index) => {
+    const id = pageIds[index]!;
+    const stream = `BT /F1 18 Tf 40 120 Td (${escape(text)}) Tj ET`;
+    objects[id] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 420 200] /Contents ${id + 1} 0 R /Resources << /Font << /F1 3 0 R >> >> >>`;
+    objects[id + 1] = [`<< /Length ${stream.length} >>`, 'stream', stream, 'endstream'].join('\n');
+  });
+  const infoId = objects.length;
+  objects[infoId] = `<< /Title (${escape(title)}) >>`;
+  let body = '%PDF-1.4\n';
+  const offsets: number[] = [];
+  for (let id = 1; id < objects.length; id += 1) {
+    offsets[id] = Buffer.byteLength(body, 'latin1');
+    body += [`${id} 0 obj`, objects[id]!, 'endobj', ''].join('\n');
+  }
+  const xref = Buffer.byteLength(body, 'latin1');
+  const entries = offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`).join('');
+  body += `xref\n0 ${objects.length}\n0000000000 65535 f \n${entries}trailer\n<< /Size ${objects.length} /Root 1 0 R /Info ${infoId} 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Buffer.from(body, 'latin1');
 }
 
 export async function closeFixture(fixture: E2eFixture): Promise<void> {

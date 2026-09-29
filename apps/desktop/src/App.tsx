@@ -20,6 +20,11 @@ const LazyBasesView = lazy(async () => {
   return { default: module.BasesView };
 });
 
+const LazyPdfView = lazy(async () => {
+  const module = await import('./components/PdfView');
+  return { default: module.PdfView };
+});
+
 const LazyCanvasView = lazy(async () => {
   const module = await import('./components/CanvasView');
   return { default: module.CanvasView };
@@ -42,7 +47,7 @@ function OptionalViewLoading({ name }: { readonly name: string }): React.JSX.Ele
  * └──────────────────────────────────────────────────────┘
  */
 export default function App(): React.JSX.Element {
-  const { sessionRoot, mode, activePath, conflictPath, graphOpen, canvasOpen, basesOpen } = useAppState();
+  const { sessionRoot, mode, activePath, conflictPath, graphOpen, canvasOpen, basesOpen, pdfPath } = useAppState();
 
   useEffect(() => {
     void store.bootstrap();
@@ -199,6 +204,21 @@ export default function App(): React.JSX.Element {
             <LazyGraphView />
           </Suspense>
         </OptionalViewBoundary>
+      )}
+      {pdfPath && (
+        <div className="canvas-overlay" onClick={() => store.closePdf()}>
+          <div className="canvas-overlay__panel" role="dialog" aria-modal="true" aria-label="PDF reader" onClick={(event) => event.stopPropagation()}>
+            <div className="canvas-overlay__header">
+              <span dir="auto">{pdfPath}</span>
+              <button type="button" className="btn btn--small" onClick={() => store.closePdf()}>Close</button>
+            </div>
+            <OptionalViewBoundary name="PDF reader" onClose={() => store.closePdf()}>
+              <Suspense fallback={<OptionalViewLoading name="PDF reader" />}>
+                <LazyPdfView key={pdfPath} path={pdfPath} />
+              </Suspense>
+            </OptionalViewBoundary>
+          </div>
+        </div>
       )}
       {basesOpen && (
         <div className="canvas-overlay" onClick={() => store.closeBases()}>

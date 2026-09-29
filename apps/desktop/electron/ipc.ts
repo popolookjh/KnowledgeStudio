@@ -18,6 +18,7 @@ import { LocalPluginHost } from '@knowledge-studio/plugin-host';
 import { ElectronAiConfigHost } from './ai-config-host.js';
 import { BasesHost } from './bases-host.js';
 import { WebClipperHost } from './clipper-host.js';
+import { PdfHost } from './pdf-host.js';
 import { TrustedNoteWriter } from './trusted-note-writer.js';
 import { createVaultMcpDataSource } from './mcp-vault-source.js';
 import { IPC } from '../shared/ipc-contract.js';
@@ -82,6 +83,7 @@ class VaultHost {
   private writer: TrustedNoteWriter | null = null;
   private bases: BasesHost | null = null;
   private clipper: WebClipperHost | null = null;
+  private pdf: PdfHost | null = null;
   private readonly mcpHost = new ActiveVaultMcpHost();
   private readonly pluginHost = new LocalPluginHost(
     path.join(app.getPath('userData'), 'plugins'),
@@ -127,6 +129,7 @@ class VaultHost {
     this.writer = new TrustedNoteWriter(vault, this.history);
     this.bases = new BasesHost(this.writer);
     this.clipper = new WebClipperHost(this.writer);
+    this.pdf = new PdfHost(this.writer);
     await this.mcpHost.attachVault(vault.root, createVaultMcpDataSource(vault));
     await this.rememberVault(vault.root);
     await this.startWatcher();
@@ -378,6 +381,7 @@ class VaultHost {
     this.writer = null;
     this.bases = null;
     this.clipper = null;
+    this.pdf = null;
     this.searchIndex.close();
   }
 
@@ -485,6 +489,15 @@ class VaultHost {
     if (!this.clipper) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
     try {
       return await call(this.clipper);
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
+  }
+
+  async pdfCall<T>(call: (pdf: PdfHost) => Promise<RpcResult<T>>): Promise<RpcResult<T>> {
+    if (!this.pdf) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    try {
+      return await call(this.pdf);
     } catch (error) {
       return { ok: false, error: serializeFailure(error) };
     }
@@ -643,6 +656,13 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.basesQuery, (_event, id: unknown) => host.basesCall((bases) => bases.query(id)));
   ipcMain.handle(IPC.clipperClip, (_event, input: unknown) => host.clipperCall((clipper) => clipper.clip(input)));
   ipcMain.handle(IPC.clipperImportFile, () => host.clipperImportFile());
+  // PDF: arguments are `unknown` and validated by PdfHost; only vault-relative .pdf paths are accepted.
+  ipcMain.handle(IPC.pdfRead, (_event, pdfPath: unknown) => host.pdfCall((pdf) => pdf.read(pdfPath)));
+  ipcMain.handle(IPC.pdfAnnotationsList, (_event, pdfPath: unknown) => host.pdfCall((pdf) => pdf.list(pdfPath)));
+  ipcMain.handle(IPC.pdfAnnotationAdd, (_event, pdfPath: unknown, annotation: unknown, expectedRevision: unknown, title: unknown) => host.pdfCall((pdf) => pdf.add(pdfPath, annotation, expectedRevision, title)));
+  ipcMain.handle(IPC.pdfAnnotationUpdate, (_event, pdfPath: unknown, id: unknown, patch: unknown, expectedRevision: unknown) => host.pdfCall((pdf) => pdf.update(pdfPath, id, patch, expectedRevision)));
+  ipcMain.handle(IPC.pdfAnnotationRemove, (_event, pdfPath: unknown, id: unknown, expectedRevision: unknown) => host.pdfCall((pdf) => pdf.remove(pdfPath, id, expectedRevision)));
+  ipcMain.handle(IPC.pdfExportNote, (_event, pdfPath: unknown, title: unknown) => host.pdfCall((pdf) => pdf.exportNote(pdfPath, title)));
   ipcMain.handle(IPC.basesSetField, (_event, edit: unknown) => host.basesCall((bases) => bases.setField(edit)));
   return host;
 }

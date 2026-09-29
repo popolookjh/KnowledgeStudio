@@ -10,6 +10,7 @@
  */
 
 import type { BaseDefinition, BaseRowView } from '@knowledge-studio/bases';
+import type { AnnotationColor, PdfAnnotation } from '@knowledge-studio/pdf-annotations';
 
 export const IPC = {
   init: 'app:init',
@@ -54,6 +55,12 @@ export const IPC = {
   basesSetField: 'bases:set-field',
   clipperClip: 'clipper:clip',
   clipperImportFile: 'clipper:import-file',
+  pdfRead: 'pdf:read',
+  pdfAnnotationsList: 'pdf:annotations-list',
+  pdfAnnotationAdd: 'pdf:annotation-add',
+  pdfAnnotationUpdate: 'pdf:annotation-update',
+  pdfAnnotationRemove: 'pdf:annotation-remove',
+  pdfExportNote: 'pdf:export-note',
 } as const;
 
 export interface RpcError {
@@ -239,6 +246,22 @@ export interface ClipResultDto {
   readonly url: string | null;
 }
 
+export interface PdfDocumentDto {
+  readonly path: string;
+  readonly bytes: Uint8Array;
+  readonly size: number;
+}
+
+export type PdfAnnotationDto = PdfAnnotation;
+export type PdfAnnotationColor = AnnotationColor;
+
+export interface PdfAnnotationsDto {
+  readonly pdfPath: string;
+  readonly sourceId: string;
+  readonly revision: number;
+  readonly annotations: readonly PdfAnnotationDto[];
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -292,6 +315,12 @@ export interface BridgeApi {
   basesSetField(edit: BaseFieldEditDto): Promise<RpcResult<{ path: string; mtimeMs: number }>>;
   clipperClip(input: ClipInputDto): Promise<RpcResult<ClipResultDto>>;
   clipperImportFile(): Promise<RpcResult<ClipResultDto> | null>;
+  pdfRead(path: string): Promise<RpcResult<PdfDocumentDto>>;
+  pdfAnnotationsList(path: string): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationAdd(path: string, annotation: { page: number; quote: string; color: PdfAnnotationColor; note?: string }, expectedRevision: number, title?: string): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationUpdate(path: string, id: string, patch: { color?: PdfAnnotationColor; note?: string }, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationRemove(path: string, id: string, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfExportNote(path: string, title?: string): Promise<RpcResult<{ path: string }>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

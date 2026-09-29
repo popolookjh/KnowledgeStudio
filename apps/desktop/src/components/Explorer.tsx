@@ -76,6 +76,8 @@ export function Explorer(): React.JSX.Element {
                 onClick={() => {
                   if (entry.kind === 'note') {
                     void store.openNote(entry.path);
+                  } else if (entry.path.toLowerCase().endsWith('.pdf')) {
+                    store.openPdf(entry.path);
                   }
                 }}
               >

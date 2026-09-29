@@ -50,6 +50,12 @@ const IPC = {
   basesSetField: 'bases:set-field',
   clipperClip: 'clipper:clip',
   clipperImportFile: 'clipper:import-file',
+  pdfRead: 'pdf:read',
+  pdfAnnotationsList: 'pdf:annotations-list',
+  pdfAnnotationAdd: 'pdf:annotation-add',
+  pdfAnnotationUpdate: 'pdf:annotation-update',
+  pdfAnnotationRemove: 'pdf:annotation-remove',
+  pdfExportNote: 'pdf:export-note',
 } as const;
 
 /**
@@ -102,6 +108,12 @@ const api: BridgeApi = {
   basesSetField: (edit) => ipcRenderer.invoke(IPC.basesSetField, edit),
   clipperClip: (input) => ipcRenderer.invoke(IPC.clipperClip, input),
   clipperImportFile: () => ipcRenderer.invoke(IPC.clipperImportFile),
+  pdfRead: (path) => ipcRenderer.invoke(IPC.pdfRead, path),
+  pdfAnnotationsList: (path) => ipcRenderer.invoke(IPC.pdfAnnotationsList, path),
+  pdfAnnotationAdd: (path, annotation, expectedRevision, title) => ipcRenderer.invoke(IPC.pdfAnnotationAdd, path, annotation, expectedRevision, title),
+  pdfAnnotationUpdate: (path, id, patch, expectedRevision) => ipcRenderer.invoke(IPC.pdfAnnotationUpdate, path, id, patch, expectedRevision),
+  pdfAnnotationRemove: (path, id, expectedRevision) => ipcRenderer.invoke(IPC.pdfAnnotationRemove, path, id, expectedRevision),
+  pdfExportNote: (path, title) => ipcRenderer.invoke(IPC.pdfExportNote, path, title),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);
