@@ -37,6 +37,7 @@ export default defineConfig({
       '@knowledge-studio/provenance': path.join(repoRoot, 'packages/provenance/src/index.ts'),
       '@knowledge-studio/change-feed': path.join(repoRoot, 'packages/change-feed/src/index.ts'),
       '@knowledge-studio/bases': path.join(repoRoot, 'packages/bases/src/index.ts'),
+      '@knowledge-studio/web-clipper': path.join(repoRoot, 'packages/web-clipper/src/index.ts'),
     },
   },
   test: {

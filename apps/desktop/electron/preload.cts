@@ -48,6 +48,8 @@ const IPC = {
   basesDelete: 'bases:delete',
   basesQuery: 'bases:query',
   basesSetField: 'bases:set-field',
+  clipperClip: 'clipper:clip',
+  clipperImportFile: 'clipper:import-file',
 } as const;
 
 /**
@@ -98,6 +100,8 @@ const api: BridgeApi = {
   basesDelete: (id, expectedRevision) => ipcRenderer.invoke(IPC.basesDelete, id, expectedRevision),
   basesQuery: (id) => ipcRenderer.invoke(IPC.basesQuery, id),
   basesSetField: (edit) => ipcRenderer.invoke(IPC.basesSetField, edit),
+  clipperClip: (input) => ipcRenderer.invoke(IPC.clipperClip, input),
+  clipperImportFile: () => ipcRenderer.invoke(IPC.clipperImportFile),
   onVaultEvent: (listener) => {
     const wrapped = (_event: unknown, dto: VaultEventDto): void => listener(dto);
     ipcRenderer.on(IPC.vaultEvent, wrapped as never);

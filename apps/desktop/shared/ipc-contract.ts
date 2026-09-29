@@ -52,6 +52,8 @@ export const IPC = {
   basesDelete: 'bases:delete',
   basesQuery: 'bases:query',
   basesSetField: 'bases:set-field',
+  clipperClip: 'clipper:clip',
+  clipperImportFile: 'clipper:import-file',
 } as const;
 
 export interface RpcError {
@@ -222,6 +224,21 @@ export interface BaseFieldEditDto {
   readonly expectedMtimeMs: number;
 }
 
+export interface ClipInputDto {
+  readonly html: string;
+  readonly url?: string;
+  readonly title?: string;
+  readonly tags?: readonly string[];
+}
+
+export interface ClipResultDto {
+  readonly path: string;
+  readonly title: string;
+  readonly documentId: string;
+  readonly sourceId: string;
+  readonly url: string | null;
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -273,6 +290,8 @@ export interface BridgeApi {
   basesDelete(id: string, expectedRevision: number): Promise<RpcResult<true>>;
   basesQuery(id: string): Promise<RpcResult<BaseQueryDto>>;
   basesSetField(edit: BaseFieldEditDto): Promise<RpcResult<{ path: string; mtimeMs: number }>>;
+  clipperClip(input: ClipInputDto): Promise<RpcResult<ClipResultDto>>;
+  clipperImportFile(): Promise<RpcResult<ClipResultDto> | null>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

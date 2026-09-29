@@ -10,6 +10,7 @@ import { McpPanel } from './McpPanel';
 import { PluginPanel } from './PluginPanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { TagBrowser } from './TagBrowser';
+import { WebClipPanel } from './WebClipPanel';
 
 /**
  * Right sidebar: editable properties, heading outline, and links.
@@ -55,6 +56,7 @@ export function RightSidebar(): React.JSX.Element {
       <AiSettingsPanel />
       <TagBrowser />
       <AttachmentsPanel />
+      <WebClipPanel />
     </aside>
   );
 }

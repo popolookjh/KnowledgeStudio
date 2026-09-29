@@ -17,6 +17,7 @@ import { ActiveVaultMcpHost } from '@knowledge-studio/mcp-host';
 import { LocalPluginHost } from '@knowledge-studio/plugin-host';
 import { ElectronAiConfigHost } from './ai-config-host.js';
 import { BasesHost } from './bases-host.js';
+import { WebClipperHost } from './clipper-host.js';
 import { TrustedNoteWriter } from './trusted-note-writer.js';
 import { createVaultMcpDataSource } from './mcp-vault-source.js';
 import { IPC } from '../shared/ipc-contract.js';
@@ -25,6 +26,7 @@ import type {
   AiProviderConfigDto,
   AttachmentDto,
   AttachmentIssueDto,
+  ClipResultDto,
   PluginDto,
   McpStatusDto,
   GitDiffDto,
@@ -79,6 +81,7 @@ class VaultHost {
   private history: RevisionStore | null = null;
   private writer: TrustedNoteWriter | null = null;
   private bases: BasesHost | null = null;
+  private clipper: WebClipperHost | null = null;
   private readonly mcpHost = new ActiveVaultMcpHost();
   private readonly pluginHost = new LocalPluginHost(
     path.join(app.getPath('userData'), 'plugins'),
@@ -123,6 +126,7 @@ class VaultHost {
     this.history = new RevisionStore(path.join(vault.appDir, 'history'));
     this.writer = new TrustedNoteWriter(vault, this.history);
     this.bases = new BasesHost(this.writer);
+    this.clipper = new WebClipperHost(this.writer);
     await this.mcpHost.attachVault(vault.root, createVaultMcpDataSource(vault));
     await this.rememberVault(vault.root);
     await this.startWatcher();
@@ -373,6 +377,7 @@ class VaultHost {
     this.history = null;
     this.writer = null;
     this.bases = null;
+    this.clipper = null;
     this.searchIndex.close();
   }
 
@@ -474,6 +479,23 @@ class VaultHost {
     } catch (error) {
       return { ok: false, error: serializeFailure(error) };
     }
+  }
+
+  async clipperCall<T>(call: (clipper: WebClipperHost) => Promise<RpcResult<T>>): Promise<RpcResult<T>> {
+    if (!this.clipper) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    try {
+      return await call(this.clipper);
+    } catch (error) {
+      return { ok: false, error: serializeFailure(error) };
+    }
+  }
+
+  async clipperImportFile(): Promise<RpcResult<ClipResultDto> | null> {
+    if (!this.clipper) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    const picked = await dialog.showOpenDialog({ title: 'Import a saved web page', properties: ['openFile', 'dontAddToRecent'], filters: [{ name: 'Saved pages', extensions: ['html', 'htm', 'txt'] }] });
+    if (picked.canceled || picked.filePaths.length === 0) return null;
+    const clipper = this.clipper;
+    return this.clipperCall(() => clipper.clipFile(picked.filePaths[0]!));
   }
 
   /** Rebuilds (or creates) the FTS5 index over every note in the vault. */
@@ -619,6 +641,8 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.basesSave, (_event, definition: unknown, expectedRevision: unknown) => host.basesCall((bases) => bases.save(definition, expectedRevision)));
   ipcMain.handle(IPC.basesDelete, (_event, id: unknown, expectedRevision: unknown) => host.basesCall((bases) => bases.remove(id, expectedRevision)));
   ipcMain.handle(IPC.basesQuery, (_event, id: unknown) => host.basesCall((bases) => bases.query(id)));
+  ipcMain.handle(IPC.clipperClip, (_event, input: unknown) => host.clipperCall((clipper) => clipper.clip(input)));
+  ipcMain.handle(IPC.clipperImportFile, () => host.clipperImportFile());
   ipcMain.handle(IPC.basesSetField, (_event, edit: unknown) => host.basesCall((bases) => bases.setField(edit)));
   return host;
 }
