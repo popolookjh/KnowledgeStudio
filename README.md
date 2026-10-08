@@ -5,9 +5,11 @@ Notes, wiki links, backlinks, graph, search, properties, templates, canvas, and 
 with the durable content format always being ordinary files you own and can open with any
 editor.
 
-> **Status: Phases 0–29 implemented.** The desktop shell, vault engine, editor, links,
-> metadata, search, graph, templates, plugins, MCP, AI bridge, and security/release
-> hardening described below are built and covered by the test suite.
+> **Status: Phases 0–37 (Tier 1) implemented.** The desktop shell, vault engine, editor,
+> links, metadata, search, graph, templates, plugins, MCP, AI bridge, security/release
+> hardening, stable IDs/provenance/change-feed, Bases, Web Clipper, PDF reader with
+> annotations, MCP Retrieval V2, and Zotero integration described below are built and
+> covered by the test suite. Tier 2 (Second Brain Assistant, memory graph) is future work.
 
 ## Why Knowledge Studio
 
@@ -35,6 +37,18 @@ editor.
 | 8–12 | Templates, attachments, command palette, workspaces, canvas | ✅ |
 | 13–18 | History, optional Git, plugins, MCP, AI bridge, semantic search | ✅ |
 | 19–29 | Security hardening, import/export, RTL/Persian, performance, release | ✅ |
+| 30 | Stable vault and document IDs | ✅ |
+| 31 | Provenance / citation source model | ✅ |
+| 32 | Durable cursor change feed | ✅ |
+| 33 | Bases: trusted host, views, Kanban | ✅ |
+| 34 | Web Clipper: offline ingestion with provenance | ✅ |
+| 35 | PDF reader with annotations and cited export | ✅ |
+| 36 | MCP Retrieval V2: cited passages, hardened transport | ✅ |
+| 37 | Zotero integration: offline import, loopback sync | ✅ |
+| Tier 1 closure | Integration/integrity diagnostics, renderer navigation and permission hardening | ✅ |
+
+Tier 2 (Second Brain Assistant, memory graph / relationship explorer upgrades, advanced
+personalization, Sync/Mobile/Collaboration) is proposed/future work only — not started.
 
 ## Repository layout
 
