@@ -6,4 +6,4 @@ The file is application-owned state rather than Markdown content: Markdown front
 
 A missing file means no provenance records. Invalid, unsupported, or foreign-vault snapshots are rejected without replacement. A missing source remains represented as missing during resolution; records are never silently deleted. Duplicate document IDs resolve as an explicit ambiguous state with deterministic vault-relative paths, never an arbitrary winner.
 
-PDF, web, Zotero, annotation, change-feed, and import behavior are intentionally deferred to their later phases. URLs and local references are metadata only and are never fetched, opened, or treated as executable navigation by this package.
+Tier 1 producers now populate provenance: web clips (`web`), PDF annotation sidecars (`pdf`), and Zotero imports (`zotero`, matched on `externalSourceId`); see `tier1-integration.md`. URLs and local references remain metadata only and are never fetched, opened, or treated as executable navigation by this package.

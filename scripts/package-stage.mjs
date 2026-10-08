@@ -9,9 +9,9 @@ const workspace = path.join(release, '.deploy-workspace');
 const stage = path.join(release, 'stage');
 const desktop = path.join(root, 'apps', 'desktop');
 const runtimePackages = [
-  'ai-bridge', 'ai-config', 'attachments', 'canvas', 'commands', 'git', 'history', 'import-export',
-  'links', 'markdown', 'mcp', 'mcp-host', 'metadata', 'observability', 'plugin-host', 'plugin-sdk',
-  'rtl', 'search', 'security', 'semantic-search', 'settings', 'shared', 'tags', 'templates', 'vault',
+  'ai-bridge', 'ai-config', 'attachments', 'bases', 'canvas', 'change-feed', 'commands', 'git', 'history', 'import-export',
+  'links', 'markdown', 'mcp', 'mcp-host', 'metadata', 'observability', 'pdf-annotations', 'plugin-host', 'plugin-sdk', 'provenance',
+  'rtl', 'search', 'security', 'semantic-search', 'settings', 'shared', 'tags', 'templates', 'vault', 'web-clipper', 'zotero',
 ];
 
 await fs.rm(workspace, { recursive: true, force: true });

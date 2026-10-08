@@ -1,0 +1,15 @@
+{
+  "name": "@knowledge-studio/web-clipper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline, non-executing web clip ingestion: HTML to Markdown notes with provenance metadata.",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" },
+  "dependencies": {
+    "@knowledge-studio/metadata": "workspace:*",
+    "@knowledge-studio/security": "workspace:*",
+    "@knowledge-studio/shared": "workspace:*"
+  }
+}

@@ -10,6 +10,11 @@ const source: McpDataSource = {
   getBacklinks: () => Promise.resolve([]),
   getOutgoingLinks: () => Promise.resolve([]),
   searchTags: () => Promise.resolve([]),
+  retrieve: () => Promise.resolve([]),
+  resolveCitation: () => Promise.resolve(null),
+  listChanges: () => Promise.resolve({ cursor: 'v1:x:0', changes: [], hasMore: false }),
+  listAnnotations: () => Promise.resolve({ annotations: [] }),
+  queryBase: () => Promise.resolve({ rows: [] }),
 };
 
 let host: ActiveVaultMcpHost | undefined;
@@ -23,7 +28,7 @@ describe('ActiveVaultMcpHost', () => {
     const status = await host.start();
     expect(status.running).toBe(true);
     expect(status.endpoint).toMatch(/^http:\/\/127\.0\.0\.1:/);
-    expect(status.tools).toHaveLength(7);
+    expect(status.tools).toHaveLength(12);
   });
 
   it('stops on active-vault change and restarts only after explicit start', async () => {

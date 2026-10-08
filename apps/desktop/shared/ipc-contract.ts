@@ -9,6 +9,9 @@
  * (`RpcError`), never Error instances.
  */
 
+import type { BaseDefinition, BaseRowView } from '@knowledge-studio/bases';
+import type { AnnotationColor, PdfAnnotation } from '@knowledge-studio/pdf-annotations';
+
 export const IPC = {
   init: 'app:init',
   pickVault: 'vault:pick',
@@ -45,6 +48,23 @@ export const IPC = {
   aiConfigRemoveSecret: 'ai-config:remove-secret',
   attachmentPick: 'attachment:pick',
   attachmentIssues: 'attachment:issues',
+  basesList: 'bases:list',
+  basesSave: 'bases:save',
+  basesDelete: 'bases:delete',
+  basesQuery: 'bases:query',
+  basesSetField: 'bases:set-field',
+  clipperClip: 'clipper:clip',
+  clipperImportFile: 'clipper:import-file',
+  pdfRead: 'pdf:read',
+  pdfAnnotationsList: 'pdf:annotations-list',
+  pdfAnnotationAdd: 'pdf:annotation-add',
+  pdfAnnotationUpdate: 'pdf:annotation-update',
+  pdfAnnotationRemove: 'pdf:annotation-remove',
+  pdfExportNote: 'pdf:export-note',
+  zoteroImportFile: 'zotero:import-file',
+  zoteroSyncLocal: 'zotero:sync-local',
+  integrityReport: 'integrity:report',
+  integrityRepair: 'integrity:repair',
 } as const;
 
 export interface RpcError {
@@ -186,6 +206,85 @@ export interface WorkspaceStateDto {
   readonly windowHeight: number;
 }
 
+export type BaseDefinitionDto = BaseDefinition;
+export type BaseRowDto = BaseRowView;
+
+export interface BaseSummaryDto {
+  readonly id: string;
+  readonly name: string;
+  readonly view: BaseDefinition['view'];
+  readonly revision: number;
+}
+
+export interface StoredBaseDto {
+  readonly revision: number;
+  readonly definition: BaseDefinitionDto;
+}
+
+export interface BaseQueryDto {
+  readonly base: StoredBaseDto;
+  readonly total: number;
+  readonly rows: readonly BaseRowDto[];
+  readonly elapsedMs: number;
+}
+
+export interface BaseFieldEditDto {
+  readonly path: string;
+  readonly key: string;
+  readonly value: string | number | boolean | null | readonly string[];
+  readonly expectedMtimeMs: number;
+}
+
+export interface ClipInputDto {
+  readonly html: string;
+  readonly url?: string;
+  readonly title?: string;
+  readonly tags?: readonly string[];
+}
+
+export interface ClipResultDto {
+  readonly path: string;
+  readonly title: string;
+  readonly documentId: string;
+  readonly sourceId: string;
+  readonly url: string | null;
+}
+
+export interface PdfDocumentDto {
+  readonly path: string;
+  readonly bytes: Uint8Array;
+  readonly size: number;
+}
+
+export type PdfAnnotationDto = PdfAnnotation;
+export type PdfAnnotationColor = AnnotationColor;
+
+export interface PdfAnnotationsDto {
+  readonly pdfPath: string;
+  readonly sourceId: string;
+  readonly revision: number;
+  readonly annotations: readonly PdfAnnotationDto[];
+}
+
+export interface ZoteroImportResultDto {
+  readonly created: number;
+  readonly updated: number;
+  readonly unchanged: number;
+  readonly failed: number;
+  readonly paths: readonly string[];
+}
+
+export interface IntegrityReportDto {
+  readonly vaultId: string;
+  readonly notes: number;
+  readonly withId: number;
+  readonly missingId: readonly string[];
+  readonly duplicateIds: readonly { readonly id: string; readonly paths: readonly string[] }[];
+  readonly invalidFrontmatter: readonly string[];
+  readonly provenance: { readonly records: number; readonly bySourceType: Readonly<Record<string, number>>; readonly unresolved: readonly string[]; readonly error: string | null };
+  readonly changeFeed: { readonly cursor: string; readonly retained: number; readonly error: string | null };
+}
+
 /**
  * The complete surface the preload script exposes on `window.knowledgeStudio`.
  * Declared here so main, preload, and renderer share one source of truth.
@@ -232,6 +331,23 @@ export interface BridgeApi {
   aiConfigRemoveSecret(providerId: string): Promise<RpcResult<AiProviderConfigDto>>;
   pickAttachment(notePath: string): Promise<RpcResult<AttachmentDto> | null>;
   attachmentIssues(notePath: string): Promise<RpcResult<readonly AttachmentIssueDto[]>>;
+  basesList(): Promise<RpcResult<readonly BaseSummaryDto[]>>;
+  basesSave(definition: BaseDefinitionDto, expectedRevision?: number): Promise<RpcResult<StoredBaseDto>>;
+  basesDelete(id: string, expectedRevision: number): Promise<RpcResult<true>>;
+  basesQuery(id: string): Promise<RpcResult<BaseQueryDto>>;
+  basesSetField(edit: BaseFieldEditDto): Promise<RpcResult<{ path: string; mtimeMs: number }>>;
+  clipperClip(input: ClipInputDto): Promise<RpcResult<ClipResultDto>>;
+  clipperImportFile(): Promise<RpcResult<ClipResultDto> | null>;
+  pdfRead(path: string): Promise<RpcResult<PdfDocumentDto>>;
+  pdfAnnotationsList(path: string): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationAdd(path: string, annotation: { page: number; quote: string; color: PdfAnnotationColor; note?: string }, expectedRevision: number, title?: string): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationUpdate(path: string, id: string, patch: { color?: PdfAnnotationColor; note?: string }, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationRemove(path: string, id: string, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfExportNote(path: string, title?: string): Promise<RpcResult<{ path: string }>>;
+  zoteroImportFile(): Promise<RpcResult<ZoteroImportResultDto> | null>;
+  zoteroSyncLocal(port: number): Promise<RpcResult<ZoteroImportResultDto>>;
+  integrityReport(): Promise<RpcResult<IntegrityReportDto>>;
+  integrityRepair(): Promise<RpcResult<{ assigned: number; reassigned: number; report: IntegrityReportDto }>>;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

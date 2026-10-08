@@ -34,6 +34,12 @@ export default defineConfig({
       '@knowledge-studio/import-export': path.join(repoRoot, 'packages/import-export/src/index.ts'),
       '@knowledge-studio/rtl': path.join(repoRoot, 'packages/rtl/src/index.ts'),
       '@knowledge-studio/observability': path.join(repoRoot, 'packages/observability/src/index.ts'),
+      '@knowledge-studio/provenance': path.join(repoRoot, 'packages/provenance/src/index.ts'),
+      '@knowledge-studio/change-feed': path.join(repoRoot, 'packages/change-feed/src/index.ts'),
+      '@knowledge-studio/bases': path.join(repoRoot, 'packages/bases/src/index.ts'),
+      '@knowledge-studio/pdf-annotations': path.join(repoRoot, 'packages/pdf-annotations/src/index.ts'),
+      '@knowledge-studio/zotero': path.join(repoRoot, 'packages/zotero/src/index.ts'),
+      '@knowledge-studio/web-clipper': path.join(repoRoot, 'packages/web-clipper/src/index.ts'),
     },
   },
   test: {

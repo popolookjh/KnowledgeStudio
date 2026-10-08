@@ -76,6 +76,24 @@ export async function movePath(from: string, to: string): Promise<void> {
  * rename-over-target. The target is either fully old or fully new content —
  * a crash can never leave a half-written note.
  */
+/**
+ * Windows refuses to replace a file that another handle (watcher, indexer,
+ * antivirus, or an overlapping save) briefly holds open, failing with
+ * EPERM/EACCES/EBUSY. Those are transient, so retry with a short backoff.
+ */
+async function renameWithRetry(from: string, to: string): Promise<void> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await fs.rename(from, to);
+      return;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (attempt >= 8 || (code !== 'EPERM' && code !== 'EACCES' && code !== 'EBUSY')) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 15 * (attempt + 1)));
+    }
+  }
+}
+
 export async function atomicWriteFile(
   absolutePath: string,
   data: string | Uint8Array,
@@ -91,7 +109,7 @@ export async function atomicWriteFile(
     } finally {
       await handle.close();
     }
-    await fs.rename(tempPath, absolutePath);
+    await renameWithRetry(tempPath, absolutePath);
   } catch (error) {
     // Best-effort cleanup of the orphaned temp file; failure to clean up
     // must not mask the original error.

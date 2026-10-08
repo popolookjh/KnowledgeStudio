@@ -915,3 +915,88 @@ button {
 .ai-panel__form label { display: block; margin: 4px 0; }
 .ai-panel__disclosure { color: var(--warning); }
 .ai-panel__notice { color: var(--warning); font-size: 12px; }
+
+/* Bases (Phase 33): logical properties keep layout correct in RTL. */
+.bases { flex: 1; display: flex; min-height: 0; color: var(--text-primary); }
+.bases__sidebar { width: 230px; flex-shrink: 0; border-inline-end: 1px solid var(--border-subtle); padding: 8px; overflow: auto; }
+.bases__sidebar ul { list-style: none; margin: 0 0 12px; padding: 0; }
+.bases__base { width: 100%; text-align: start; padding: 5px 8px; border: none; border-radius: 4px; background: none; color: inherit; font: inherit; cursor: pointer; }
+.bases__base:hover, .bases__base.is-active { background: var(--accent-soft); }
+.bases__create { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.bases__create label { display: flex; flex-direction: column; gap: 2px; }
+.bases__create input, .bases__cell-input { padding: 4px 6px; background: var(--bg-app); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 3px; font: inherit; }
+.bases__main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.bases__toolbar { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border-subtle); }
+.bases__toolbar [role="tablist"] { display: flex; gap: 4px; }
+.bases__meta { margin-inline-start: auto; color: var(--text-secondary); font-size: 12px; }
+.bases__content { flex: 1; overflow: auto; padding: 10px; }
+.bases__table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.bases__caption { text-align: start; padding-bottom: 6px; color: var(--text-secondary); }
+.bases__table th, .bases__table td { border: 1px solid var(--border-subtle); padding: 2px 4px; text-align: start; }
+.bases__cell, .bases__open { width: 100%; text-align: start; border: none; background: none; color: inherit; font: inherit; padding: 3px 4px; cursor: pointer; }
+.bases__open { color: var(--accent); }
+.bases__cell:focus-visible, .bases__open:focus-visible, .bases__kanban-card:focus-visible, .bases__base:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bases__cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.bases__card { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 8px; background: var(--bg-elevated); }
+.bases__card h4 { margin: 0 0 6px; }
+.bases__card dl { margin: 0; font-size: 12px; }
+.bases__card-field { display: flex; gap: 6px; }
+.bases__card-field dt { color: var(--text-secondary); }
+.bases__card-field dd { margin: 0; }
+.bases__columns { display: flex; gap: 10px; align-items: flex-start; }
+.bases__column { min-width: 200px; flex: 1; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 6px; background: var(--bg-elevated); }
+.bases__column h4 { margin: 0 0 6px; font-size: 13px; }
+.bases__column ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.bases__kanban-card { padding: 6px 8px; border: 1px solid var(--border-subtle); border-radius: 4px; background: var(--bg-surface); cursor: default; }
+.bases__count { color: var(--text-secondary); font-weight: normal; }
+.bases__hint { color: var(--text-secondary); font-size: 12px; }
+.bases__live { min-height: 18px; margin: 0; padding: 4px 10px; color: var(--text-secondary); font-size: 12px; border-top: 1px solid var(--border-subtle); }
+
+/* Web clipper (Phase 34) */
+.clip-panel__form { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.clip-panel__form label { display: flex; flex-direction: column; gap: 2px; }
+.clip-panel__form textarea, .clip-panel__form input { padding: 4px 6px; background: var(--bg-app); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 3px; font: inherit; resize: vertical; }
+.clip-panel__actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* PDF reader (Phase 35) */
+.pdf { flex: 1; display: flex; flex-direction: column; min-height: 0; color: var(--text-primary); }
+.pdf__toolbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 7px 10px; border-bottom: 1px solid var(--border-subtle); font-size: 12px; }
+.pdf__color { display: flex; align-items: center; gap: 4px; }
+.pdf__body { flex: 1; display: flex; min-height: 0; }
+.pdf__viewport { flex: 1; overflow: auto; padding: 12px; background: var(--bg-app); }
+.pdf__viewport:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pdf__page { position: relative; margin: 0 auto; width: fit-content; box-shadow: 0 2px 10px rgba(0,0,0,.3); background: #fff; }
+.pdf__page canvas { display: block; }
+.pdf__annotations { width: 280px; flex-shrink: 0; overflow: auto; border-inline-start: 1px solid var(--border-subtle); padding: 8px; }
+.pdf__annotations h4 { margin: 0 0 6px; }
+.pdf__annotations ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pdf__annotation { border-inline-start: 4px solid var(--warning); padding: 4px 6px; background: var(--bg-elevated); border-radius: 4px; font-size: 12px; }
+.pdf__annotation--green { border-inline-start-color: #3fa35b; }
+.pdf__annotation--blue { border-inline-start-color: #3b82f6; }
+.pdf__annotation--pink { border-inline-start-color: #e0529c; }
+.pdf__annotation blockquote { margin: 4px 0; }
+.pdf__note { display: flex; flex-direction: column; gap: 2px; color: var(--text-secondary); }
+.pdf__note textarea { background: var(--bg-app); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 3px; font: inherit; }
+.pdf__annotation-actions { display: flex; gap: 4px; margin-top: 4px; }
+.pdf__jump { border: none; background: none; color: var(--accent); cursor: pointer; padding: 0; font: inherit; }
+.pdf__status { margin: 0; padding: 4px 10px; border-top: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 12px; }
+/* pdf.js text layer (subset of pdf_viewer.css) */
+.textLayer { position: absolute; text-align: initial; inset: 0; overflow: clip; opacity: 1; line-height: 1; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; z-index: 0; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); }
+.textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; user-select: text; }
+.textLayer > :not(.markedContent), .textLayer .markedContent span:not(.markedContent) { z-index: 1; --font-height: 0; font-size: calc(var(--text-scale-factor) * var(--font-height)); --scale-x: 1; --rotate: 0deg; transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
+.textLayer .markedContent { display: contents; }
+.textLayer ::selection { background: rgba(0, 100, 255, 0.3); }
+.textLayer span[data-highlight="yellow"] { background: rgba(255, 214, 0, 0.4); }
+.textLayer span[data-highlight="green"] { background: rgba(63, 163, 91, 0.35); }
+.textLayer span[data-highlight="blue"] { background: rgba(59, 130, 246, 0.35); }
+.textLayer span[data-highlight="pink"] { background: rgba(224, 82, 156, 0.35); }
+
+/* Zotero (Phase 37) */
+.zotero-panel__row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); }
+.zotero-panel__row input { width: 72px; padding: 3px 5px; background: var(--bg-app); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 3px; font: inherit; }
+
+/* Knowledge integrity (Tier 1 integration) */
+.integrity-panel__report { margin: 6px 0; font-size: 12px; }
+.integrity-panel__report div { display: flex; justify-content: space-between; gap: 8px; }
+.integrity-panel__report dt { color: var(--text-secondary); }
+.integrity-panel__report dd { margin: 0; text-align: end; overflow-wrap: anywhere; }

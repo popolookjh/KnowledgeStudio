@@ -41,6 +41,7 @@ inside the application; build/test tooling does not.
 | Vitest | Test runner | MIT |
 | ESLint / typescript-eslint | Linting | MIT |
 | Prettier | Formatting | MIT |
+| pdf.js (`pdfjs-dist`) | PDF reader, bundled into the renderer (Tier 1) | Apache-2.0 |
 
 Planned (documented ahead of introduction): CodeMirror 6 (MIT), remark/unified (MIT),
 better-sqlite3 or node:sqlite-backed layer (MIT / public domain for SQLite), Zod (MIT),

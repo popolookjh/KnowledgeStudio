@@ -66,10 +66,15 @@ export class ProvenanceStore {
     } catch { return err({ code: 'PROVENANCE_FILE_INVALID', message: 'Provenance JSON cannot be parsed' }); }
   }
   async upsert(record: ProvenanceRecord, expectedRevision?: number): Promise<Result<ProvenanceFile, ProvenanceError>> {
+    return this.upsertMany([record], expectedRevision);
+  }
+  /** Atomically upserts several records in one revision (bulk imports). */
+  async upsertMany(batch: readonly ProvenanceRecord[], expectedRevision?: number): Promise<Result<ProvenanceFile, ProvenanceError>> {
     const loaded = await this.load(); if (!loaded.ok) return loaded;
     if (expectedRevision !== undefined && expectedRevision !== loaded.value.revision) return err({ code: 'PROVENANCE_CONFLICT', message: 'Provenance changed before this update' });
-    if (!validRecord(record, this.vault.vaultId)) return err({ code: 'PROVENANCE_RECORD_INVALID', message: 'Provenance record is invalid' });
-    const records = [...loaded.value.records.filter((entry) => entry.id !== record.id), record].sort((a, b) => a.id.localeCompare(b.id));
+    if (!batch.every((record) => validRecord(record, this.vault.vaultId))) return err({ code: 'PROVENANCE_RECORD_INVALID', message: 'Provenance record is invalid' });
+    const ids = new Set(batch.map((record) => record.id));
+    const records = [...loaded.value.records.filter((entry) => !ids.has(entry.id)), ...batch].sort((a, b) => a.id.localeCompare(b.id));
     const next: ProvenanceFile = { ...loaded.value, revision: loaded.value.revision + 1, records };
     await atomicWriteFile(this.filePath, `${JSON.stringify(next, null, 2)}\n`);
     return ok(next);
