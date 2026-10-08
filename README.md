@@ -5,8 +5,9 @@ Notes, wiki links, backlinks, graph, search, properties, templates, canvas, and 
 with the durable content format always being ordinary files you own and can open with any
 editor.
 
-> **Status: Phase 0 (Foundation) — under active development.** The desktop shell boots;
-> feature surfaces land phase by phase (see the roadmap below).
+> **Status: Phases 0–29 implemented.** The desktop shell, vault engine, editor, links,
+> metadata, search, graph, templates, plugins, MCP, AI bridge, and security/release
+> hardening described below are built and covered by the test suite.
 
 ## Why Knowledge Studio
 
@@ -17,23 +18,23 @@ editor.
 - **Portable by design.** Cross-platform path validation so a vault moves safely between
   Windows, macOS, and Linux (including Persian filenames).
 - **AI-ready without lock-in.** A read-only local MCP server and provider-neutral AI
-  interfaces are planned; the core product works with zero AI configured.
+  bridge are built in; the core product works with zero AI configured.
 
 ## Roadmap
 
 | Phase | Scope | Status |
 | ----- | ----- | ------ |
 | 0 | Workspace foundation: tooling, gates, ADRs, desktop shell | ✅ |
-| 1 | Vault engine (atomic IO, traversal guards, watcher, trash) | planned |
-| 2 | Markdown editor (tabs, explorer, properties, outline) | planned |
-| 3 | Wiki links, backlinks, rename-aware updates | planned |
-| 4 | Metadata: YAML frontmatter, typed properties panel | planned |
-| 5 | Search: filename + SQLite FTS5, incremental index, rebuild | planned |
-| 6 | Backlinks index + knowledge graph | planned |
-| 7 | Tags, outline | planned |
-| 8–12 | Templates, attachments, command palette, workspaces, canvas | planned |
-| 13–18 | History, optional Git, plugins, MCP, AI bridge, semantic search | planned |
-| 19–29 | Security hardening, import/export, RTL/Persian, performance, release | planned |
+| 1 | Vault engine (atomic IO, traversal guards, watcher, trash) | ✅ |
+| 2 | Markdown editor (tabs, explorer, properties, outline) | ✅ |
+| 3 | Wiki links, backlinks, rename-aware updates | ✅ |
+| 4 | Metadata: YAML frontmatter, typed properties panel | ✅ |
+| 5 | Search: filename + SQLite FTS5, incremental index, rebuild | ✅ |
+| 6 | Backlinks index + knowledge graph | ✅ |
+| 7 | Tags, outline | ✅ |
+| 8–12 | Templates, attachments, command palette, workspaces, canvas | ✅ |
+| 13–18 | History, optional Git, plugins, MCP, AI bridge, semantic search | ✅ |
+| 19–29 | Security hardening, import/export, RTL/Persian, performance, release | ✅ |
 
 ## Repository layout
 
