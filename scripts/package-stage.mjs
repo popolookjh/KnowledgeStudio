@@ -137,7 +137,7 @@ const removeDevelopmentFiles = async (directory) => {
 };
 await removeDevelopmentFiles(stage);
 await fs.rm(workspace, { recursive: true, force: true });
-for (const file of ['LICENSE', 'LICENSE-NOTICE.md']) {
+for (const file of ['LICENSE', 'LICENSE-NOTICE.md', 'THIRD-PARTY-LICENSES.txt']) {
   await fs.copyFile(path.join(root, file), path.join(stage, file));
 }
 console.log(JSON.stringify({ stage }, null, 2));

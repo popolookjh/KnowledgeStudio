@@ -9,6 +9,7 @@ files:
   - package.json
   - LICENSE
   - LICENSE-NOTICE.md
+  - THIRD-PARTY-LICENSES.txt
   - dist/**/*
   - dist-electron/**/*
   - node_modules/**/*

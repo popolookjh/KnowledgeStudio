@@ -45,3 +45,7 @@ CodeMirror 6 (MIT), Cytoscape.js (MIT), and
 Playwright (Apache-2.0, test tooling). Search uses the Node SQLite layer; SQLite is
 public domain. This summary is not an exhaustive dependency license inventory;
 redistributed packages must retain their own license notices.
+
+The full Apache-2.0 license for renderer-bundled PDF.js is included in
+[THIRD-PARTY-LICENSES.txt](THIRD-PARTY-LICENSES.txt). Other runtime dependencies
+retain their own license files in the packaged application.
