@@ -61,9 +61,10 @@ await fs.writeFile(
   ),
 );
 await fs.copyFile(path.join(root, 'pnpm-lock.yaml'), path.join(workspace, 'pnpm-lock.yaml'));
-await fs.writeFile(
+// Preserve the pinned security overrides and approved lifecycle policy.
+await fs.copyFile(
+  path.join(root, 'pnpm-workspace.yaml'),
   path.join(workspace, 'pnpm-workspace.yaml'),
-  'packages:\n  - apps/*\n  - packages/*\n\nallowBuilds:\n  electron-winstaller: false\n',
 );
 await fs.cp(
   path.join(desktop, 'package.json'),
@@ -136,4 +137,7 @@ const removeDevelopmentFiles = async (directory) => {
 };
 await removeDevelopmentFiles(stage);
 await fs.rm(workspace, { recursive: true, force: true });
+for (const file of ['LICENSE', 'LICENSE-NOTICE.md']) {
+  await fs.copyFile(path.join(root, file), path.join(stage, file));
+}
 console.log(JSON.stringify({ stage }, null, 2));

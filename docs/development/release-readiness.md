@@ -33,7 +33,7 @@ corepack pnpm package:audit
 ```
 
 The self-contained production staging tree is `release/stage/`; electron-builder writes
-`release/out/win-unpacked/` and an unsigned `release/out/Knowledge-Studio-0.1.0-setup.exe`.
+`release/out/win-unpacked/` and an unsigned `release/out/Knowledge Studio-0.1.0-setup.exe`.
 The packaged smoke launches the actual `KnowledgeStudio.exe` without a source app-directory
 argument, with isolated project-local user data. It verifies the preload bridge, sandboxed
 renderer, local vault workflows, Graph/Canvas, History, Git, Plugin policy, MCP loopback,

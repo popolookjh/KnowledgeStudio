@@ -11,7 +11,7 @@ corepack enable pnpm        # or use `corepack pnpm …` without enabling
 corepack pnpm install
 ```
 
-Node.js ≥ 22 required. Windows x64 is the current release target; macOS and Linux runtime and packaging acceptance are not yet verified.
+Node.js ≥ 22.13 required. Windows x64 is the current release target; macOS and Linux runtime and packaging acceptance are not yet verified.
 
 ## Quality gates
 

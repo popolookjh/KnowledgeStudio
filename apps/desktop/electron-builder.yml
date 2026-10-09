@@ -7,6 +7,8 @@ directories:
   output: ../out
 files:
   - package.json
+  - LICENSE
+  - LICENSE-NOTICE.md
   - dist/**/*
   - dist-electron/**/*
   - node_modules/**/*

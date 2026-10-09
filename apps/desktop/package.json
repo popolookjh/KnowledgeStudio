@@ -53,5 +53,6 @@
     "pdfjs-dist": "6.3.289",
     "vite": "^8.2.2",
     "wait-on": "^9.1.0"
-  }
+  },
+  "license": "MIT"
 }

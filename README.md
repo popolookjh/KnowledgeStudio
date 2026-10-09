@@ -90,8 +90,9 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design and
 
 ## Development
 
-Prerequisites: Node.js ≥ 22 and pnpm (enable with `corepack enable pnpm`, or run pnpm via
-`corepack pnpm …` without installing anything globally).
+Prerequisites: Node.js ≥ 22.13 and pnpm (enable with `corepack enable pnpm`, or run pnpm via
+`corepack pnpm …` directly). Corepack must be available; see the
+[setup guide](docs/development/setup.md) if your Node distribution does not include it.
 
 ```bash
 corepack pnpm install --frozen-lockfile # install pinned workspace dependencies

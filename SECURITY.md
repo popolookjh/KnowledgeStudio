@@ -18,8 +18,7 @@ During pre-1.0 development, security fixes land on the latest commit of `main`.
 
 ## Reporting a vulnerability
 
-Please open a private security advisory via GitHub (Security → Advisories) or contact the
-maintainer directly. Do not open a public issue for exploitable vulnerabilities. Private reporting must be enabled by the repository maintainer before publication.
+Please use [GitHub private vulnerability reporting](https://github.com/popolookjh/KnowledgeStudio/security/advisories/new). Do not open a public issue for exploitable vulnerabilities. Private reporting is enabled when this repository is published.
 No response-time guarantee is offered. Reporter credit is subject to their consent.
 
 ## Threat model (living summary)

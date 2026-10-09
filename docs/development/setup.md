@@ -13,7 +13,7 @@ No global installs beyond Node are required.
 ## First run
 
 ```bash
-git clone <repo-url> KnowledgeStudio
+git clone https://github.com/popolookjh/KnowledgeStudio.git KnowledgeStudio
 cd KnowledgeStudio
 corepack pnpm install --frozen-lockfile
 corepack pnpm build
@@ -61,3 +61,12 @@ corepack pnpm test
   packages; `allowBuilds` in `pnpm-workspace.yaml` already allows `electron`
   and `esbuild`. If you add a package needing a build script, add it there.
 - **Stale build errors** — `tsc -b --clean` then `corepack pnpm typecheck`.
+
+Release validation used Node.js 24.18.0 on Windows x64. The minimum declared version
+is 22.13 because [Node SQLite is available without a command-line flag from that version](https://nodejs.org/download/release/v22.13.0/docs/api/cli.html).
+Corepack must be installed if it is not provided by your Node distribution.
+Windows NSIS builds should use a short checkout path to avoid legacy path limits.
+
+If dependency relinking or a cached install leaves the Electron executable missing,
+run `node apps/desktop/node_modules/electron/install.js` from the repository root.
+This downloads the pinned Electron runtime; it does not install the application.

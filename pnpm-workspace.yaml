@@ -7,3 +7,17 @@ allowBuilds:
   electron: true
   electron-winstaller: false
   esbuild: true
+
+# Security patches for build/test tooling; production dependencies are unchanged.
+overrides:
+  'undici@6.28.0': 6.28.1
+  'undici@7.29.0': 7.29.1
+  'fast-uri@3.1.7': 3.1.8
+  'brace-expansion@1.1.18': 1.1.21
+  'brace-expansion@2.1.4': 2.1.7
+  'brace-expansion@5.0.9': 5.0.12
+  'http-cache-semantics@4.2.0': 4.3.0
+  'source-map-js@1.2.1': 1.2.2
+  'joi@18.2.5': 18.2.9
+  'shell-quote@1.9.0': 1.11.0
+  'tinypool@<2.1.2': 2.1.2
