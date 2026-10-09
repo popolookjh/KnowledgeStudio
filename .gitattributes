@@ -3,6 +3,8 @@
 
 # Source and config
 *.ts text eol=lf
+*.cts text eol=lf
+*.mts text eol=lf
 *.tsx text eol=lf
 *.js text eol=lf
 *.mjs text eol=lf
@@ -27,3 +29,4 @@
 *.pdf binary
 *.woff binary
 *.woff2 binary
+
