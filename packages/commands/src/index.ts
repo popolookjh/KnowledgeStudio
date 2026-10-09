@@ -49,8 +49,12 @@ export class CommandRegistry {
     this.commands.set(command.id, command);
   }
 
-  unregister(id: string): boolean { return this.commands.delete(id); }
-  get(id: string): CommandDefinition | undefined { return this.commands.get(id); }
+  unregister(id: string): boolean {
+    return this.commands.delete(id);
+  }
+  get(id: string): CommandDefinition | undefined {
+    return this.commands.get(id);
+  }
   list(): readonly CommandDefinition[] {
     return [...this.commands.values()].sort((a, b) => a.title.localeCompare(b.title, 'en'));
   }
@@ -61,16 +65,27 @@ export class CommandRegistry {
     if (tokens.length === 0) return this.list().map((command) => ({ command, score: 0 }));
     const matches: CommandMatch[] = [];
     for (const command of this.commands.values()) {
-      const haystack = [command.title, command.id, ...(command.keywords ?? [])].join(' ').toLowerCase();
+      const haystack = [command.title, command.id, ...(command.keywords ?? [])]
+        .join(' ')
+        .toLowerCase();
       let score = 0;
       let matched = true;
       for (const token of tokens) {
-        if (!haystack.includes(token)) { matched = false; break; }
-        score += command.title.toLowerCase().startsWith(token) ? 3 : haystack.startsWith(token) ? 2 : 1;
+        if (!haystack.includes(token)) {
+          matched = false;
+          break;
+        }
+        score += command.title.toLowerCase().startsWith(token)
+          ? 3
+          : haystack.startsWith(token)
+            ? 2
+            : 1;
       }
       if (matched) matches.push({ command, score });
     }
-    return matches.sort((a, b) => b.score - a.score || a.command.title.localeCompare(b.command.title, 'en'));
+    return matches.sort(
+      (a, b) => b.score - a.score || a.command.title.localeCompare(b.command.title, 'en'),
+    );
   }
 
   async execute(id: string, context: CommandContext): Promise<void> {
@@ -83,20 +98,41 @@ export class CommandRegistry {
   }
 }
 
-export function createDefaultRegistry(handlers: Partial<Record<string, CommandDefinition['execute']>> = {}): CommandRegistry {
+export function createDefaultRegistry(
+  handlers: Partial<Record<string, CommandDefinition['execute']>> = {},
+): CommandRegistry {
   const registry = new CommandRegistry();
-  const register = (id: string, title: string, category: CommandCategory, permission: CommandPermission, shortcut?: string, keywords?: readonly string[]): void => {
-    registry.register({ id, title, category, permission, ...(shortcut ? { shortcut } : {}), ...(keywords ? { keywords } : {}), execute: handlers[id] ?? (() => undefined) });
+  const register = (
+    id: string,
+    title: string,
+    category: CommandCategory,
+    permission: CommandPermission,
+    shortcut?: string,
+    keywords?: readonly string[],
+  ): void => {
+    registry.register({
+      id,
+      title,
+      category,
+      permission,
+      ...(shortcut ? { shortcut } : {}),
+      ...(keywords ? { keywords } : {}),
+      execute: handlers[id] ?? (() => undefined),
+    });
   };
   register('file.create-note', 'Create note', 'File', 'VAULT_WRITE', 'Ctrl+N', ['new', 'note']);
   register('file.open-note', 'Open note', 'File', 'VAULT_READ', 'Ctrl+O', ['open']);
   register('file.rename', 'Rename note', 'File', 'VAULT_RENAME');
   register('file.delete', 'Move note to trash', 'File', 'VAULT_DELETE');
   register('search.vault', 'Search vault', 'Search', 'VAULT_READ', 'Ctrl+P', ['find']);
-  register('search.rebuild-index', 'Rebuild index', 'Search', 'INDEX_WRITE', undefined, ['refresh']);
+  register('search.rebuild-index', 'Rebuild index', 'Search', 'INDEX_WRITE', undefined, [
+    'refresh',
+  ]);
   register('view.toggle-preview', 'Toggle preview', 'View', 'NONE');
   register('view.open-graph', 'Open graph', 'View', 'VAULT_READ');
   register('workspace.open-settings', 'Open settings', 'Workspace', 'NONE');
-  register('system.insert-template', 'Insert template', 'System', 'VAULT_WRITE', undefined, ['template']);
+  register('system.insert-template', 'Insert template', 'System', 'VAULT_WRITE', undefined, [
+    'template',
+  ]);
   return registry;
 }

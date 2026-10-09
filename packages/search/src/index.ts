@@ -128,7 +128,8 @@ export class SearchIndex {
     }
     try {
       const parsed = readFrontmatter(note.content);
-      const title = typeof parsed.data['title'] === 'string' ? parsed.data['title'] : getVaultStem(note.path);
+      const title =
+        typeof parsed.data['title'] === 'string' ? parsed.data['title'] : getVaultStem(note.path);
       const tags = stringifyList(parsed.data['tags']);
       const aliases = stringifyList(parsed.data['aliases']);
       const existing = this.db
@@ -215,8 +216,7 @@ export class SearchIndex {
       return 0;
     }
     const row = this.db.prepare('SELECT COUNT(*) AS count FROM notes_map').get() as
-      | { count: number }
-      | undefined;
+      { count: number } | undefined;
     return row?.count ?? 0;
   }
 }

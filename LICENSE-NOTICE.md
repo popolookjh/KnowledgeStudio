@@ -23,26 +23,25 @@ Knowledge Studio code is released under the **MIT License**:
 > CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 > OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Knowledge Studio is an original, clean-room implementation. It does not include, derive
-from, or redistribute code, assets, or branding from any proprietary application.
-
 ## Third-party dependencies
 
 The table below lists significant third-party dependencies and their licenses. It is
 updated when dependencies are added (see CONTRIBUTING.md). Runtime dependencies ship
 inside the application; build/test tooling does not.
 
-| Dependency | Role | License |
-| ---------- | ---- | ------- |
-| Electron | Desktop runtime | MIT |
-| React / React DOM | Renderer UI | MIT |
-| Vite | Renderer build tool | MIT |
-| TypeScript | Language / typechecking | Apache-2.0 |
-| Vitest | Test runner | MIT |
-| ESLint / typescript-eslint | Linting | MIT |
-| Prettier | Formatting | MIT |
-| pdf.js (`pdfjs-dist`) | PDF reader, bundled into the renderer (Tier 1) | Apache-2.0 |
+| Dependency                 | Role                                           | License    |
+| -------------------------- | ---------------------------------------------- | ---------- |
+| Electron                   | Desktop runtime                                | MIT        |
+| React / React DOM          | Renderer UI                                    | MIT        |
+| Vite                       | Renderer build tool                            | MIT        |
+| TypeScript                 | Language / typechecking                        | Apache-2.0 |
+| Vitest                     | Test runner                                    | MIT        |
+| ESLint / typescript-eslint | Linting                                        | MIT        |
+| Prettier                   | Formatting                                     | MIT        |
+| pdf.js (`pdfjs-dist`)      | PDF reader, bundled into the renderer (Tier 1) | Apache-2.0 |
 
-Planned (documented ahead of introduction): CodeMirror 6 (MIT), remark/unified (MIT),
-better-sqlite3 or node:sqlite-backed layer (MIT / public domain for SQLite), Zod (MIT),
-Cytoscape.js (MIT), Playwright (Apache-2.0).
+Additional current dependencies include remark/unified and rehype (MIT), yaml (ISC),
+CodeMirror 6 (MIT), Cytoscape.js (MIT), and
+Playwright (Apache-2.0, test tooling). Search uses the Node SQLite layer; SQLite is
+public domain. This summary is not an exhaustive dependency license inventory;
+redistributed packages must retain their own license notices.

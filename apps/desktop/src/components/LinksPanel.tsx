@@ -64,9 +64,7 @@ export function LinksPanel(): React.JSX.Element {
                   type="button"
                   className="rightbar__link rightbar__link--unresolved"
                   title={`Create "${link.target}${link.heading ? `#${link.heading}` : ''}"`}
-                  onClick={() =>
-                    void store.createNoteFromLink(link.target, link.heading)
-                  }
+                  onClick={() => void store.createNoteFromLink(link.target, link.heading)}
                 >
                   + {link.target}
                   {link.heading ? `#${link.heading}` : ''}

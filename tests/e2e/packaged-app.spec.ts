@@ -1,26 +1,53 @@
 import path from 'node:path';
 import process from 'node:process';
 import { expect, test } from '@playwright/test';
-import { assertNoRuntimeErrors, closeFixture, launchFixture, type E2eFixture, waitForCanvasZoom } from './fixture';
+import {
+  assertNoRuntimeErrors,
+  closeFixture,
+  launchFixture,
+  type E2eFixture,
+  waitForCanvasZoom,
+} from './fixture';
 
 let fixture!: E2eFixture;
 let launched = false;
-test.skip(!process.env['ELECTRON_E2E_EXECUTABLE'], 'Packaged suite requires ELECTRON_E2E_EXECUTABLE');
+test.skip(
+  !process.env['ELECTRON_E2E_EXECUTABLE'],
+  'Packaged suite requires ELECTRON_E2E_EXECUTABLE',
+);
 
-test.beforeEach(async () => { fixture = await launchFixture('packaged'); launched = true; });
-test.afterEach(async () => { if (launched) { assertNoRuntimeErrors(fixture); await closeFixture(fixture); } launched = false; });
+test.beforeEach(async () => {
+  fixture = await launchFixture('packaged');
+  launched = true;
+});
+test.afterEach(async () => {
+  if (launched) {
+    assertNoRuntimeErrors(fixture);
+    await closeFixture(fixture);
+  }
+  launched = false;
+});
 
 test('@packaged launches the actual executable with preload-only renderer authority', async () => {
   expect(fixture.launchMode).toBe('packaged');
-  expect(path.basename(process.env['ELECTRON_E2E_EXECUTABLE'] ?? '').toLowerCase()).toBe('knowledgestudio.exe');
+  expect(path.basename(process.env['ELECTRON_E2E_EXECUTABLE'] ?? '').toLowerCase()).toBe(
+    'knowledgestudio.exe',
+  );
   await expect(fixture.page.locator('.workbench')).toBeVisible();
   await expect(fixture.page.getByText('Knowledge Studio', { exact: true }).first()).toBeVisible();
-  expect(await fixture.page.evaluate(() => ({
-    bridge: Boolean((window as unknown as { knowledgeStudio?: unknown }).knowledgeStudio),
-    protocol: location.protocol,
-    nodeProcess: typeof (globalThis as Record<string, unknown>)['process'],
-    nodeRequire: typeof (globalThis as Record<string, unknown>)['require'],
-  }))).toEqual({ bridge: true, protocol: 'file:', nodeProcess: 'undefined', nodeRequire: 'undefined' });
+  expect(
+    await fixture.page.evaluate(() => ({
+      bridge: Boolean((window as unknown as { knowledgeStudio?: unknown }).knowledgeStudio),
+      protocol: location.protocol,
+      nodeProcess: typeof (globalThis as Record<string, unknown>)['process'],
+      nodeRequire: typeof (globalThis as Record<string, unknown>)['require'],
+    })),
+  ).toEqual({
+    bridge: true,
+    protocol: 'file:',
+    nodeProcess: 'undefined',
+    nodeRequire: 'undefined',
+  });
   await expect(fixture.page.getByRole('tab', { name: 'Smoke' })).toBeVisible();
 });
 
@@ -65,7 +92,11 @@ test('@packaged exercises local-first critical workflows without source launch a
   await expect(mcp.getByText('Status: stopped')).toBeVisible();
 
   const ai = page.locator('.ai-panel');
-  await expect(ai.getByText('Provider-neutral and offline by default. Opening this panel never contacts a provider.')).toBeVisible();
+  await expect(
+    ai.getByText(
+      'Provider-neutral and offline by default. Opening this panel never contacts a provider.',
+    ),
+  ).toBeVisible();
   await expect(ai.getByText(/local · no model · disabled/)).toBeVisible();
 
   await page.getByRole('button', { name: 'Graph' }).click();

@@ -23,9 +23,29 @@ export interface VaultEntry {
 
 /** Extensions the walker classifies as attachments (mirror of the vault set). */
 const ATTACHMENT_EXTENSIONS: ReadonlySet<string> = new Set([
-  'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'ico',
-  'pdf', 'txt', 'csv', 'json', 'mdx',
-  'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp', 'epub',
+  'png',
+  'jpg',
+  'jpeg',
+  'gif',
+  'webp',
+  'bmp',
+  'svg',
+  'ico',
+  'pdf',
+  'txt',
+  'csv',
+  'json',
+  'mdx',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'odt',
+  'ods',
+  'odp',
+  'epub',
   'zip',
 ]);
 
@@ -59,9 +79,7 @@ export async function walkVault(root: string): Promise<Result<readonly VaultEntr
   try {
     await walk(root, '');
   } catch (error) {
-    return err(
-      new VaultError('VAULT_READ_FAILED', 'Cannot enumerate the vault', { cause: error }),
-    );
+    return err(new VaultError('VAULT_READ_FAILED', 'Cannot enumerate the vault', { cause: error }));
   }
   return ok(entries);
 }

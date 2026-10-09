@@ -11,15 +11,15 @@ corepack enable pnpm        # or use `corepack pnpm …` without enabling
 corepack pnpm install
 ```
 
-Node.js ≥ 22 required. Windows, macOS, and Linux are all first-class targets.
+Node.js ≥ 22 required. Windows x64 is the current release target; macOS and Linux runtime and packaging acceptance are not yet verified.
 
 ## Quality gates
 
-Every change must pass, and CI enforces the same:
+Every change must pass the following local checks:
 
 ```bash
+corepack pnpm typecheck     # tsc -b (strict); generate declarations before typed lint
 corepack pnpm lint          # ESLint (type-aware)
-corepack pnpm typecheck     # tsc -b (strict)
 corepack pnpm test          # Vitest
 corepack pnpm build         # all packages build
 corepack pnpm format:check  # Prettier

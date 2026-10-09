@@ -48,7 +48,11 @@ export class BacklinkIndex {
   private readonly outgoing = new Map<string, OutgoingLinks>();
 
   /** Replaces the index contribution of one note (incremental update). */
-  update(sourcePath: string, resolvedTargets: readonly LinkReference[], outgoing: OutgoingLinks): void {
+  update(
+    sourcePath: string,
+    resolvedTargets: readonly LinkReference[],
+    outgoing: OutgoingLinks,
+  ): void {
     this.removeContributions(sourcePath);
     this.outgoing.set(sourcePath, outgoing);
     for (const reference of resolvedTargets) {

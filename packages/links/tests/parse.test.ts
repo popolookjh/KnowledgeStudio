@@ -52,7 +52,9 @@ describe('extractWikiLinks', () => {
 
 describe('extractMarkdownLinks', () => {
   it('parses relative and absolute URLs', () => {
-    const tokens = extractMarkdownLinks('see [docs](docs/intro.md) and [site](https://example.com)');
+    const tokens = extractMarkdownLinks(
+      'see [docs](docs/intro.md) and [site](https://example.com)',
+    );
     expect(tokens.map((token) => token.href)).toEqual(['docs/intro.md', 'https://example.com']);
   });
 

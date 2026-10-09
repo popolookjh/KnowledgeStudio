@@ -71,7 +71,12 @@ export function readMetadata(content: string): {
   } catch (error) {
     return {
       data: {},
-      issues: [{ key: '', message: `Invalid YAML: ${error instanceof Error ? error.message : String(error)}` }],
+      issues: [
+        {
+          key: '',
+          message: `Invalid YAML: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
     };
   }
   const data: Record<string, unknown> = { ...raw };
@@ -88,17 +93,16 @@ export function readMetadata(content: string): {
     issues.push({ key: 'id', message: 'id must be a canonical UUIDv4' });
     delete data['id'];
   }
-  if (
-    confidence !== undefined &&
-    (typeof confidence !== 'number' || Number.isNaN(confidence))
-  ) {
+  if (confidence !== undefined && (typeof confidence !== 'number' || Number.isNaN(confidence))) {
     issues.push({ key: 'confidence', message: 'confidence must be a number' });
     delete data['confidence'];
   }
   return { data, issues };
 }
 
-export function ensureDocumentId(content: string): Result<{ content: string; documentId: string; assigned: boolean }, readonly MetadataIssue[]> {
+export function ensureDocumentId(
+  content: string,
+): Result<{ content: string; documentId: string; assigned: boolean }, readonly MetadataIssue[]> {
   const { data, issues } = readMetadata(content);
   if (issues.some((issue) => issue.key === 'id')) return err(issues);
   if (data.id && isUuidV4(data.id)) return ok({ content, documentId: data.id, assigned: false });
@@ -135,7 +139,10 @@ export function serializeMetadata(data: NoteMetadata): string {
  * prepends one) while keeping the body byte-for-byte identical. Returns
  * the new full note content.
  */
-export function writeMetadata(content: string, data: NoteMetadata): Result<string, MetadataIssue[]> {
+export function writeMetadata(
+  content: string,
+  data: NoteMetadata,
+): Result<string, MetadataIssue[]> {
   const issues = validate(data);
   if (issues.length > 0) {
     return err(issues);

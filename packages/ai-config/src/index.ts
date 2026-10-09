@@ -35,7 +35,10 @@ export interface SecureSecretStore {
 }
 
 export class ProviderConfigStore {
-  constructor(private readonly configPath: string, private readonly secrets: SecureSecretStore) {}
+  constructor(
+    private readonly configPath: string,
+    private readonly secrets: SecureSecretStore,
+  ) {}
 
   async list(): Promise<readonly ProviderConfig[]> {
     return (await this.read()).providers;
@@ -46,13 +49,17 @@ export class ProviderConfigStore {
     const previous = await this.read();
     const hasSecret = await this.secrets.has(this.secretKey(config.id));
     const next: ProviderConfig = { ...config, hasSecret };
-    const providers = [...previous.providers.filter((provider) => provider.id !== config.id), next].sort((a, b) => a.displayName.localeCompare(b.displayName, 'en'));
+    const providers = [
+      ...previous.providers.filter((provider) => provider.id !== config.id),
+      next,
+    ].sort((a, b) => a.displayName.localeCompare(b.displayName, 'en'));
     await this.write({ version: 1, providers });
     return next;
   }
 
   async setSecret(providerId: string, secret: string): Promise<ProviderConfig> {
-    if (!this.secrets.available) throw new Error('OS-backed secure storage is unavailable; provider secret was not saved');
+    if (!this.secrets.available)
+      throw new Error('OS-backed secure storage is unavailable; provider secret was not saved');
     if (secret.length === 0) throw new Error('Provider secret cannot be empty');
     const file = await this.read();
     const provider = file.providers.find((entry) => entry.id === providerId);
@@ -73,8 +80,10 @@ export class ProviderConfigStore {
 
   private validate(config: Omit<ProviderConfig, 'hasSecret'>): void {
     if (!/^[a-z][a-z0-9._-]+$/.test(config.id)) throw new Error('Provider id is invalid');
-    if (config.kind === 'external' && !config.endpoint) throw new Error('External providers require an explicit endpoint');
-    if (config.kind === 'local' && config.endpoint) throw new Error('Local providers must not declare a remote endpoint');
+    if (config.kind === 'external' && !config.endpoint)
+      throw new Error('External providers require an explicit endpoint');
+    if (config.kind === 'local' && config.endpoint)
+      throw new Error('Local providers must not declare a remote endpoint');
     const disclosure: AIPrivacyDisclosure = {
       providerId: config.id,
       remote: config.kind === 'external',

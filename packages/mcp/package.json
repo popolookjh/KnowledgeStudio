@@ -4,7 +4,17 @@
   "private": true,
   "type": "module",
   "description": "Optional read-only loopback MCP-style knowledge server.",
-  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
-  "files": ["dist"],
-  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" }
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\""
+  }
 }

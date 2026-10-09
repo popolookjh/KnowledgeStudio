@@ -1,7 +1,14 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { normalizeVaultPath, getVaultDirname, getVaultBasename, ok, err, type Result } from '@knowledge-studio/shared';
+import {
+  normalizeVaultPath,
+  getVaultDirname,
+  getVaultBasename,
+  ok,
+  err,
+  type Result,
+} from '@knowledge-studio/shared';
 
 /**
  * Attachment utilities. Source files are copied into a configured vault
@@ -30,7 +37,9 @@ export interface AttachmentIssue {
 const DEFAULT_ATTACHMENT_DIR = 'attachments';
 
 /** Copies an external attachment into the vault with a collision-safe name. */
-export async function copyAttachment(options: CopyAttachmentOptions): Promise<Result<CopiedAttachment, Error>> {
+export async function copyAttachment(
+  options: CopyAttachmentOptions,
+): Promise<Result<CopiedAttachment, Error>> {
   const attachmentDir = options.attachmentDir ?? DEFAULT_ATTACHMENT_DIR;
   const sourceStat = await fs.stat(options.sourcePath).catch(() => null);
   if (!sourceStat?.isFile()) {
@@ -58,7 +67,12 @@ export async function copyAttachment(options: CopyAttachmentOptions): Promise<Re
   await fs.writeFile(destinationFor(options.vaultRoot, vaultPath), sourceBytes, { flag: 'wx' });
   const noteDir = options.notePath ? getVaultDirname(options.notePath) : '';
   const relative = path.posix.relative(noteDir, vaultPath) || getVaultBasename(vaultPath);
-  return ok({ vaultPath, markdownLink: `![](${relative})`, bytes: sourceBytes.length, sha256: hash });
+  return ok({
+    vaultPath,
+    markdownLink: `![](${relative})`,
+    bytes: sourceBytes.length,
+    sha256: hash,
+  });
 }
 
 /** Returns attachment paths referenced by Markdown image/link syntax. */
@@ -83,7 +97,9 @@ export async function findMissingAttachments(
   const issues: AttachmentIssue[] = [];
   const noteDir = getVaultDirname(notePath);
   for (const reference of referencedAttachments(markdown)) {
-    const normalized = normalizeVaultPath(path.posix.normalize(path.posix.join(noteDir, reference)));
+    const normalized = normalizeVaultPath(
+      path.posix.normalize(path.posix.join(noteDir, reference)),
+    );
     if (!normalized.ok || !(await fileExists(destinationFor(vaultRoot, normalized.value)))) {
       issues.push({ vaultPath: reference, reason: 'missing' });
     }
@@ -101,7 +117,9 @@ export async function findOrphanAttachments(
   for (const note of noteContents) {
     for (const reference of referencedAttachments(note.content)) {
       const noteDir = getVaultDirname(note.path);
-      const normalized = normalizeVaultPath(path.posix.normalize(path.posix.join(noteDir, reference)));
+      const normalized = normalizeVaultPath(
+        path.posix.normalize(path.posix.join(noteDir, reference)),
+      );
       if (normalized.ok) referenced.add(normalized.value);
     }
   }
@@ -111,7 +129,8 @@ export async function findOrphanAttachments(
     for (const entry of entries) {
       const child = relative ? `${relative}/${entry.name}` : entry.name;
       if (entry.isDirectory()) await walk(path.join(dir, entry.name), child);
-      else if (entry.isFile() && !referenced.has(child)) issues.push({ vaultPath: child, reason: 'orphan' });
+      else if (entry.isFile() && !referenced.has(child))
+        issues.push({ vaultPath: child, reason: 'orphan' });
     }
   };
   await walk(path.join(vaultRoot, attachmentDir), attachmentDir);
@@ -122,5 +141,8 @@ function destinationFor(root: string, vaultPath: string): string {
   return path.join(root, ...vaultPath.split('/'));
 }
 async function fileExists(filePath: string): Promise<boolean> {
-  return fs.stat(filePath).then((stat) => stat.isFile()).catch(() => false);
+  return fs
+    .stat(filePath)
+    .then((stat) => stat.isFile())
+    .catch(() => false);
 }

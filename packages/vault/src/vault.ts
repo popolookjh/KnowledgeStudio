@@ -25,10 +25,30 @@ export type VaultFailure = VaultError | VaultPathError;
 /** Attachments the vault explicitly understands (beyond Markdown notes). */
 const ATTACHMENT_EXTENSIONS: ReadonlySet<string> = new Set([
   // images
-  'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'ico',
+  'png',
+  'jpg',
+  'jpeg',
+  'gif',
+  'webp',
+  'bmp',
+  'svg',
+  'ico',
   // documents
-  'pdf', 'txt', 'csv', 'json', 'mdx',
-  'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp', 'epub',
+  'pdf',
+  'txt',
+  'csv',
+  'json',
+  'mdx',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'odt',
+  'ods',
+  'odp',
+  'epub',
   // archives
   'zip',
 ]);
@@ -121,19 +141,23 @@ export class Vault {
       }
       real = await fs.realpath(absolute);
     } catch (error) {
-      return err(new VaultError('VAULT_ROOT_INVALID', 'Vault root does not exist', {
-        details: { absolute },
-        cause: error,
-      }));
+      return err(
+        new VaultError('VAULT_ROOT_INVALID', 'Vault root does not exist', {
+          details: { absolute },
+          cause: error,
+        }),
+      );
     }
     const appDir = path.join(real, APP_DIR_NAME);
     try {
       await fs.mkdir(appDir, { recursive: true });
     } catch (error) {
-      return err(new VaultError('VAULT_APP_DIR_LOCKED', 'Cannot create the application directory', {
-        details: { appDir },
-        cause: error,
-      }));
+      return err(
+        new VaultError('VAULT_APP_DIR_LOCKED', 'Cannot create the application directory', {
+          details: { appDir },
+          cause: error,
+        }),
+      );
     }
     const manifestPath = path.join(appDir, 'vault.json');
     let vaultId: string;
@@ -144,13 +168,24 @@ export class Vault {
         await atomicWriteFile(manifestPath, `${JSON.stringify({ schemaVersion: 1, vaultId })}\n`);
       } else {
         const parsed: unknown = JSON.parse(raw);
-        if (typeof parsed !== 'object' || parsed === null || (parsed as Record<string, unknown>)['schemaVersion'] !== 1 || typeof (parsed as Record<string, unknown>)['vaultId'] !== 'string') {
-          return err(new VaultError('VAULT_IDENTITY_INVALID', 'Vault identity manifest is invalid'));
+        if (
+          typeof parsed !== 'object' ||
+          parsed === null ||
+          (parsed as Record<string, unknown>)['schemaVersion'] !== 1 ||
+          typeof (parsed as Record<string, unknown>)['vaultId'] !== 'string'
+        ) {
+          return err(
+            new VaultError('VAULT_IDENTITY_INVALID', 'Vault identity manifest is invalid'),
+          );
         }
         vaultId = (parsed as { vaultId: string }).vaultId;
       }
     } catch (error) {
-      return err(new VaultError('VAULT_IDENTITY_INVALID', 'Cannot initialize vault identity', { cause: error }));
+      return err(
+        new VaultError('VAULT_IDENTITY_INVALID', 'Cannot initialize vault identity', {
+          cause: error,
+        }),
+      );
     }
     return ok(new Vault(absolute, real, vaultId));
   }
@@ -175,10 +210,12 @@ export class Vault {
       }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        return err(new VaultError('VAULT_ROOT_INVALID', 'Vault root is not accessible', {
-          details: { absolute },
-          cause: error,
-        }));
+        return err(
+          new VaultError('VAULT_ROOT_INVALID', 'Vault root is not accessible', {
+            details: { absolute },
+            cause: error,
+          }),
+        );
       }
       await fs.mkdir(absolute, { recursive: true });
     }
@@ -414,7 +451,9 @@ export class Vault {
         .catch(() => false);
       if (targetOccupied) {
         return err(
-          new VaultError('VAULT_PATH_EXISTS', 'Target already exists', { details: { vaultPath: toPath } }),
+          new VaultError('VAULT_PATH_EXISTS', 'Target already exists', {
+            details: { vaultPath: toPath },
+          }),
         );
       }
       await movePath(from.value, to.value);

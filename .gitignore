@@ -40,3 +40,13 @@ desktop.ini
 
 # Application-local data (never commit user-like data)
 .knowledge-studio/
+
+# Local agent state and generated test results
+.omc/
+.claude/
+.codex/
+playwright-report/
+test-results/
+*.pem
+*.p12
+*.pfx

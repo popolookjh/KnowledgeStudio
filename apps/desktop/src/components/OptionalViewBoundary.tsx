@@ -15,7 +15,10 @@ interface OptionalViewBoundaryState {
  * Graph and Canvas remain dismissible/retryable rather than taking down the
  * whole renderer when a code-split resource cannot load.
  */
-export class OptionalViewBoundary extends Component<OptionalViewBoundaryProps, OptionalViewBoundaryState> {
+export class OptionalViewBoundary extends Component<
+  OptionalViewBoundaryProps,
+  OptionalViewBoundaryState
+> {
   override state: OptionalViewBoundaryState = { failed: false };
 
   static getDerivedStateFromError(): OptionalViewBoundaryState {

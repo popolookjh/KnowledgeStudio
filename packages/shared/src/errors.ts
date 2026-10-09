@@ -11,11 +11,7 @@ export class StudioError extends Error {
   /** Structured context for logs and diagnostics. Never includes note content. */
   readonly details?: unknown;
 
-  constructor(
-    code: string,
-    message: string,
-    options?: { details?: unknown; cause?: unknown },
-  ) {
+  constructor(code: string, message: string, options?: { details?: unknown; cause?: unknown }) {
     super(message, options?.cause !== undefined ? { cause: options.cause } : undefined);
     this.name = new.target.name;
     this.code = code;

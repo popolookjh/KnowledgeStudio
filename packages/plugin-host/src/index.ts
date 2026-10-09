@@ -79,7 +79,9 @@ export class LocalPluginHost {
         enabled: stored.enabled && evaluation.enabled,
         requestedPermissions: manifest.permissions,
         approvedHighRisk: stored.approvedHighRisk,
-        ...(evaluation.enabled ? {} : { reason: evaluation.reason ?? 'Plugin is disabled by policy' }),
+        ...(evaluation.enabled
+          ? {}
+          : { reason: evaluation.reason ?? 'Plugin is disabled by policy' }),
         runtime: 'deferred',
       });
     }
@@ -95,7 +97,11 @@ export class LocalPluginHost {
     });
   }
 
-  async approveHighRisk(pluginId: string, permission: PluginPermission, approved: boolean): Promise<void> {
+  async approveHighRisk(
+    pluginId: string,
+    permission: PluginPermission,
+    approved: boolean,
+  ): Promise<void> {
     if (permission !== 'PROCESS_EXECUTE' && permission !== 'SECRETS') {
       throw new Error('Only high-risk permissions require stored approval');
     }
@@ -106,7 +112,10 @@ export class LocalPluginHost {
     else next.delete(permission);
     await this.writeState({
       version: 1,
-      plugins: { ...state.plugins, [pluginId]: { ...previous, approvedHighRisk: [...next].sort() } },
+      plugins: {
+        ...state.plugins,
+        [pluginId]: { ...previous, approvedHighRisk: [...next].sort() },
+      },
     });
   }
 
@@ -117,7 +126,12 @@ export class LocalPluginHost {
       const parsed: unknown = JSON.parse(raw);
       if (typeof parsed !== 'object' || parsed === null) return EMPTY_STATE;
       const record = parsed as Record<string, unknown>;
-      if (record['version'] !== 1 || typeof record['plugins'] !== 'object' || record['plugins'] === null) return EMPTY_STATE;
+      if (
+        record['version'] !== 1 ||
+        typeof record['plugins'] !== 'object' ||
+        record['plugins'] === null
+      )
+        return EMPTY_STATE;
       return parsed as PluginStateFile;
     } catch {
       return EMPTY_STATE;

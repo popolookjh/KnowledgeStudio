@@ -3,12 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { VaultPathError } from '@knowledge-studio/shared';
-import {
-  APP_DIR_NAME,
-  createVault,
-  openVault,
-  VaultError,
-} from '../src/index.js';
+import { APP_DIR_NAME, createVault, openVault, VaultError } from '../src/index.js';
 import type { Vault } from '../src/index.js';
 
 let vault: Vault;
@@ -28,10 +23,7 @@ afterAll(() => {
   rmSync(vaultRoot, { recursive: true, force: true });
 });
 
-function expectVaultError(
-  result: { ok: boolean; error?: unknown },
-  code: string,
-): void {
+function expectVaultError(result: { ok: boolean; error?: unknown }, code: string): void {
   expect(result.ok).toBe(false);
   const error = result.ok ? undefined : result.error;
   expect(error).toBeInstanceOf(VaultError);
@@ -105,11 +97,11 @@ describe('path traversal and containment', () => {
 
   it('blocks access to the application directory', async () => {
     expectVaultError(await vault.readFile(`${APP_DIR_NAME}/index.db`), 'VAULT_ESCAPE_BLOCKED');
+    expectVaultError(await vault.writeFile(`${APP_DIR_NAME}/evil.md`, 'x'), 'VAULT_ESCAPE_BLOCKED');
     expectVaultError(
-      await vault.writeFile(`${APP_DIR_NAME}/evil.md`, 'x'),
+      await vault.rename('real.md', `${APP_DIR_NAME}/stolen.md`),
       'VAULT_ESCAPE_BLOCKED',
     );
-    expectVaultError(await vault.rename('real.md', `${APP_DIR_NAME}/stolen.md`), 'VAULT_ESCAPE_BLOCKED');
   });
 
   it('blocks symlink escape out of the vault root', async () => {
@@ -128,10 +120,7 @@ describe('path traversal and containment', () => {
     }
     if (linkCreated) {
       expectVaultError(await vault.readFile('sneaky-link.md'), 'VAULT_ESCAPE_BLOCKED');
-      expectVaultError(
-        await vault.writeFile('sneaky-link.md', 'hijack'),
-        'VAULT_ESCAPE_BLOCKED',
-      );
+      expectVaultError(await vault.writeFile('sneaky-link.md', 'hijack'), 'VAULT_ESCAPE_BLOCKED');
     }
     rmSync(outside, { recursive: true, force: true });
   });
@@ -248,7 +237,9 @@ describe('trash and restore', () => {
 
     const list = await vault.listTrash();
     expect(list.ok).toBe(true);
-    const entry = list.ok ? list.value.find((e) => e.originalPath === 'notes/doomed.md') : undefined;
+    const entry = list.ok
+      ? list.value.find((e) => e.originalPath === 'notes/doomed.md')
+      : undefined;
     expect(entry).toBeDefined();
 
     if (trashed.ok) {

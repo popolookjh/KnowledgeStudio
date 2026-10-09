@@ -37,8 +37,16 @@ describe('BacklinkIndex', () => {
 
   it('accumulates backlinks and removes them when the source disappears', () => {
     const index = new BacklinkIndex();
-    index.update('a.md', referencesFor('a.md', 'see [[b]] and [[c]]'), extractOutgoingLinks('see [[b]] and [[c]]'));
-    index.update('b.md', referencesFor('b.md', 'back to [[a]]'), extractOutgoingLinks('back to [[a]]'));
+    index.update(
+      'a.md',
+      referencesFor('a.md', 'see [[b]] and [[c]]'),
+      extractOutgoingLinks('see [[b]] and [[c]]'),
+    );
+    index.update(
+      'b.md',
+      referencesFor('b.md', 'back to [[a]]'),
+      extractOutgoingLinks('back to [[a]]'),
+    );
 
     expect(index.backlinksOf('b.md').map((reference) => reference.source)).toEqual(['a.md']);
     expect(index.backlinksOf('a.md').map((reference) => reference.source)).toEqual(['b.md']);

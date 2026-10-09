@@ -18,8 +18,7 @@ export function PreviewPane(): React.JSX.Element {
     const bodyStart = activeTab.content.startsWith('---\n')
       ? activeTab.content.indexOf('\n---', 4)
       : -1;
-    const body =
-      bodyStart === -1 ? activeTab.content : activeTab.content.slice(bodyStart + 5);
+    const body = bodyStart === -1 ? activeTab.content : activeTab.content.slice(bodyStart + 5);
     return renderMarkdownToHtml(body);
   }, [activeTab]);
 

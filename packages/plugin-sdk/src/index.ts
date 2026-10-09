@@ -29,7 +29,9 @@ export const PluginManifestSchema = z.object({
   name: z.string().min(1).max(100),
   version: z.string().regex(/^\d+\.\d+\.\d+([+-][0-9A-Za-z.-]+)?$/),
   description: z.string().max(500).default(''),
-  permissions: z.array(z.enum(Object.values(PluginPermission) as [PluginPermission, ...PluginPermission[]])).default([]),
+  permissions: z
+    .array(z.enum(Object.values(PluginPermission) as [PluginPermission, ...PluginPermission[]]))
+    .default([]),
   trusted: z.boolean().default(false),
 });
 
@@ -58,39 +60,76 @@ export interface PluginCapabilities {
 const HIGH_RISK = new Set<PluginPermission>(['PROCESS_EXECUTE', 'SECRETS']);
 
 /** Validates a manifest and returns structured issues rather than throwing. */
-export function parsePluginManifest(raw: unknown): { ok: true; value: PluginManifest } | { ok: false; errors: readonly string[] } {
+export function parsePluginManifest(
+  raw: unknown,
+): { ok: true; value: PluginManifest } | { ok: false; errors: readonly string[] } {
   const parsed = PluginManifestSchema.safeParse(raw);
-  return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`) };
+  return parsed.success
+    ? { ok: true, value: parsed.data }
+    : {
+        ok: false,
+        errors: parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
+      };
 }
 
 /**
  * Applies application policy: untrusted plugins are disabled, and high-risk
  * permissions are stripped unless explicitly approved by policy.
  */
-export function evaluatePlugin(manifest: PluginManifest, policy?: { allowUntrusted?: boolean; approvedHighRisk?: readonly PluginPermission[] }): PluginStatus {
-  if (!manifest.trusted && !policy?.allowUntrusted) return { manifest, enabled: false, reason: 'Plugin is not trusted by the application' };
+export function evaluatePlugin(
+  manifest: PluginManifest,
+  policy?: { allowUntrusted?: boolean; approvedHighRisk?: readonly PluginPermission[] },
+): PluginStatus {
+  if (!manifest.trusted && !policy?.allowUntrusted)
+    return { manifest, enabled: false, reason: 'Plugin is not trusted by the application' };
   const approved = new Set(policy?.approvedHighRisk ?? []);
-  const blocked = manifest.permissions.filter((permission) => HIGH_RISK.has(permission) && !approved.has(permission));
-  if (blocked.length > 0) return { manifest, enabled: false, reason: `High-risk permissions require approval: ${blocked.join(', ')}` };
+  const blocked = manifest.permissions.filter(
+    (permission) => HIGH_RISK.has(permission) && !approved.has(permission),
+  );
+  if (blocked.length > 0)
+    return {
+      manifest,
+      enabled: false,
+      reason: `High-risk permissions require approval: ${blocked.join(', ')}`,
+    };
   return { manifest, enabled: true };
 }
 
 /** Creates a least-privilege capability object from an approved manifest. */
-export function createCapabilities(manifest: PluginManifest, handlers: { vault: VaultCapability; registerCommand: PluginCapabilities['registerCommand']; readIndex: PluginCapabilities['readIndex'] }): PluginCapabilities {
+export function createCapabilities(
+  manifest: PluginManifest,
+  handlers: {
+    vault: VaultCapability;
+    registerCommand: PluginCapabilities['registerCommand'];
+    readIndex: PluginCapabilities['readIndex'];
+  },
+): PluginCapabilities {
   const permissions = new Set(manifest.permissions);
   const vault: Partial<VaultCapability> = {};
-  if (permissions.has('VAULT_READ')) { vault.read = handlers.vault.read; vault.list = handlers.vault.list; }
+  if (permissions.has('VAULT_READ')) {
+    vault.read = handlers.vault.read;
+    vault.list = handlers.vault.list;
+  }
   if (permissions.has('VAULT_WRITE')) vault.write = handlers.vault.write;
   if (permissions.has('VAULT_DELETE')) vault.delete = handlers.vault.delete;
   if (permissions.has('VAULT_RENAME')) vault.rename = handlers.vault.rename;
   return {
     vault,
-    ...(permissions.has('COMMAND_REGISTER') && handlers.registerCommand ? { registerCommand: handlers.registerCommand } : {}),
-    ...(permissions.has('INDEX_READ') && handlers.readIndex ? { readIndex: handlers.readIndex } : {}),
+    ...(permissions.has('COMMAND_REGISTER') && handlers.registerCommand
+      ? { registerCommand: handlers.registerCommand }
+      : {}),
+    ...(permissions.has('INDEX_READ') && handlers.readIndex
+      ? { readIndex: handlers.readIndex }
+      : {}),
   };
 }
 
 /** Harmless sample plugin manifest for SDK integration tests/examples. */
 export const EXAMPLE_PLUGIN_MANIFEST: PluginManifest = {
-  id: 'example.word-count', name: 'Word Count', version: '1.0.0', description: 'Counts words in the active note.', permissions: ['VAULT_READ'], trusted: true,
+  id: 'example.word-count',
+  name: 'Word Count',
+  version: '1.0.0',
+  description: 'Counts words in the active note.',
+  permissions: ['VAULT_READ'],
+  trusted: true,
 };

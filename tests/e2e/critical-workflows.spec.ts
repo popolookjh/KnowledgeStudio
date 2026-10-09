@@ -1,11 +1,28 @@
 import { expect, test } from '@playwright/test';
-import { assertNoRuntimeErrors, closeFixture, launchFixture, restartFixture, type E2eFixture, waitForCanvasZoom, waitForWorkspaceTab } from './fixture';
+import {
+  assertNoRuntimeErrors,
+  closeFixture,
+  launchFixture,
+  restartFixture,
+  type E2eFixture,
+  waitForCanvasZoom,
+  waitForWorkspaceTab,
+} from './fixture';
 
 let fixture!: E2eFixture;
 let launched = false;
 
-test.beforeEach(async () => { fixture = await launchFixture('workflows'); launched = true; });
-test.afterEach(async () => { if (launched) { assertNoRuntimeErrors(fixture); await closeFixture(fixture); } launched = false; });
+test.beforeEach(async () => {
+  fixture = await launchFixture('workflows');
+  launched = true;
+});
+test.afterEach(async () => {
+  if (launched) {
+    assertNoRuntimeErrors(fixture);
+    await closeFixture(fixture);
+  }
+  launched = false;
+});
 
 test('vault, note, search, workspace, wiki links and tags workflows', async () => {
   const { page } = fixture;
@@ -20,7 +37,10 @@ test('vault, note, search, workspace, wiki links and tags workflows', async () =
   await page.keyboard.type('# E2E note\n\nPersisted text\n');
   await page.keyboard.press('Control+S');
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
-  await page.getByRole('tab', { name: /untitled/ }).locator('.tabs__close').click();
+  await page
+    .getByRole('tab', { name: /untitled/ })
+    .locator('.tabs__close')
+    .click();
   await page.getByRole('treeitem', { name: /untitled/ }).click();
   await expect(page.locator('.cm-content').last()).toContainText('Persisted text');
 
@@ -66,7 +86,9 @@ test('Git status and selected-file diff without commit', async () => {
 test('plugin MCP and AI operational controls preserve safety boundaries', async () => {
   const { page } = fixture;
   const plugin = page.locator('.plugin-panel');
-  await expect(plugin.getByText('Local manifests only. Plugin runtime loading is deferred.')).toBeVisible();
+  await expect(
+    plugin.getByText('Local manifests only. Plugin runtime loading is deferred.'),
+  ).toBeVisible();
   await expect(plugin.getByText('Requested: VAULT_READ, SECRETS')).toBeVisible();
   await expect(plugin.getByText(/High-risk permissions require approval/)).toBeVisible();
   await plugin.getByLabel('Enable policy').click();
@@ -86,15 +108,25 @@ test('plugin MCP and AI operational controls preserve safety boundaries', async 
 
   const ai = page.locator('.ai-panel');
   const externalRequests: string[] = [];
-  page.on('request', (request) => { if (/^https?:/i.test(request.url())) externalRequests.push(request.url()); });
-  await expect(ai.getByText('Provider-neutral and offline by default. Opening this panel never contacts a provider.')).toBeVisible();
+  page.on('request', (request) => {
+    if (/^https?:/i.test(request.url())) externalRequests.push(request.url());
+  });
+  await expect(
+    ai.getByText(
+      'Provider-neutral and offline by default. Opening this panel never contacts a provider.',
+    ),
+  ).toBeVisible();
   await expect(ai.getByText(/local · no model · disabled/)).toBeVisible();
   await ai.locator('summary').click();
   await ai.getByPlaceholder('provider.id').fill('local.fixture');
   await ai.getByPlaceholder('Display name').fill('Local Fixture');
   await ai.getByRole('button', { name: 'Save provider metadata' }).click();
   await expect(ai.getByText('Local Fixture', { exact: true })).toBeVisible();
-  await ai.locator('.ai-panel__entry').filter({ hasText: 'Local Fixture' }).getByRole('button', { name: 'Set credential' }).click();
+  await ai
+    .locator('.ai-panel__entry')
+    .filter({ hasText: 'Local Fixture' })
+    .getByRole('button', { name: 'Set credential' })
+    .click();
   const credential = ai.locator('input[type="password"]');
   await credential.fill('fixture-secret-never-returned');
   await credential.fill('');

@@ -18,7 +18,10 @@ const source: McpDataSource = {
 };
 
 let host: ActiveVaultMcpHost | undefined;
-afterEach(async () => { await host?.shutdown(); host = undefined; });
+afterEach(async () => {
+  await host?.shutdown();
+  host = undefined;
+});
 
 describe('ActiveVaultMcpHost', () => {
   it('requires an active vault and binds only loopback on explicit start', async () => {

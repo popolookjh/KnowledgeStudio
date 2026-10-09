@@ -97,16 +97,20 @@ const api: BridgeApi = {
   mcpStart: (port) => ipcRenderer.invoke(IPC.mcpStart, port),
   mcpStop: () => ipcRenderer.invoke(IPC.mcpStop),
   listPlugins: () => ipcRenderer.invoke(IPC.pluginList),
-  setPluginEnabled: (pluginId, enabled) => ipcRenderer.invoke(IPC.pluginSetEnabled, pluginId, enabled),
-  approvePluginHighRisk: (pluginId, permission, approved) => ipcRenderer.invoke(IPC.pluginApproveHighRisk, pluginId, permission, approved),
+  setPluginEnabled: (pluginId, enabled) =>
+    ipcRenderer.invoke(IPC.pluginSetEnabled, pluginId, enabled),
+  approvePluginHighRisk: (pluginId, permission, approved) =>
+    ipcRenderer.invoke(IPC.pluginApproveHighRisk, pluginId, permission, approved),
   aiConfigList: () => ipcRenderer.invoke(IPC.aiConfigList),
   aiConfigUpsert: (config) => ipcRenderer.invoke(IPC.aiConfigUpsert, config),
-  aiConfigSetSecret: (providerId, secret) => ipcRenderer.invoke(IPC.aiConfigSetSecret, providerId, secret),
+  aiConfigSetSecret: (providerId, secret) =>
+    ipcRenderer.invoke(IPC.aiConfigSetSecret, providerId, secret),
   aiConfigRemoveSecret: (providerId) => ipcRenderer.invoke(IPC.aiConfigRemoveSecret, providerId),
   pickAttachment: (notePath) => ipcRenderer.invoke(IPC.attachmentPick, notePath),
   attachmentIssues: (notePath) => ipcRenderer.invoke(IPC.attachmentIssues, notePath),
   basesList: () => ipcRenderer.invoke(IPC.basesList),
-  basesSave: (definition, expectedRevision) => ipcRenderer.invoke(IPC.basesSave, definition, expectedRevision),
+  basesSave: (definition, expectedRevision) =>
+    ipcRenderer.invoke(IPC.basesSave, definition, expectedRevision),
   basesDelete: (id, expectedRevision) => ipcRenderer.invoke(IPC.basesDelete, id, expectedRevision),
   basesQuery: (id) => ipcRenderer.invoke(IPC.basesQuery, id),
   basesSetField: (edit) => ipcRenderer.invoke(IPC.basesSetField, edit),
@@ -114,9 +118,12 @@ const api: BridgeApi = {
   clipperImportFile: () => ipcRenderer.invoke(IPC.clipperImportFile),
   pdfRead: (path) => ipcRenderer.invoke(IPC.pdfRead, path),
   pdfAnnotationsList: (path) => ipcRenderer.invoke(IPC.pdfAnnotationsList, path),
-  pdfAnnotationAdd: (path, annotation, expectedRevision, title) => ipcRenderer.invoke(IPC.pdfAnnotationAdd, path, annotation, expectedRevision, title),
-  pdfAnnotationUpdate: (path, id, patch, expectedRevision) => ipcRenderer.invoke(IPC.pdfAnnotationUpdate, path, id, patch, expectedRevision),
-  pdfAnnotationRemove: (path, id, expectedRevision) => ipcRenderer.invoke(IPC.pdfAnnotationRemove, path, id, expectedRevision),
+  pdfAnnotationAdd: (path, annotation, expectedRevision, title) =>
+    ipcRenderer.invoke(IPC.pdfAnnotationAdd, path, annotation, expectedRevision, title),
+  pdfAnnotationUpdate: (path, id, patch, expectedRevision) =>
+    ipcRenderer.invoke(IPC.pdfAnnotationUpdate, path, id, patch, expectedRevision),
+  pdfAnnotationRemove: (path, id, expectedRevision) =>
+    ipcRenderer.invoke(IPC.pdfAnnotationRemove, path, id, expectedRevision),
   pdfExportNote: (path, title) => ipcRenderer.invoke(IPC.pdfExportNote, path, title),
   zoteroImportFile: () => ipcRenderer.invoke(IPC.zoteroImportFile),
   zoteroSyncLocal: (port) => ipcRenderer.invoke(IPC.zoteroSyncLocal, port),

@@ -6,7 +6,12 @@ interface MainProcess {
   readonly BrowserWindow: {
     getAllWindows(): readonly {
       readonly webContents: {
-        getLastWebPreferences(): { sandbox?: boolean; contextIsolation?: boolean; nodeIntegration?: boolean; webviewTag?: boolean } | null;
+        getLastWebPreferences(): {
+          sandbox?: boolean;
+          contextIsolation?: boolean;
+          nodeIntegration?: boolean;
+          webviewTag?: boolean;
+        } | null;
         getURL(): string;
         executeJavaScript(code: string): Promise<unknown>;
       };
@@ -19,25 +24,44 @@ let launched = false;
 
 test.beforeEach(async () => {
   fixture = await launchFixture('security', {
-    'Hostile.md': '# Hostile\n\nzebra <img src=x onerror="document.title=\'pwned\'"> <b>zebra</b> [external](https://example.com/away)\n',
+    'Hostile.md':
+      '# Hostile\n\nzebra <img src=x onerror="document.title=\'pwned\'"> <b>zebra</b> [external](https://example.com/away)\n',
   });
   launched = true;
 });
-test.afterEach(async () => { if (launched) { assertNoRuntimeErrors(fixture); await closeFixture(fixture); } launched = false; });
+test.afterEach(async () => {
+  if (launched) {
+    assertNoRuntimeErrors(fixture);
+    await closeFixture(fixture);
+  }
+  launched = false;
+});
 
 test('Electron security invariants hold for Tier 1 surfaces', async () => {
   const { app, page } = fixture;
   const preferences = await app.evaluate((electron: unknown) => {
     const { BrowserWindow } = electron as MainProcess;
     const prefs = BrowserWindow.getAllWindows()[0]!.webContents.getLastWebPreferences();
-    return { sandbox: prefs?.sandbox, contextIsolation: prefs?.contextIsolation, nodeIntegration: prefs?.nodeIntegration, webviewTag: prefs?.webviewTag };
+    return {
+      sandbox: prefs?.sandbox,
+      contextIsolation: prefs?.contextIsolation,
+      nodeIntegration: prefs?.nodeIntegration,
+      webviewTag: prefs?.webviewTag,
+    };
   });
-  expect(preferences).toEqual({ sandbox: true, contextIsolation: true, nodeIntegration: false, webviewTag: false });
+  expect(preferences).toEqual({
+    sandbox: true,
+    contextIsolation: true,
+    nodeIntegration: false,
+    webviewTag: false,
+  });
 
   const renderer = await page.evaluate(() => ({
     process: typeof (globalThis as Record<string, unknown>)['process'],
     require: typeof (globalThis as Record<string, unknown>)['require'],
-    bridgeKeys: Object.keys((window as unknown as { knowledgeStudio: Record<string, unknown> }).knowledgeStudio),
+    bridgeKeys: Object.keys(
+      (window as unknown as { knowledgeStudio: Record<string, unknown> }).knowledgeStudio,
+    ),
     opened: window.open('https://example.com/popup') === null,
   }));
   expect(renderer).toMatchObject({ process: 'undefined', require: 'undefined', opened: true });
@@ -61,7 +85,16 @@ test('Electron security invariants hold for Tier 1 surfaces', async () => {
   await expect(bind).toBeVisible();
   const endpoint = /http:\/\/127\.0\.0\.1:\d+/.exec(await bind.innerText())![0];
   const blocked = await page.evaluate(async (url) => {
-    try { await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"method":"tools/list"}' }); return false; } catch { return true; }
+    try {
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: '{"method":"tools/list"}',
+      });
+      return false;
+    } catch {
+      return true;
+    }
   }, endpoint);
   expect(blocked).toBe(true);
   fixture.consoleErrors.splice(0); // the CSP violation for that deliberate probe is expected
@@ -79,7 +112,13 @@ test('Electron security invariants hold for Tier 1 surfaces', async () => {
   const after = await app.evaluate(async (electron: unknown) => {
     const { BrowserWindow } = electron as MainProcess;
     const contents = BrowserWindow.getAllWindows()[0]!.webContents;
-    return { url: contents.getURL(), workbench: (await contents.executeJavaScript('Boolean(document.querySelector(".workbench"))')) === true, windows: BrowserWindow.getAllWindows().length };
+    return {
+      url: contents.getURL(),
+      workbench:
+        (await contents.executeJavaScript('Boolean(document.querySelector(".workbench"))')) ===
+        true,
+      windows: BrowserWindow.getAllWindows().length,
+    };
   });
   expect(after).toEqual({ url: before, workbench: true, windows: 1 });
 });

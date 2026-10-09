@@ -82,7 +82,9 @@ describe('walkVault', () => {
     writeFileSync(path.join(root, 'notes', '.alpha.md.ks-tmp-deadbeef'), 'partial');
     const result = await walkVault(root);
     if (!result.ok) throw new Error('walk failed');
-    expect(result.value.map((entry) => entry.path)).not.toContain('notes/.alpha.md.ks-tmp-deadbeef');
+    expect(result.value.map((entry) => entry.path)).not.toContain(
+      'notes/.alpha.md.ks-tmp-deadbeef',
+    );
   });
 
   it('skips symlinks instead of traversing them', async () => {

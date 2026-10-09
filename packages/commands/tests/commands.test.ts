@@ -5,7 +5,13 @@ describe('CommandRegistry', () => {
   it('registers, looks up, lists, and unregisters commands', () => {
     const registry = new CommandRegistry();
     const execute = vi.fn();
-    registry.register({ id: 'test.action', title: 'Test action', category: 'System', permission: 'NONE', execute });
+    registry.register({
+      id: 'test.action',
+      title: 'Test action',
+      category: 'System',
+      permission: 'NONE',
+      execute,
+    });
     expect(registry.get('test.action')?.title).toBe('Test action');
     expect(registry.list()).toHaveLength(1);
     expect(registry.unregister('test.action')).toBe(true);
@@ -13,7 +19,13 @@ describe('CommandRegistry', () => {
   });
   it('rejects invalid and duplicate ids', () => {
     const registry = new CommandRegistry();
-    const command = { id: 'test.action', title: 'Test', category: 'System' as const, permission: 'NONE' as const, execute: () => undefined };
+    const command = {
+      id: 'test.action',
+      title: 'Test',
+      category: 'System' as const,
+      permission: 'NONE' as const,
+      execute: () => undefined,
+    };
     expect(() => registry.register({ ...command, id: 'Invalid ID' })).toThrow(/Invalid/);
     registry.register(command);
     expect(() => registry.register(command)).toThrow(/already/);
@@ -32,10 +44,14 @@ describe('CommandRegistry', () => {
     const registry = createDefaultRegistry({ 'file.create-note': execute });
     await registry.execute('file.create-note', { vaultOpen: true, activePath: null });
     expect(execute).toHaveBeenCalledOnce();
-    await expect(registry.execute('file.create-note', { vaultOpen: false, activePath: null })).rejects.toThrow(/open vault/);
+    await expect(
+      registry.execute('file.create-note', { vaultOpen: false, activePath: null }),
+    ).rejects.toThrow(/open vault/);
   });
   it('includes the requested built-in commands', () => {
-    const ids = createDefaultRegistry().list().map((command) => command.id);
+    const ids = createDefaultRegistry()
+      .list()
+      .map((command) => command.id);
     expect(ids).toContain('search.rebuild-index');
     expect(ids).toContain('view.open-graph');
     expect(ids).toContain('system.insert-template');

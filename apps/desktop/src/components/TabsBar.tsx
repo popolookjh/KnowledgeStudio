@@ -23,7 +23,12 @@ export function TabsBar(): React.JSX.Element {
           >
             <span className="tabs__title">
               {tab.title}
-              {conflicted && <span className="tabs__conflict" title="Changed on disk"> ⚠</span>}
+              {conflicted && (
+                <span className="tabs__conflict" title="Changed on disk">
+                  {' '}
+                  ⚠
+                </span>
+              )}
             </span>
             <span
               className={`tabs__dirty${dirty ? ' is-dirty' : ''}`}

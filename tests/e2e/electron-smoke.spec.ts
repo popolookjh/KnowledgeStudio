@@ -17,8 +17,10 @@ test('launches Electron with preload bridge and normal workbench', async () => {
   await expect(fixture.page.locator('.workbench')).toBeVisible();
   await expect(fixture.page.getByRole('button', { name: 'Graph' })).toBeVisible();
   await expect(fixture.page.getByRole('button', { name: 'Canvas' })).toBeVisible();
-  expect(await fixture.page.evaluate(() => {
-    const windowRef = window as unknown as { knowledgeStudio?: unknown };
-    return Boolean(windowRef.knowledgeStudio);
-  })).toBe(true);
+  expect(
+    await fixture.page.evaluate(() => {
+      const windowRef = window as unknown as { knowledgeStudio?: unknown };
+      return Boolean(windowRef.knowledgeStudio);
+    }),
+  ).toBe(true);
 });

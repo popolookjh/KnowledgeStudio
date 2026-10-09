@@ -8,8 +8,8 @@ publishes, nor pushes anything.
 Run from the repository root:
 
 ```bash
-corepack pnpm lint
 corepack pnpm typecheck
+corepack pnpm lint
 corepack pnpm test
 corepack pnpm test:e2e
 corepack pnpm build
@@ -41,11 +41,12 @@ and offline AI settings. The targeted audit checks required runtime files and re
 test fixtures, user data, secrets, local absolute paths, and LuckyAI references; it is not an
 exhaustive secret scanner. Windows SmartScreen may warn because no certificate is used. An
 installer is built for structural validation only and must not be installed on a development
-machine. Attachment safe-copy remains deferred because no operational UI/IPC exists; Plugin
-runtime execution and AI secure secret-entry UX remain intentionally deferred.
+machine. Attachment safe-copy and OS-backed AI credential controls are implemented in the desktop UI;
+third-party plugin runtime execution remains deferred. Native attachment-dialog automation is not covered.
+
 ## Electron smoke
 
- (`apps/desktop/node_modules/.bin/electron apps/desktop`).
+1. Launch the built development application (`corepack pnpm --filter @knowledge-studio/desktop start`).
 2. Confirm the Electron main, renderer, GPU, and utility processes are alive.
 3. Confirm no startup errors are written to stdout/stderr.
 4. Close the process cleanly.

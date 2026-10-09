@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ensureDocumentId, readMetadata, serializeMetadata, writeMetadata, withUpdatedStamp } from '../src/index.js';
+import {
+  ensureDocumentId,
+  readMetadata,
+  serializeMetadata,
+  writeMetadata,
+  withUpdatedStamp,
+} from '../src/index.js';
 
 describe('readMetadata', () => {
   it('reads canonical properties with types intact', () => {

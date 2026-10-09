@@ -4,8 +4,20 @@
   "private": true,
   "type": "module",
   "description": "Optional semantic indexing and hybrid lexical-semantic retrieval.",
-  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
-  "files": ["dist"],
-  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" },
-  "dependencies": { "@knowledge-studio/ai-bridge": "workspace:*" }
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\""
+  },
+  "dependencies": {
+    "@knowledge-studio/ai-bridge": "workspace:*"
+  }
 }

@@ -119,7 +119,15 @@ class LinkIndexService {
       }
       const targetPath = href.split('#')[0] ?? '';
       const resolution = resolveWikiLink(
-        { raw: href, target: targetPath, heading: null, alias: null, start: token.start, end: token.end, line: token.line },
+        {
+          raw: href,
+          target: targetPath,
+          heading: null,
+          alias: null,
+          start: token.start,
+          end: token.end,
+          line: token.line,
+        },
         this.stems,
         this.paths,
       );

@@ -98,7 +98,9 @@ class Store {
     }
     if (this.state.bridge && this.state.sessionRoot) {
       if (this.workspaceTimer) clearTimeout(this.workspaceTimer);
-      this.workspaceTimer = setTimeout(() => { void this.persistWorkspace(); }, 250);
+      this.workspaceTimer = setTimeout(() => {
+        void this.persistWorkspace();
+      }, 250);
     }
   }
 
@@ -223,7 +225,9 @@ class Store {
         return read.ok ? { path: vaultPath, content: read.value.content } : null;
       }),
     );
-    tagIndex.rebuild(tagNotes.filter((note): note is { path: string; content: string } => note !== null));
+    tagIndex.rebuild(
+      tagNotes.filter((note): note is { path: string; content: string } => note !== null),
+    );
   }
 
   async openNote(vaultPath: string): Promise<void> {
@@ -285,9 +289,7 @@ class Store {
   }
 
   updateContent(vaultPath: string, content: string): void {
-    const tabs = this.state.tabs.map((tab) =>
-      tab.path === vaultPath ? { ...tab, content } : tab,
-    );
+    const tabs = this.state.tabs.map((tab) => (tab.path === vaultPath ? { ...tab, content } : tab));
     this.set({ tabs });
     linkIndex.updateNote(vaultPath, content);
     tagIndex.update(vaultPath, content);
@@ -459,7 +461,11 @@ class Store {
    * patch → re-serialize via the metadata package, then save. The body is
    * preserved byte-for-byte; unknown properties survive untouched.
    */
-  async setMetadataProperty(vaultPath: string, key: string, value: string | string[] | null): Promise<void> {
+  async setMetadataProperty(
+    vaultPath: string,
+    key: string,
+    value: string | string[] | null,
+  ): Promise<void> {
     const api = this.state.bridge;
     const tab = this.state.tabs.find((entry) => entry.path === vaultPath);
     if (!api || !tab) {
@@ -470,7 +476,12 @@ class Store {
     if (value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
       delete patch[key];
     } else if (key === 'tags' || key === 'aliases') {
-      patch[key] = Array.isArray(value) ? value : value.split(',').map((part) => part.trim()).filter((part) => part.length > 0);
+      patch[key] = Array.isArray(value)
+        ? value
+        : value
+            .split(',')
+            .map((part) => part.trim())
+            .filter((part) => part.length > 0);
     } else if (key === 'confidence') {
       const numeric = Number(value);
       if (!Number.isNaN(numeric)) {
@@ -500,12 +511,24 @@ class Store {
     this.set({ sidebarCollapsed: !this.state.sidebarCollapsed });
   }
 
-  openCanvas(): void { this.set({ canvasOpen: true }); }
-  closeCanvas(): void { this.set({ canvasOpen: false }); }
-  openBases(): void { this.set({ basesOpen: true }); }
-  closeBases(): void { this.set({ basesOpen: false }); }
-  openPdf(vaultPath: string): void { this.set({ pdfPath: vaultPath }); }
-  closePdf(): void { this.set({ pdfPath: null }); }
+  openCanvas(): void {
+    this.set({ canvasOpen: true });
+  }
+  closeCanvas(): void {
+    this.set({ canvasOpen: false });
+  }
+  openBases(): void {
+    this.set({ basesOpen: true });
+  }
+  closeBases(): void {
+    this.set({ basesOpen: false });
+  }
+  openPdf(vaultPath: string): void {
+    this.set({ pdfPath: vaultPath });
+  }
+  closePdf(): void {
+    this.set({ pdfPath: null });
+  }
 
   private async persistWorkspace(): Promise<void> {
     const api = this.state.bridge;

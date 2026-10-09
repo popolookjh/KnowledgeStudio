@@ -45,7 +45,9 @@ export class ElectronSafeSecretStore implements SecureSecretStore {
     if (raw === null) return {};
     try {
       const parsed: unknown = JSON.parse(raw);
-      return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) ? parsed as Record<string, string> : {};
+      return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+        ? (parsed as Record<string, string>)
+        : {};
     } catch {
       return {};
     }

@@ -17,9 +17,7 @@ export function StatusBar(): React.JSX.Element {
 
   return (
     <footer className="statusbar">
-      <span className="statusbar__cell">
-        {sessionRoot ? 'Vault connected' : 'No vault'}
-      </span>
+      <span className="statusbar__cell">{sessionRoot ? 'Vault connected' : 'No vault'}</span>
       <span className="statusbar__cell">{watcherActive ? 'Watching' : ''}</span>
       <span className="statusbar__cell statusbar__grow" title={activeTab?.path ?? ''}>
         {activeTab ? activeTab.path : ''}

@@ -7,7 +7,9 @@ describe('extractTags', () => {
     expect(tags.map((tag) => tag.tag)).toEqual(['project/alpha', 'idea']);
   });
   it('supports Persian tags', () => {
-    expect(extractTags('این یک #یادداشت/فارسی است').map((tag) => tag.tag)).toEqual(['یادداشت/فارسی']);
+    expect(extractTags('این یک #یادداشت/فارسی است').map((tag) => tag.tag)).toEqual([
+      'یادداشت/فارسی',
+    ]);
   });
   it('merges frontmatter tags before inline tags', () => {
     const tags = extractTags('---\ntags: [Core, design]\n---\n#design #inline');

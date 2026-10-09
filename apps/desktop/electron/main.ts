@@ -52,7 +52,9 @@ function createMainWindow(): BrowserWindow {
 
 void app.whenReady().then(() => {
   // No web permission (camera, microphone, geolocation, notifications, …) is ever granted.
-  session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
+  session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) =>
+    callback(false),
+  );
   session.defaultSession.setPermissionCheckHandler(() => false);
   const win = createMainWindow();
   registerVaultIpc(win);

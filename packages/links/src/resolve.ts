@@ -14,7 +14,11 @@ import type { WikiLinkToken } from './parse.js';
 export type LinkResolution =
   | { readonly status: 'resolved'; readonly vaultPath: string; readonly heading: string | null }
   | { readonly status: 'unresolved'; readonly target: string; readonly heading: string | null }
-  | { readonly status: 'ambiguous'; readonly candidates: readonly string[]; readonly target: string };
+  | {
+      readonly status: 'ambiguous';
+      readonly candidates: readonly string[];
+      readonly target: string;
+    };
 
 export interface LinkIndexEntry {
   /** The note containing the link. */
@@ -82,7 +86,10 @@ export function resolveWikiLink(
  * present in the target text (e.g. `[[folder/Note]]`) and normalizing the
  * result through the shared path algebra.
  */
-export function targetPathForUnresolved(rawTarget: string, heading: string | null): Result<string, Error> {
+export function targetPathForUnresolved(
+  rawTarget: string,
+  heading: string | null,
+): Result<string, Error> {
   const withExtension = rawTarget.includes('.') ? rawTarget : `${rawTarget}.md`;
   const normalized = normalizeVaultPath(withExtension);
   if (!normalized.ok) {

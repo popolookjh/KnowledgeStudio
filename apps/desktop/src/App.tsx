@@ -31,7 +31,11 @@ const LazyCanvasView = lazy(async () => {
 });
 
 function OptionalViewLoading({ name }: { readonly name: string }): React.JSX.Element {
-  return <div className="optional-view-fallback" role="status">Loading {name}…</div>;
+  return (
+    <div className="optional-view-fallback" role="status">
+      Loading {name}…
+    </div>
+  );
 }
 
 /**
@@ -47,7 +51,8 @@ function OptionalViewLoading({ name }: { readonly name: string }): React.JSX.Ele
  * └──────────────────────────────────────────────────────┘
  */
 export default function App(): React.JSX.Element {
-  const { sessionRoot, mode, activePath, conflictPath, graphOpen, canvasOpen, basesOpen, pdfPath } = useAppState();
+  const { sessionRoot, mode, activePath, conflictPath, graphOpen, canvasOpen, basesOpen, pdfPath } =
+    useAppState();
 
   useEffect(() => {
     void store.bootstrap();
@@ -80,7 +85,9 @@ export default function App(): React.JSX.Element {
                 type="button"
                 className="btn btn--small"
                 title="Search the vault (Ctrl+P)"
-                onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', ctrlKey: true }))}
+                onClick={() =>
+                  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', ctrlKey: true }))
+                }
               >
                 Search
               </button>
@@ -120,7 +127,9 @@ export default function App(): React.JSX.Element {
                 type="button"
                 className="btn btn--small"
                 title="Add an attachment to the active note"
-                onClick={() => { if (activePath) void store.addAttachment(activePath); }}
+                onClick={() => {
+                  if (activePath) void store.addAttachment(activePath);
+                }}
                 disabled={!activePath}
               >
                 Add attachment
@@ -144,7 +153,11 @@ export default function App(): React.JSX.Element {
                   </button>
                 ))}
               </div>
-              <button type="button" className="btn btn--small" onClick={() => void store.closeVault()}>
+              <button
+                type="button"
+                className="btn btn--small"
+                onClick={() => void store.closeVault()}
+              >
                 Close vault
               </button>
             </div>
@@ -159,8 +172,8 @@ export default function App(): React.JSX.Element {
             {conflictPath && (
               <div className="conflict" role="alert">
                 <span>
-                  This file changed on disk while you were editing it. Keep your version or load
-                  the file from the vault?
+                  This file changed on disk while you were editing it. Keep your version or load the
+                  file from the vault?
                 </span>
                 <div className="conflict__actions">
                   <button
@@ -180,11 +193,7 @@ export default function App(): React.JSX.Element {
                 </div>
               </div>
             )}
-            <div
-              className={`center__panes${
-                mode === 'split' ? ' center__panes--split' : ''
-              }`}
-            >
+            <div className={`center__panes${mode === 'split' ? ' center__panes--split' : ''}`}>
               {mode !== 'preview' && <EditorPane />}
               {(mode === 'split' || mode === 'preview') && <PreviewPane />}
             </div>
@@ -207,10 +216,18 @@ export default function App(): React.JSX.Element {
       )}
       {pdfPath && (
         <div className="canvas-overlay" onClick={() => store.closePdf()}>
-          <div className="canvas-overlay__panel" role="dialog" aria-modal="true" aria-label="PDF reader" onClick={(event) => event.stopPropagation()}>
+          <div
+            className="canvas-overlay__panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="PDF reader"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="canvas-overlay__header">
               <span dir="auto">{pdfPath}</span>
-              <button type="button" className="btn btn--small" onClick={() => store.closePdf()}>Close</button>
+              <button type="button" className="btn btn--small" onClick={() => store.closePdf()}>
+                Close
+              </button>
             </div>
             <OptionalViewBoundary name="PDF reader" onClose={() => store.closePdf()}>
               <Suspense fallback={<OptionalViewLoading name="PDF reader" />}>
@@ -228,11 +245,16 @@ export default function App(): React.JSX.Element {
             aria-modal="true"
             aria-label="Bases"
             onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement)) store.closeBases(); }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement))
+                store.closeBases();
+            }}
           >
             <div className="canvas-overlay__header">
               <span>Bases</span>
-              <button type="button" className="btn btn--small" onClick={() => store.closeBases()}>Close</button>
+              <button type="button" className="btn btn--small" onClick={() => store.closeBases()}>
+                Close
+              </button>
             </div>
             <OptionalViewBoundary name="Bases" onClose={() => store.closeBases()}>
               <Suspense fallback={<OptionalViewLoading name="Bases" />}>
@@ -247,7 +269,9 @@ export default function App(): React.JSX.Element {
           <div className="canvas-overlay__panel" onClick={(event) => event.stopPropagation()}>
             <div className="canvas-overlay__header">
               <span>Canvas board</span>
-              <button type="button" className="btn btn--small" onClick={() => store.closeCanvas()}>Close</button>
+              <button type="button" className="btn btn--small" onClick={() => store.closeCanvas()}>
+                Close
+              </button>
             </div>
             <OptionalViewBoundary name="Canvas board" onClose={() => store.closeCanvas()}>
               <Suspense fallback={<OptionalViewLoading name="Canvas board" />}>

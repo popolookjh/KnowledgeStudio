@@ -16,7 +16,7 @@ usable without Knowledge Studio, forever.
 Three strictly separated layers:
 
 1. **Content** — Markdown notes, `.ks-canvas.json` boards, attachments in the vault
-   folder. This is the *only* source of truth.
+   folder. This is the _only_ source of truth.
 2. **Index** — SQLite databases (search/FTS5, backlinks, graph, metadata cache,
    embedding references). Fully derived from content; a `REBUILD INDEX` command
    recreates everything from the vault; corruption is answered with

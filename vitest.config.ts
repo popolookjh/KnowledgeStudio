@@ -29,7 +29,10 @@ export default defineConfig({
       '@knowledge-studio/mcp-host': path.join(repoRoot, 'packages/mcp-host/src/index.ts'),
       '@knowledge-studio/ai-bridge': path.join(repoRoot, 'packages/ai-bridge/src/index.ts'),
       '@knowledge-studio/ai-config': path.join(repoRoot, 'packages/ai-config/src/index.ts'),
-      '@knowledge-studio/semantic-search': path.join(repoRoot, 'packages/semantic-search/src/index.ts'),
+      '@knowledge-studio/semantic-search': path.join(
+        repoRoot,
+        'packages/semantic-search/src/index.ts',
+      ),
       '@knowledge-studio/security': path.join(repoRoot, 'packages/security/src/index.ts'),
       '@knowledge-studio/import-export': path.join(repoRoot, 'packages/import-export/src/index.ts'),
       '@knowledge-studio/rtl': path.join(repoRoot, 'packages/rtl/src/index.ts'),
@@ -37,7 +40,10 @@ export default defineConfig({
       '@knowledge-studio/provenance': path.join(repoRoot, 'packages/provenance/src/index.ts'),
       '@knowledge-studio/change-feed': path.join(repoRoot, 'packages/change-feed/src/index.ts'),
       '@knowledge-studio/bases': path.join(repoRoot, 'packages/bases/src/index.ts'),
-      '@knowledge-studio/pdf-annotations': path.join(repoRoot, 'packages/pdf-annotations/src/index.ts'),
+      '@knowledge-studio/pdf-annotations': path.join(
+        repoRoot,
+        'packages/pdf-annotations/src/index.ts',
+      ),
       '@knowledge-studio/zotero': path.join(repoRoot, 'packages/zotero/src/index.ts'),
       '@knowledge-studio/web-clipper': path.join(repoRoot, 'packages/web-clipper/src/index.ts'),
     },

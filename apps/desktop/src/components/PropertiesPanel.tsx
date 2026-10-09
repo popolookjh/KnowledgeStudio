@@ -47,9 +47,7 @@ export function PropertiesPanel(): React.JSX.Element {
   const { data, issues } = readMetadata(activeTab.content);
   const rows: readonly (readonly [string, unknown])[] = [
     ...Object.entries(data),
-    ...addedKeys
-      .filter((key) => !(key in data))
-      .map((key) => [key, undefined] as const),
+    ...addedKeys.filter((key) => !(key in data)).map((key) => [key, undefined] as const),
   ];
 
   const startEdit = (key: string, current: unknown): void => {
@@ -78,9 +76,7 @@ export function PropertiesPanel(): React.JSX.Element {
           {issues.map((issue) => issue.message).join('; ')}
         </p>
       )}
-      {rows.length === 0 && (
-        <p className="rightbar__hint">No YAML frontmatter properties yet.</p>
-      )}
+      {rows.length === 0 && <p className="rightbar__hint">No YAML frontmatter properties yet.</p>}
       <dl className="rightbar__props">
         {rows.map(([key, value]) => {
           const editable = value === undefined || typeof value !== 'object' || Array.isArray(value);

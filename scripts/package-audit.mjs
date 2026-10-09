@@ -7,8 +7,20 @@ const root = process.cwd();
 const stage = path.join(root, 'release', 'stage');
 const appAsar = path.join(root, 'release', 'out', 'win-unpacked', 'resources', 'app.asar');
 const workspacePackages = [
-  'ai-config', 'canvas', 'git', 'history', 'links', 'markdown', 'mcp', 'mcp-host',
-  'metadata', 'plugin-host', 'search', 'shared', 'tags', 'vault',
+  'ai-config',
+  'canvas',
+  'git',
+  'history',
+  'links',
+  'markdown',
+  'mcp',
+  'mcp-host',
+  'metadata',
+  'plugin-host',
+  'search',
+  'shared',
+  'tags',
+  'vault',
 ];
 const requiredAppFiles = [
   'package.json',
@@ -18,8 +30,16 @@ const requiredAppFiles = [
   ...workspacePackages.map((name) => `node_modules/@knowledge-studio/${name}/package.json`),
 ];
 const forbiddenPathParts = [
-  '/.git/', '/tests/', '/test/', '/coverage/', '/.tmp/', '/.artifacts/', '/.tsbuild/',
-  '/user-data/', '/logs/', '/luckyai/',
+  '/.git/',
+  '/tests/',
+  '/test/',
+  '/coverage/',
+  '/.tmp/',
+  '/.artifacts/',
+  '/.tsbuild/',
+  '/user-data/',
+  '/logs/',
+  '/luckyai/',
 ];
 const forbiddenFileNames = ['.env', 'desktop.ini', 'thumbs.db'];
 const forbiddenText = [
@@ -122,7 +142,10 @@ async function auditAsar() {
   }
   await fs.rm(extractRoot, { recursive: true, force: true });
   const unpacked = `${appAsar}.unpacked`;
-  const unpackedExists = await fs.access(unpacked).then(() => true).catch(() => false);
+  const unpackedExists = await fs
+    .access(unpacked)
+    .then(() => true)
+    .catch(() => false);
   if (unpackedExists) throw new Error(`Unexpected ASAR unpacked runtime tree: ${unpacked}`);
   return { kind: 'asar', path: appAsar, files: files.length, asarUnpacked: false };
 }

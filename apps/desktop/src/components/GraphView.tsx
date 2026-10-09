@@ -84,7 +84,9 @@ export function GraphView(): React.JSX.Element {
     <div className="graph-overlay" onClick={() => store.closeGraph()}>
       <div className="graph-overlay__panel" onClick={(event) => event.stopPropagation()}>
         <div className="graph-overlay__header">
-          <span>Knowledge graph ({nodes.length} notes · {edges.length} links)</span>
+          <span>
+            Knowledge graph ({nodes.length} notes · {edges.length} links)
+          </span>
           <button type="button" className="btn btn--small" onClick={() => store.closeGraph()}>
             Close
           </button>

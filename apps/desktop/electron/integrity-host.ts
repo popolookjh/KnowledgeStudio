@@ -19,7 +19,8 @@ export class IntegrityHost {
   async report(): Promise<RpcResult<IntegrityReportDto>> {
     const vault = this.writer.vault;
     const entries = await walkVault(vault.root);
-    if (!entries.ok) return { ok: false, error: { code: entries.error.code, message: entries.error.message } };
+    if (!entries.ok)
+      return { ok: false, error: { code: entries.error.code, message: entries.error.message } };
     const byId = new Map<string, string[]>();
     const missingId: string[] = [];
     const invalidFrontmatter: string[] = [];
@@ -30,11 +31,17 @@ export class IntegrityHost {
       const read = await vault.readFile(entry.path);
       if (!read.ok) continue;
       const { data, issues } = readMetadata(read.value.content);
-      if (issues.some((issue) => issue.key === '' || issue.key === 'id')) { invalidFrontmatter.push(entry.path); continue; }
-      if (typeof data.id === 'string' && isUuidV4(data.id)) byId.set(data.id, [...(byId.get(data.id) ?? []), entry.path]);
+      if (issues.some((issue) => issue.key === '' || issue.key === 'id')) {
+        invalidFrontmatter.push(entry.path);
+        continue;
+      }
+      if (typeof data.id === 'string' && isUuidV4(data.id))
+        byId.set(data.id, [...(byId.get(data.id) ?? []), entry.path]);
       else missingId.push(entry.path);
     }
-    const duplicateIds = [...byId.entries()].filter(([, paths]) => paths.length > 1).map(([id, paths]) => ({ id, paths: [...paths].sort((a, b) => a.localeCompare(b, 'en')) }));
+    const duplicateIds = [...byId.entries()]
+      .filter(([, paths]) => paths.length > 1)
+      .map(([id, paths]) => ({ id, paths: [...paths].sort((a, b) => a.localeCompare(b, 'en')) }));
     const provenance = await new ProvenanceStore(vault).load();
     const bySourceType: Record<string, number> = {};
     const unresolvedSources: string[] = [];
@@ -60,13 +67,24 @@ export class IntegrityHost {
         missingId: missingId.sort((a, b) => a.localeCompare(b, 'en')),
         duplicateIds,
         invalidFrontmatter,
-        provenance: { records: provenance.ok ? provenance.value.records.length : 0, bySourceType, unresolved: unresolvedSources, error: provenance.ok ? null : provenance.error.code },
-        changeFeed: { cursor: await this.writer.feed.getCurrentCursor(), retained: feed.ok ? feed.value.events.length : 0, error: feed.ok ? null : feed.error.code },
+        provenance: {
+          records: provenance.ok ? provenance.value.records.length : 0,
+          bySourceType,
+          unresolved: unresolvedSources,
+          error: provenance.ok ? null : provenance.error.code,
+        },
+        changeFeed: {
+          cursor: await this.writer.feed.getCurrentCursor(),
+          retained: feed.ok ? feed.value.events.length : 0,
+          error: feed.ok ? null : feed.error.code,
+        },
       },
     };
   }
 
-  async repair(): Promise<RpcResult<{ assigned: number; reassigned: number; report: IntegrityReportDto }>> {
+  async repair(): Promise<
+    RpcResult<{ assigned: number; reassigned: number; report: IntegrityReportDto }>
+  > {
     const before = await this.report();
     if (!before.ok) return before;
     let assigned = 0;
@@ -74,16 +92,25 @@ export class IntegrityHost {
     for (const notePath of before.value.missingId) {
       const read = await this.writer.vault.readFile(notePath);
       if (!read.ok) continue;
-      const written = await this.writer.write(notePath, read.value.content, { expectedMtimeMs: read.value.mtimeMs, changeMetadata: { repair: 'assign-id' } });
+      const written = await this.writer.write(notePath, read.value.content, {
+        expectedMtimeMs: read.value.mtimeMs,
+        changeMetadata: { repair: 'assign-id' },
+      });
       if (written.ok) assigned += 1;
     }
     for (const duplicate of before.value.duplicateIds) {
       for (const notePath of duplicate.paths.slice(1)) {
         const read = await this.writer.vault.readFile(notePath);
         if (!read.ok) continue;
-        const content = writeMetadata(read.value.content, { ...readMetadata(read.value.content).data, id: createDocumentId() });
+        const content = writeMetadata(read.value.content, {
+          ...readMetadata(read.value.content).data,
+          id: createDocumentId(),
+        });
         if (!content.ok) continue;
-        const written = await this.writer.write(notePath, content.value, { expectedMtimeMs: read.value.mtimeMs, changeMetadata: { repair: 'reassign-duplicate-id', previousId: duplicate.id } });
+        const written = await this.writer.write(notePath, content.value, {
+          expectedMtimeMs: read.value.mtimeMs,
+          changeMetadata: { repair: 'reassign-duplicate-id', previousId: duplicate.id },
+        });
         if (written.ok) reassigned += 1;
       }
     }

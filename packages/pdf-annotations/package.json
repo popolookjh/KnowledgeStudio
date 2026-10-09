@@ -4,9 +4,19 @@
   "private": true,
   "type": "module",
   "description": "Versioned PDF annotation sidecars stored as plain vault files.",
-  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
-  "files": ["dist"],
-  "scripts": { "build": "tsc -b", "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"" },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\""
+  },
   "dependencies": {
     "@knowledge-studio/shared": "workspace:*",
     "@knowledge-studio/vault": "workspace:*"

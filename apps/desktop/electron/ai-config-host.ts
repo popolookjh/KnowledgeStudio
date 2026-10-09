@@ -12,7 +12,10 @@ export class ElectronAiConfigHost {
   ) {
     const configPath = path.join(userDataPath, 'ai-providers.json');
     const secretPath = path.join(userDataPath, 'ai-provider-secrets.json');
-    this.store = new ProviderConfigStore(configPath, new ElectronSafeSecretStore(safeStorage, secretPath));
+    this.store = new ProviderConfigStore(
+      configPath,
+      new ElectronSafeSecretStore(safeStorage, secretPath),
+    );
   }
 
   get secureStorageAvailable(): boolean {

@@ -80,15 +80,13 @@ function flattenText(nodes: readonly RootContent[]): string {
  * Unicode letters (including Persian) are preserved.
  */
 export function slugify(text: string): string {
-  return (
-    text
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^\p{L}\p{N}\s-]/gu, '')
-      .trim()
-      .replace(/\s+/g, '-')
-  );
+  return text
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .trim()
+    .replace(/\s+/g, '-');
 }
 
 function uniqueSlug(base: string, used: Set<string>): string {

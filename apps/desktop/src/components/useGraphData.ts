@@ -41,7 +41,11 @@ function buildGraphData(): GraphData {
       if (reference.source === path) {
         continue; // skip self-loops
       }
-      const edge: GraphEdge = { id: `${reference.source}->${path}`, source: reference.source, target: path };
+      const edge: GraphEdge = {
+        id: `${reference.source}->${path}`,
+        source: reference.source,
+        target: path,
+      };
       const pairKey = edge.id;
       if (seenPairs.has(pairKey)) {
         continue;
@@ -63,6 +67,10 @@ function buildGraphData(): GraphData {
 }
 
 export function useGraphData(): GraphData {
-  const version = useSyncExternalStore(linkIndex.subscribe, linkIndex.getSnapshot, linkIndex.getSnapshot);
+  const version = useSyncExternalStore(
+    linkIndex.subscribe,
+    linkIndex.getSnapshot,
+    linkIndex.getSnapshot,
+  );
   return useMemo(buildGraphData, [version]);
 }

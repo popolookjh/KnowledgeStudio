@@ -281,8 +281,17 @@ export interface IntegrityReportDto {
   readonly missingId: readonly string[];
   readonly duplicateIds: readonly { readonly id: string; readonly paths: readonly string[] }[];
   readonly invalidFrontmatter: readonly string[];
-  readonly provenance: { readonly records: number; readonly bySourceType: Readonly<Record<string, number>>; readonly unresolved: readonly string[]; readonly error: string | null };
-  readonly changeFeed: { readonly cursor: string; readonly retained: number; readonly error: string | null };
+  readonly provenance: {
+    readonly records: number;
+    readonly bySourceType: Readonly<Record<string, number>>;
+    readonly unresolved: readonly string[];
+    readonly error: string | null;
+  };
+  readonly changeFeed: {
+    readonly cursor: string;
+    readonly retained: number;
+    readonly error: string | null;
+  };
 }
 
 /**
@@ -318,21 +327,33 @@ export interface BridgeApi {
   readHistory(notePath: string, revisionId: string): Promise<RpcResult<string>>;
   gitStatus(): Promise<RpcResult<GitStatusDto>>;
   gitDiff(paths: readonly string[]): Promise<RpcResult<GitDiffDto>>;
-  gitCommitSelected(paths: readonly string[], message: string): Promise<RpcResult<{ hash: string }>>;
+  gitCommitSelected(
+    paths: readonly string[],
+    message: string,
+  ): Promise<RpcResult<{ hash: string }>>;
   mcpStatus(): Promise<RpcResult<McpStatusDto>>;
   mcpStart(port?: number): Promise<RpcResult<McpStatusDto>>;
   mcpStop(): Promise<RpcResult<McpStatusDto>>;
   listPlugins(): Promise<RpcResult<readonly PluginDto[]>>;
   setPluginEnabled(pluginId: string, enabled: boolean): Promise<RpcResult<readonly PluginDto[]>>;
-  approvePluginHighRisk(pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean): Promise<RpcResult<readonly PluginDto[]>>;
+  approvePluginHighRisk(
+    pluginId: string,
+    permission: 'PROCESS_EXECUTE' | 'SECRETS',
+    approved: boolean,
+  ): Promise<RpcResult<readonly PluginDto[]>>;
   aiConfigList(): Promise<RpcResult<AiConfigStatusDto>>;
-  aiConfigUpsert(config: Omit<AiProviderConfigDto, 'hasSecret'>): Promise<RpcResult<AiProviderConfigDto>>;
+  aiConfigUpsert(
+    config: Omit<AiProviderConfigDto, 'hasSecret'>,
+  ): Promise<RpcResult<AiProviderConfigDto>>;
   aiConfigSetSecret(providerId: string, secret: string): Promise<RpcResult<AiProviderConfigDto>>;
   aiConfigRemoveSecret(providerId: string): Promise<RpcResult<AiProviderConfigDto>>;
   pickAttachment(notePath: string): Promise<RpcResult<AttachmentDto> | null>;
   attachmentIssues(notePath: string): Promise<RpcResult<readonly AttachmentIssueDto[]>>;
   basesList(): Promise<RpcResult<readonly BaseSummaryDto[]>>;
-  basesSave(definition: BaseDefinitionDto, expectedRevision?: number): Promise<RpcResult<StoredBaseDto>>;
+  basesSave(
+    definition: BaseDefinitionDto,
+    expectedRevision?: number,
+  ): Promise<RpcResult<StoredBaseDto>>;
   basesDelete(id: string, expectedRevision: number): Promise<RpcResult<true>>;
   basesQuery(id: string): Promise<RpcResult<BaseQueryDto>>;
   basesSetField(edit: BaseFieldEditDto): Promise<RpcResult<{ path: string; mtimeMs: number }>>;
@@ -340,14 +361,30 @@ export interface BridgeApi {
   clipperImportFile(): Promise<RpcResult<ClipResultDto> | null>;
   pdfRead(path: string): Promise<RpcResult<PdfDocumentDto>>;
   pdfAnnotationsList(path: string): Promise<RpcResult<PdfAnnotationsDto>>;
-  pdfAnnotationAdd(path: string, annotation: { page: number; quote: string; color: PdfAnnotationColor; note?: string }, expectedRevision: number, title?: string): Promise<RpcResult<PdfAnnotationsDto>>;
-  pdfAnnotationUpdate(path: string, id: string, patch: { color?: PdfAnnotationColor; note?: string }, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
-  pdfAnnotationRemove(path: string, id: string, expectedRevision: number): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationAdd(
+    path: string,
+    annotation: { page: number; quote: string; color: PdfAnnotationColor; note?: string },
+    expectedRevision: number,
+    title?: string,
+  ): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationUpdate(
+    path: string,
+    id: string,
+    patch: { color?: PdfAnnotationColor; note?: string },
+    expectedRevision: number,
+  ): Promise<RpcResult<PdfAnnotationsDto>>;
+  pdfAnnotationRemove(
+    path: string,
+    id: string,
+    expectedRevision: number,
+  ): Promise<RpcResult<PdfAnnotationsDto>>;
   pdfExportNote(path: string, title?: string): Promise<RpcResult<{ path: string }>>;
   zoteroImportFile(): Promise<RpcResult<ZoteroImportResultDto> | null>;
   zoteroSyncLocal(port: number): Promise<RpcResult<ZoteroImportResultDto>>;
   integrityReport(): Promise<RpcResult<IntegrityReportDto>>;
-  integrityRepair(): Promise<RpcResult<{ assigned: number; reassigned: number; report: IntegrityReportDto }>>;
+  integrityRepair(): Promise<
+    RpcResult<{ assigned: number; reassigned: number; report: IntegrityReportDto }>
+  >;
 }
 
 /** Filename suggestion helper shared by tab and explorer code. */

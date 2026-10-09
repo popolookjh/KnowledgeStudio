@@ -1,10 +1,19 @@
 export function isUuidV4(value: unknown): value is string {
-  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
+  return (
+    typeof value === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value)
+  );
 }
 
-export function createDocumentId(): string { return createId(); }
-export function createVaultId(): string { return createId(); }
-export function sourceIdFor(vaultId: string, documentId: string): string { return `ks:${vaultId}:${documentId}`; }
+export function createDocumentId(): string {
+  return createId();
+}
+export function createVaultId(): string {
+  return createId();
+}
+export function sourceIdFor(vaultId: string, documentId: string): string {
+  return `ks:${vaultId}:${documentId}`;
+}
 
 export function createId(): string {
   const cryptoRef = globalThis.crypto;
@@ -21,6 +30,8 @@ export function createId(): string {
     const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
   }
-  const fallback = `${Date.now().toString(16)}-${Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0')}`;
+  const fallback = `${Date.now().toString(16)}-${Math.floor(Math.random() * 0xffffffff)
+    .toString(16)
+    .padStart(8, '0')}`;
   return `00000000-0000-4000-8000-${fallback.padStart(12, '0').slice(-12)}`;
 }

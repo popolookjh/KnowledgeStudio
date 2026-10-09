@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { extractWikiLinks } from '../src/parse.js';
-import {
-  buildStemMap,
-  resolveWikiLink,
-  targetPathForUnresolved,
-} from '../src/resolve.js';
+import { buildStemMap, resolveWikiLink, targetPathForUnresolved } from '../src/resolve.js';
 
 function token(target: string, heading: string | null = null) {
   const tokens = extractWikiLinks(`[[${target}${heading ? `#${heading}` : ''}]]`);

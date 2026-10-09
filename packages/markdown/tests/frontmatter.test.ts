@@ -43,7 +43,9 @@ describe('splitFrontmatter', () => {
 
 describe('parseFrontmatter', () => {
   it('parses scalars, lists, and nested maps', () => {
-    const parsed = parseFrontmatter('title: آزمایش\nstatus: draft\nconfidence: 0.8\ntags:\n  - a\n  - b\nmeta:\n  author: X');
+    const parsed = parseFrontmatter(
+      'title: آزمایش\nstatus: draft\nconfidence: 0.8\ntags:\n  - a\n  - b\nmeta:\n  author: X',
+    );
     expect(parsed.ok).toBe(true);
     if (parsed.ok) {
       expect(parsed.value['title']).toBe('آزمایش');

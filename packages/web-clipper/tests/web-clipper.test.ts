@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { readMetadata } from '@knowledge-studio/metadata';
-import { buildClipNote, clipNotePath, extractClip, htmlToMarkdown, parseClipInput } from '../src/index.js';
+import {
+  buildClipNote,
+  clipNotePath,
+  extractClip,
+  htmlToMarkdown,
+  parseClipInput,
+} from '../src/index.js';
 
 const page = `<!doctype html><html><head><title>Example &amp; Co</title>
 <meta property="og:site_name" content="Example Site"><link rel="canonical" href="https://example.com/post">
@@ -33,7 +39,9 @@ describe('htmlToMarkdown', () => {
     expect(result.markdown).toContain('[Image: Alt text](https://img.test/a.png)');
   });
   it('drops active content, unsafe schemes, chrome, and raw HTML', () => {
-    expect(result.markdown).not.toMatch(/alert|steal|color:red|Menu Home|Footer|evil\.test|data:image|javascript/);
+    expect(result.markdown).not.toMatch(
+      /alert|steal|color:red|Menu Home|Footer|evil\.test|data:image|javascript/,
+    );
     expect(result.markdown).toContain('evil');
     expect(result.markdown).toContain('متن فارسی‌ها \\<script\\>');
     expect(result.markdown).not.toMatch(/(?<!\\)<(?!https?:)[a-z]/i);
@@ -54,7 +62,14 @@ describe('clip ingestion', () => {
     const note = buildClipNote(clip.value, new Date('2026-09-29T00:00:00Z'));
     if (!note.ok) throw new Error(note.error.message);
     const metadata = readMetadata(note.value).data;
-    expect(metadata).toMatchObject({ title: 'Example & Co', type: 'web-clip', source: 'https://example.com/post', site: 'Example Site', tags: ['clipping', 'research'], clipped: '2026-09-29T00:00:00.000Z' });
+    expect(metadata).toMatchObject({
+      title: 'Example & Co',
+      type: 'web-clip',
+      source: 'https://example.com/post',
+      site: 'Example Site',
+      tags: ['clipping', 'research'],
+      clipped: '2026-09-29T00:00:00.000Z',
+    });
     expect(note.value).toContain('> Clipped from <https://example.com/post>');
     const text = extractClip({ html: 'Plain *text* line\nسطر دوم' });
     expect(text.ok && text.value.markdown).toBe('Plain \\*text\\* line\nسطر دوم');

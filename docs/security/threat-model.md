@@ -32,29 +32,29 @@ Internet / other processes
 
 ## Attack surfaces and mitigations
 
-| # | Surface | Attack | Mitigation | Status |
-| - | ------- | ------ | ---------- | ------ |
-| 1 | Vault paths | Traversal (`../`, backslash, drive letter, UNC, NUL) to read/write outside vault | Pure path algebra rejects before any IO (ADR-0006); security test suite | ✅ Phase 0 |
-| 2 | Renderer | XSS in Markdown preview → renderer escape | sandbox + context isolation; sanitized preview (no raw HTML by default); strict CSP | partial → Phase 19 |
-| 3 | IPC | Malicious renderer sends forged IPC | contextBridge with flat validated contracts; capabilities checked in main | ✅ Phase 0 (base), grows per feature |
-| 4 | Attachments | SVG/HTML with scripts, zip bombs, huge files | attachment policy: no script execution, size warnings, no preview for dangerous types | Phase 9/19 |
-| 5 | Plugins | Over-privileged or malicious plugins | manifest permissions; default-deny; untrusted never auto-run; PROCESS_EXECUTE/SECRETS gated hard | Phase 15 |
-| 6 | MCP | Local attacker abuses exposed tools; note exfiltration via client | loopback bind only; read-only default; explicit per-tool permission; no shell/filesystem tools | Phase 16 |
-| 7 | AI bridge | Prompt injection via note content into provider calls; silent egress | opt-in config; disclosure banner; AI output treated as untrusted text; no auto-exec | Phase 17/18 |
-| 8 | Secrets | API keys in vault/index/logs | secrets live outside vault in OS-protected storage; log redaction | Phase 25 |
-| 9 | Index | Corrupted/malicious DB file drives UI | index is untrusted cache: validate on read, discard-and-rebuild on inconsistency | Phase 5/24 |
-| 10 | Supply chain | Compromised dependency | minimal deps, permissive licenses, lockfile committed, review on additions | ongoing |
+| #   | Surface      | Attack                                                                           | Mitigation                                                                                       | Status                               |
+| --- | ------------ | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| 1   | Vault paths  | Traversal (`../`, backslash, drive letter, UNC, NUL) to read/write outside vault | Pure path algebra rejects before any IO (ADR-0006); security test suite                          | ✅ Phase 0                           |
+| 2   | Renderer     | XSS in Markdown preview → renderer escape                                        | sandbox + context isolation; sanitized preview (no raw HTML by default); strict CSP              | partial → Phase 19                   |
+| 3   | IPC          | Malicious renderer sends forged IPC                                              | contextBridge with flat validated contracts; capabilities checked in main                        | ✅ Phase 0 (base), grows per feature |
+| 4   | Attachments  | SVG/HTML with scripts, zip bombs, huge files                                     | attachment policy: no script execution, size warnings, no preview for dangerous types            | Phase 9/19                           |
+| 5   | Plugins      | Over-privileged or malicious plugins                                             | manifest permissions; default-deny; untrusted never auto-run; PROCESS_EXECUTE/SECRETS gated hard | Phase 15                             |
+| 6   | MCP          | Local attacker abuses exposed tools; note exfiltration via client                | loopback bind only; read-only default; explicit per-tool permission; no shell/filesystem tools   | Phase 16                             |
+| 7   | AI bridge    | Prompt injection via note content into provider calls; silent egress             | opt-in config; disclosure banner; AI output treated as untrusted text; no auto-exec              | Phase 17/18                          |
+| 8   | Secrets      | API keys in vault/index/logs                                                     | secrets live outside vault in OS-protected storage; log redaction                                | Phase 25                             |
+| 9   | Index        | Corrupted/malicious DB file drives UI                                            | index is untrusted cache: validate on read, discard-and-rebuild on inconsistency                 | Phase 5/24                           |
+| 10  | Supply chain | Compromised dependency                                                           | minimal deps, permissive licenses, lockfile committed, review on additions                       | ongoing                              |
 
 ## Tier 1 additions
 
-| Surface | Threat | Mitigation |
-| --- | --- | --- |
-| Web clips | Hostile HTML (scripts, frames, `javascript:`/`data:` links, tracking images) | non-executing HTML→Markdown in main; unsafe schemes dropped; images become links; URLs never fetched; 5 MB cap |
-| PDF reader | Malicious PDF (scripts, forms, links, parser bugs) | bytes only cross IPC after `.pdf` path + `%PDF-` checks (100 MB cap); bundled pdf.js with WASM/XFA off, CSP without `unsafe-eval`; canvas + text layer only (no annotation/link/form layers) |
-| Annotations / Bases / Zotero | Forged IPC payloads, path traversal, duplicate writes | runtime validators on every `unknown` argument; vault-relative paths; revisioned stores; one serialized TrustedNoteWriter |
-| Zotero sync | Egress / credential exposure | loopback `127.0.0.1` GET only, port validated, no API keys, 5 s timeout, 20 MB cap |
-| MCP V2 | Browser CSRF / DNS rebinding against the loopback server | reject any `Origin`, non-loopback `Host`, non-JSON bodies; read-only tool allowlist with input schemas |
-| Renderer | Navigation to untrusted links, popups, device permissions, HTML injection from snippets | `will-navigate` + `setWindowOpenHandler` deny; all web permissions denied; search snippets rendered as text |
+| Surface                      | Threat                                                                                  | Mitigation                                                                                                                                                                                   |
+| ---------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web clips                    | Hostile HTML (scripts, frames, `javascript:`/`data:` links, tracking images)            | non-executing HTML→Markdown in main; unsafe schemes dropped; images become links; URLs never fetched; 5 MB cap                                                                               |
+| PDF reader                   | Malicious PDF (scripts, forms, links, parser bugs)                                      | bytes only cross IPC after `.pdf` path + `%PDF-` checks (100 MB cap); bundled pdf.js with WASM/XFA off, CSP without `unsafe-eval`; canvas + text layer only (no annotation/link/form layers) |
+| Annotations / Bases / Zotero | Forged IPC payloads, path traversal, duplicate writes                                   | runtime validators on every `unknown` argument; vault-relative paths; revisioned stores; one serialized TrustedNoteWriter                                                                    |
+| Zotero sync                  | Egress / credential exposure                                                            | loopback `127.0.0.1` GET only, port validated, no API keys, 5 s timeout, 20 MB cap                                                                                                           |
+| MCP V2                       | Browser CSRF / DNS rebinding against the loopback server                                | reject any `Origin`, non-loopback `Host`, non-JSON bodies; read-only tool allowlist with input schemas                                                                                       |
+| Renderer                     | Navigation to untrusted links, popups, device permissions, HTML injection from snippets | `will-navigate` + `setWindowOpenHandler` deny; all web permissions denied; search snippets rendered as text                                                                                  |
 
 ## Residual risks (accepted, documented)
 

@@ -23,7 +23,10 @@ beforeEach(async () => {
   writer = new TrustedNoteWriter(vault, null);
   host = new PdfHost(writer);
 });
-afterEach(async () => { vault.close(); await rm(root, { recursive: true, force: true }); });
+afterEach(async () => {
+  vault.close();
+  await rm(root, { recursive: true, force: true });
+});
 
 describe('PdfHost', () => {
   it('reads only vault-relative PDFs with a PDF signature', async () => {
@@ -36,18 +39,43 @@ describe('PdfHost', () => {
   });
 
   it('annotates, registers pdf provenance once, emits annotation changes, and exports a cited note', async () => {
-    expect((await host.add('papers/missing.pdf', { page: 1, quote: 'x', color: 'yellow' }, 0)).ok).toBe(false);
-    const first = await host.add('papers/a.pdf', { page: 1, quote: 'First quote', color: 'yellow' }, 0, 'Paper A');
+    expect(
+      (await host.add('papers/missing.pdf', { page: 1, quote: 'x', color: 'yellow' }, 0)).ok,
+    ).toBe(false);
+    const first = await host.add(
+      'papers/a.pdf',
+      { page: 1, quote: 'First quote', color: 'yellow' },
+      0,
+      'Paper A',
+    );
     if (!first.ok) throw new Error(first.error.message);
-    const second = await host.add('papers/a.pdf', { page: 4, quote: 'Second', color: 'blue', note: 'n' }, first.value.revision);
+    const second = await host.add(
+      'papers/a.pdf',
+      { page: 4, quote: 'Second', color: 'blue', note: 'n' },
+      first.value.revision,
+    );
     if (!second.ok) throw new Error(second.error.message);
     const id = second.value.annotations[1]!.id;
-    expect((await host.update('papers/a.pdf', id, { note: 'changed' }, second.value.revision)).ok).toBe(true);
+    expect(
+      (await host.update('papers/a.pdf', id, { note: 'changed' }, second.value.revision)).ok,
+    ).toBe(true);
     expect((await host.remove('papers/a.pdf', first.value.annotations[0]!.id, 3)).ok).toBe(true);
     const provenance = await new ProvenanceStore(vault).load();
-    expect(provenance.ok && provenance.value.records.map((record) => [record.sourceType, record.title, record.sourceId])).toEqual([['pdf', 'Paper A', first.value.sourceId]]);
+    expect(
+      provenance.ok &&
+        provenance.value.records.map((record) => [
+          record.sourceType,
+          record.title,
+          record.sourceId,
+        ]),
+    ).toEqual([['pdf', 'Paper A', first.value.sourceId]]);
     const feed = await writer.feed.changesSince();
-    expect(feed.ok && feed.value.changes.map((change) => change.type)).toEqual(['annotation_created', 'annotation_created', 'annotation_updated', 'annotation_deleted']);
+    expect(feed.ok && feed.value.changes.map((change) => change.type)).toEqual([
+      'annotation_created',
+      'annotation_created',
+      'annotation_updated',
+      'annotation_deleted',
+    ]);
     const exported = await host.exportNote('papers/a.pdf', 'Paper A');
     expect(exported.ok && exported.value.path).toBe('papers/a annotations.md');
     const again = await host.exportNote('papers/a.pdf', 'Paper A');

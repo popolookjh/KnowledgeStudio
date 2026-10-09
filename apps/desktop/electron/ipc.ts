@@ -9,7 +9,11 @@ import {
   type Vault,
   type VaultEntry,
 } from '@knowledge-studio/vault';
-import { copyAttachment, findMissingAttachments, findOrphanAttachments } from '@knowledge-studio/attachments';
+import {
+  copyAttachment,
+  findMissingAttachments,
+  findOrphanAttachments,
+} from '@knowledge-studio/attachments';
 import { SearchIndex } from '@knowledge-studio/search';
 import { RevisionStore } from '@knowledge-studio/history';
 import { GitClient } from '@knowledge-studio/git';
@@ -137,15 +141,18 @@ class VaultHost {
     this.pdf = new PdfHost(this.writer);
     this.zotero = new ZoteroHost(this.writer);
     this.integrity = new IntegrityHost(this.writer);
-    await this.mcpHost.attachVault(vault.vaultId, createVaultMcpDataSource(vault, {
-      searchPaths: (query, limit) => {
-        if (!this.searchIndex.isOpen) return null;
-        const hits = this.searchIndex.search(query, { limit });
-        return hits.ok ? hits.value.map((hit) => hit.path) : null;
-      },
-      changeFeed: this.writer.feed,
-      bases: this.bases,
-    }));
+    await this.mcpHost.attachVault(
+      vault.vaultId,
+      createVaultMcpDataSource(vault, {
+        searchPaths: (query, limit) => {
+          if (!this.searchIndex.isOpen) return null;
+          const hits = this.searchIndex.search(query, { limit });
+          return hits.ok ? hits.value.map((hit) => hit.path) : null;
+        },
+        changeFeed: this.writer.feed,
+        bases: this.bases,
+      }),
+    );
     await this.rememberVault(vault.root);
     await this.startWatcher();
     await this.rebuildSearchIndex();
@@ -189,18 +196,38 @@ class VaultHost {
       if (typeof parsed !== 'object' || parsed === null) throw new Error('invalid workspace');
       return rpc(parsed as WorkspaceStateDto);
     } catch {
-      return rpc({ selectedVault: null, openTabs: [], activePath: null, editorMode: 'edit', explorerWidth: 240, rightbarWidth: 260, windowWidth: 1280, windowHeight: 800 });
+      return rpc({
+        selectedVault: null,
+        openTabs: [],
+        activePath: null,
+        editorMode: 'edit',
+        explorerWidth: 240,
+        rightbarWidth: 260,
+        windowWidth: 1280,
+        windowHeight: 800,
+      });
     }
   }
 
   async pickAttachment(notePath: string): Promise<RpcResult<AttachmentDto> | null> {
     const vault = this.requireVault();
     if (!('root' in vault)) return { ok: false, error: vault };
-    const picked = await dialog.showOpenDialog({ title: 'Add attachment', properties: ['openFile', 'dontAddToRecent'] });
+    const picked = await dialog.showOpenDialog({
+      title: 'Add attachment',
+      properties: ['openFile', 'dontAddToRecent'],
+    });
     if (picked.canceled || picked.filePaths.length === 0) return null;
-    const copied = await copyAttachment({ vaultRoot: vault.root, sourcePath: picked.filePaths[0]!, notePath });
+    const copied = await copyAttachment({
+      vaultRoot: vault.root,
+      sourcePath: picked.filePaths[0]!,
+      notePath,
+    });
     if (!copied.ok) return { ok: false, error: serializeFailure(copied.error) };
-    await this.writer?.recordChange({ type: 'attachment_added', path: copied.value.vaultPath, metadata: { notePath, bytes: copied.value.bytes } });
+    await this.writer?.recordChange({
+      type: 'attachment_added',
+      path: copied.value.vaultPath,
+      metadata: { notePath, bytes: copied.value.bytes },
+    });
     return rpc(copied.value);
   }
 
@@ -233,19 +260,36 @@ class VaultHost {
     }
   }
 
-  async aiConfigUpsert(config: Omit<AiProviderConfigDto, 'hasSecret'>): Promise<RpcResult<AiProviderConfigDto>> {
+  async aiConfigUpsert(
+    config: Omit<AiProviderConfigDto, 'hasSecret'>,
+  ): Promise<RpcResult<AiProviderConfigDto>> {
     try {
       return rpc(await this.aiConfigHost.upsert(config));
     } catch (error) {
-      return { ok: false, error: { code: 'AI_CONFIG_INVALID', message: error instanceof Error ? error.message : String(error) } };
+      return {
+        ok: false,
+        error: {
+          code: 'AI_CONFIG_INVALID',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      };
     }
   }
 
-  async aiConfigSetSecret(providerId: string, secret: string): Promise<RpcResult<AiProviderConfigDto>> {
+  async aiConfigSetSecret(
+    providerId: string,
+    secret: string,
+  ): Promise<RpcResult<AiProviderConfigDto>> {
     try {
       return rpc(await this.aiConfigHost.setSecret(providerId, secret));
     } catch (error) {
-      return { ok: false, error: { code: 'AI_SECRET_SAVE_FAILED', message: error instanceof Error ? error.message : String(error) } };
+      return {
+        ok: false,
+        error: {
+          code: 'AI_SECRET_SAVE_FAILED',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      };
     }
   }
 
@@ -253,35 +297,50 @@ class VaultHost {
     try {
       return rpc(await this.aiConfigHost.removeSecret(providerId));
     } catch (error) {
-      return { ok: false, error: { code: 'AI_SECRET_REMOVE_FAILED', message: error instanceof Error ? error.message : String(error) } };
+      return {
+        ok: false,
+        error: {
+          code: 'AI_SECRET_REMOVE_FAILED',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      };
     }
   }
 
   async listPlugins(): Promise<RpcResult<readonly PluginDto[]>> {
     try {
-      return rpc((await this.pluginHost.discover()).map((entry) => ({
-        id: entry.manifest.id,
-        name: entry.manifest.name,
-        version: entry.manifest.version,
-        description: entry.manifest.description,
-        requestedPermissions: entry.requestedPermissions,
-        trusted: entry.manifest.trusted,
-        enabled: entry.enabled,
-        approvedHighRisk: entry.approvedHighRisk,
-        ...(entry.reason ? { reason: entry.reason } : {}),
-        runtime: entry.runtime,
-      })));
+      return rpc(
+        (await this.pluginHost.discover()).map((entry) => ({
+          id: entry.manifest.id,
+          name: entry.manifest.name,
+          version: entry.manifest.version,
+          description: entry.manifest.description,
+          requestedPermissions: entry.requestedPermissions,
+          trusted: entry.manifest.trusted,
+          enabled: entry.enabled,
+          approvedHighRisk: entry.approvedHighRisk,
+          ...(entry.reason ? { reason: entry.reason } : {}),
+          runtime: entry.runtime,
+        })),
+      );
     } catch (error) {
       return { ok: false, error: serializeFailure(error) };
     }
   }
 
-  async setPluginEnabled(pluginId: string, enabled: boolean): Promise<RpcResult<readonly PluginDto[]>> {
+  async setPluginEnabled(
+    pluginId: string,
+    enabled: boolean,
+  ): Promise<RpcResult<readonly PluginDto[]>> {
     await this.pluginHost.setEnabled(pluginId, enabled);
     return this.listPlugins();
   }
 
-  async approvePluginHighRisk(pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean): Promise<RpcResult<readonly PluginDto[]>> {
+  async approvePluginHighRisk(
+    pluginId: string,
+    permission: 'PROCESS_EXECUTE' | 'SECRETS',
+    approved: boolean,
+  ): Promise<RpcResult<readonly PluginDto[]>> {
     await this.pluginHost.approveHighRisk(pluginId, permission, approved);
     return this.listPlugins();
   }
@@ -292,13 +351,25 @@ class VaultHost {
 
   async mcpStart(port: number | undefined): Promise<RpcResult<McpStatusDto>> {
     if (port !== undefined && (!Number.isInteger(port) || port < 0 || port > 65535)) {
-      return { ok: false, error: { code: 'MCP_PORT_INVALID', message: 'Port must be an integer from 0 through 65535' } };
+      return {
+        ok: false,
+        error: {
+          code: 'MCP_PORT_INVALID',
+          message: 'Port must be an integer from 0 through 65535',
+        },
+      };
     }
     try {
       const status = await this.mcpHost.start(port ?? 0);
       return rpc({ ...status, readOnly: true });
     } catch (error) {
-      return { ok: false, error: { code: 'MCP_START_FAILED', message: error instanceof Error ? error.message : String(error) } };
+      return {
+        ok: false,
+        error: {
+          code: 'MCP_START_FAILED',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      };
     }
   }
 
@@ -318,20 +389,31 @@ class VaultHost {
     const vault = this.requireVault();
     if (!('root' in vault)) return { ok: false, error: vault };
     const result = await new GitClient({ cwd: vault.root }).diff(paths);
-    return result.ok ? rpc(result.value) : { ok: false, error: { code: 'GIT_DIFF_FAILED', message: result.error } };
+    return result.ok
+      ? rpc(result.value)
+      : { ok: false, error: { code: 'GIT_DIFF_FAILED', message: result.error } };
   }
 
-  async gitCommitSelected(paths: readonly string[], message: string): Promise<RpcResult<{ hash: string }>> {
+  async gitCommitSelected(
+    paths: readonly string[],
+    message: string,
+  ): Promise<RpcResult<{ hash: string }>> {
     const vault = this.requireVault();
     if (!('root' in vault)) return { ok: false, error: vault };
     const result = await new GitClient({ cwd: vault.root }).commitSelected(paths, message);
-    return result.ok ? rpc({ hash: result.hash }) : { ok: false, error: { code: 'GIT_COMMIT_FAILED', message: result.error } };
+    return result.ok
+      ? rpc({ hash: result.hash })
+      : { ok: false, error: { code: 'GIT_COMMIT_FAILED', message: result.error } };
   }
 
   async listHistory(notePath: string): Promise<RpcResult<readonly RevisionDto[]>> {
     const vault = this.requireVault();
     if (!('root' in vault)) return { ok: false, error: vault };
-    if (!this.history) return { ok: false, error: { code: 'HISTORY_UNAVAILABLE', message: 'History is unavailable' } };
+    if (!this.history)
+      return {
+        ok: false,
+        error: { code: 'HISTORY_UNAVAILABLE', message: 'History is unavailable' },
+      };
     try {
       return rpc(await this.history.list(notePath));
     } catch (error) {
@@ -342,10 +424,17 @@ class VaultHost {
   async readHistory(notePath: string, revisionId: string): Promise<RpcResult<string>> {
     const vault = this.requireVault();
     if (!('root' in vault)) return { ok: false, error: vault };
-    if (!this.history) return { ok: false, error: { code: 'HISTORY_UNAVAILABLE', message: 'History is unavailable' } };
+    if (!this.history)
+      return {
+        ok: false,
+        error: { code: 'HISTORY_UNAVAILABLE', message: 'History is unavailable' },
+      };
     const content = await this.history.read(notePath, revisionId);
     return content === null
-      ? { ok: false, error: { code: 'HISTORY_REVISION_NOT_FOUND', message: 'Revision was not found' } }
+      ? {
+          ok: false,
+          error: { code: 'HISTORY_REVISION_NOT_FOUND', message: 'Revision was not found' },
+        }
       : rpc(content);
   }
 
@@ -353,7 +442,9 @@ class VaultHost {
     const vault = this.requireVault();
     if (!('root' in vault)) return { ok: false, error: vault };
     const result = await vault.readFile(canvasPath);
-    return result.ok ? rpc(result.value.content) : { ok: false, error: serializeFailure(result.error) };
+    return result.ok
+      ? rpc(result.value.content)
+      : { ok: false, error: serializeFailure(result.error) };
   }
 
   async writeCanvas(canvasPath: string, content: string): Promise<RpcResult<true>> {
@@ -432,7 +523,11 @@ class VaultHost {
     }
     const result = await vault.readFile(vaultPath);
     return result.ok
-      ? rpc({ content: result.value.content, mtimeMs: result.value.mtimeMs, size: result.value.size })
+      ? rpc({
+          content: result.value.content,
+          mtimeMs: result.value.mtimeMs,
+          size: result.value.size,
+        })
       : { ok: false, error: serializeFailure(result.error) };
   }
 
@@ -445,8 +540,13 @@ class VaultHost {
     if (!('root' in vault)) {
       return { ok: false, error: vault };
     }
-    if (!this.writer) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
-    const result = await this.writer.write(vaultPath, content, expectedMtimeMs !== undefined ? { expectedMtimeMs } : {});
+    if (!this.writer)
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    const result = await this.writer.write(
+      vaultPath,
+      content,
+      expectedMtimeMs !== undefined ? { expectedMtimeMs } : {},
+    );
     return result.ok ? rpc({ mtimeMs: result.value.mtimeMs }) : result;
   }
 
@@ -460,7 +560,10 @@ class VaultHost {
       return { ok: false, error: serializeFailure(exists.error) };
     }
     if (exists.value || !this.writer) {
-      return { ok: false, error: { code: 'VAULT_PATH_EXISTS', message: 'A file with that name already exists' } };
+      return {
+        ok: false,
+        error: { code: 'VAULT_PATH_EXISTS', message: 'A file with that name already exists' },
+      };
     }
     const written = await this.writer.write(vaultPath, content, { createOnly: true });
     return written.ok ? rpc(vaultPath) : written;
@@ -502,8 +605,11 @@ class VaultHost {
     }
   }
 
-  async clipperCall<T>(call: (clipper: WebClipperHost) => Promise<RpcResult<T>>): Promise<RpcResult<T>> {
-    if (!this.clipper) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+  async clipperCall<T>(
+    call: (clipper: WebClipperHost) => Promise<RpcResult<T>>,
+  ): Promise<RpcResult<T>> {
+    if (!this.clipper)
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
     try {
       return await call(this.clipper);
     } catch (error) {
@@ -512,7 +618,8 @@ class VaultHost {
   }
 
   async pdfCall<T>(call: (pdf: PdfHost) => Promise<RpcResult<T>>): Promise<RpcResult<T>> {
-    if (!this.pdf) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    if (!this.pdf)
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
     try {
       return await call(this.pdf);
     } catch (error) {
@@ -520,8 +627,11 @@ class VaultHost {
     }
   }
 
-  async integrityCall<T>(call: (integrity: IntegrityHost) => Promise<RpcResult<T>>): Promise<RpcResult<T>> {
-    if (!this.integrity) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+  async integrityCall<T>(
+    call: (integrity: IntegrityHost) => Promise<RpcResult<T>>,
+  ): Promise<RpcResult<T>> {
+    if (!this.integrity)
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
     try {
       return await call(this.integrity);
     } catch (error) {
@@ -531,8 +641,13 @@ class VaultHost {
 
   async zoteroImportFile(): Promise<RpcResult<ZoteroImportResultDto> | null> {
     const zotero = this.zotero;
-    if (!zotero) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
-    const picked = await dialog.showOpenDialog({ title: 'Import a Zotero export', properties: ['openFile', 'dontAddToRecent'], filters: [{ name: 'CSL JSON or BibTeX', extensions: ['json', 'bib'] }] });
+    if (!zotero)
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    const picked = await dialog.showOpenDialog({
+      title: 'Import a Zotero export',
+      properties: ['openFile', 'dontAddToRecent'],
+      filters: [{ name: 'CSL JSON or BibTeX', extensions: ['json', 'bib'] }],
+    });
     if (picked.canceled || picked.filePaths.length === 0) return null;
     try {
       return await zotero.importFile(picked.filePaths[0]!);
@@ -542,7 +657,8 @@ class VaultHost {
   }
 
   async zoteroSyncLocal(port: unknown): Promise<RpcResult<ZoteroImportResultDto>> {
-    if (!this.zotero) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    if (!this.zotero)
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
     try {
       return await this.zotero.syncLocal(port);
     } catch (error) {
@@ -551,8 +667,13 @@ class VaultHost {
   }
 
   async clipperImportFile(): Promise<RpcResult<ClipResultDto> | null> {
-    if (!this.clipper) return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
-    const picked = await dialog.showOpenDialog({ title: 'Import a saved web page', properties: ['openFile', 'dontAddToRecent'], filters: [{ name: 'Saved pages', extensions: ['html', 'htm', 'txt'] }] });
+    if (!this.clipper)
+      return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
+    const picked = await dialog.showOpenDialog({
+      title: 'Import a saved web page',
+      properties: ['openFile', 'dontAddToRecent'],
+      filters: [{ name: 'Saved pages', extensions: ['html', 'htm', 'txt'] }],
+    });
     if (picked.canceled || picked.filePaths.length === 0) return null;
     const clipper = this.clipper;
     return this.clipperCall(() => clipper.clipFile(picked.filePaths[0]!));
@@ -597,9 +718,7 @@ class VaultHost {
       return { ok: false, error: { code: 'VAULT_NOT_OPEN', message: 'No vault is open' } };
     }
     const hits = this.searchIndex.search(query, { limit: 50 });
-    return hits.ok
-      ? rpc(hits.value)
-      : { ok: false, error: serializeFailure(hits.error) };
+    return hits.ok ? rpc(hits.value) : { ok: false, error: serializeFailure(hits.error) };
   }
 
   /** Keeps the FTS5 index in step with watcher events. */
@@ -665,8 +784,10 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.closeVault, () => host.close());
   ipcMain.handle(IPC.listEntries, () => host.listEntries());
   ipcMain.handle(IPC.readNote, (_event, vaultPath: string) => host.readNote(vaultPath));
-  ipcMain.handle(IPC.writeNote, (_event, vaultPath: string, content: string, expectedMtimeMs?: number) =>
-    host.writeNote(vaultPath, content, expectedMtimeMs),
+  ipcMain.handle(
+    IPC.writeNote,
+    (_event, vaultPath: string, content: string, expectedMtimeMs?: number) =>
+      host.writeNote(vaultPath, content, expectedMtimeMs),
   );
   ipcMain.handle(IPC.createNote, (_event, vaultPath: string, content: string) =>
     host.createNote(vaultPath, content),
@@ -676,32 +797,62 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.search, (_event, query: string) => host.searchNotes(query));
   ipcMain.handle(IPC.rebuildIndex, () => host.rebuildSearchIndex());
   ipcMain.handle(IPC.loadWorkspace, () => host.loadWorkspace());
-  ipcMain.handle(IPC.saveWorkspace, (_event, state: WorkspaceStateDto) => host.saveWorkspace(state));
+  ipcMain.handle(IPC.saveWorkspace, (_event, state: WorkspaceStateDto) =>
+    host.saveWorkspace(state),
+  );
   ipcMain.handle(IPC.readCanvas, (_event, canvasPath: string) => host.readCanvas(canvasPath));
-  ipcMain.handle(IPC.writeCanvas, (_event, canvasPath: string, content: string) => host.writeCanvas(canvasPath, content));
+  ipcMain.handle(IPC.writeCanvas, (_event, canvasPath: string, content: string) =>
+    host.writeCanvas(canvasPath, content),
+  );
   ipcMain.handle(IPC.historyList, (_event, notePath: string) => host.listHistory(notePath));
-  ipcMain.handle(IPC.historyRead, (_event, notePath: string, revisionId: string) => host.readHistory(notePath, revisionId));
+  ipcMain.handle(IPC.historyRead, (_event, notePath: string, revisionId: string) =>
+    host.readHistory(notePath, revisionId),
+  );
   ipcMain.handle(IPC.gitStatus, () => host.gitStatus());
   ipcMain.handle(IPC.gitDiff, (_event, paths: readonly string[]) => host.gitDiff(paths));
-  ipcMain.handle(IPC.gitCommitSelected, (_event, paths: readonly string[], message: string) => host.gitCommitSelected(paths, message));
+  ipcMain.handle(IPC.gitCommitSelected, (_event, paths: readonly string[], message: string) =>
+    host.gitCommitSelected(paths, message),
+  );
   ipcMain.handle(IPC.mcpStatus, () => host.mcpStatus());
   ipcMain.handle(IPC.mcpStart, (_event, port?: number) => host.mcpStart(port));
   ipcMain.handle(IPC.mcpStop, () => host.mcpStop());
   ipcMain.handle(IPC.pluginList, () => host.listPlugins());
-  ipcMain.handle(IPC.pluginSetEnabled, (_event, pluginId: string, enabled: boolean) => host.setPluginEnabled(pluginId, enabled));
-  ipcMain.handle(IPC.pluginApproveHighRisk, (_event, pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean) => host.approvePluginHighRisk(pluginId, permission, approved));
+  ipcMain.handle(IPC.pluginSetEnabled, (_event, pluginId: string, enabled: boolean) =>
+    host.setPluginEnabled(pluginId, enabled),
+  );
+  ipcMain.handle(
+    IPC.pluginApproveHighRisk,
+    (_event, pluginId: string, permission: 'PROCESS_EXECUTE' | 'SECRETS', approved: boolean) =>
+      host.approvePluginHighRisk(pluginId, permission, approved),
+  );
   ipcMain.handle(IPC.aiConfigList, () => host.aiConfigList());
-  ipcMain.handle(IPC.aiConfigUpsert, (_event, config: Omit<AiProviderConfigDto, 'hasSecret'>) => host.aiConfigUpsert(config));
-  ipcMain.handle(IPC.aiConfigSetSecret, (_event, providerId: string, secret: string) => host.aiConfigSetSecret(providerId, secret));
-  ipcMain.handle(IPC.aiConfigRemoveSecret, (_event, providerId: string) => host.aiConfigRemoveSecret(providerId));
+  ipcMain.handle(IPC.aiConfigUpsert, (_event, config: Omit<AiProviderConfigDto, 'hasSecret'>) =>
+    host.aiConfigUpsert(config),
+  );
+  ipcMain.handle(IPC.aiConfigSetSecret, (_event, providerId: string, secret: string) =>
+    host.aiConfigSetSecret(providerId, secret),
+  );
+  ipcMain.handle(IPC.aiConfigRemoveSecret, (_event, providerId: string) =>
+    host.aiConfigRemoveSecret(providerId),
+  );
   ipcMain.handle(IPC.attachmentPick, (_event, notePath: string) => host.pickAttachment(notePath));
-  ipcMain.handle(IPC.attachmentIssues, (_event, notePath: string) => host.attachmentIssues(notePath));
+  ipcMain.handle(IPC.attachmentIssues, (_event, notePath: string) =>
+    host.attachmentIssues(notePath),
+  );
   // Bases: every argument is `unknown` here and runtime-validated in BasesHost.
   ipcMain.handle(IPC.basesList, () => host.basesCall((bases) => bases.list()));
-  ipcMain.handle(IPC.basesSave, (_event, definition: unknown, expectedRevision: unknown) => host.basesCall((bases) => bases.save(definition, expectedRevision)));
-  ipcMain.handle(IPC.basesDelete, (_event, id: unknown, expectedRevision: unknown) => host.basesCall((bases) => bases.remove(id, expectedRevision)));
-  ipcMain.handle(IPC.basesQuery, (_event, id: unknown) => host.basesCall((bases) => bases.query(id)));
-  ipcMain.handle(IPC.clipperClip, (_event, input: unknown) => host.clipperCall((clipper) => clipper.clip(input)));
+  ipcMain.handle(IPC.basesSave, (_event, definition: unknown, expectedRevision: unknown) =>
+    host.basesCall((bases) => bases.save(definition, expectedRevision)),
+  );
+  ipcMain.handle(IPC.basesDelete, (_event, id: unknown, expectedRevision: unknown) =>
+    host.basesCall((bases) => bases.remove(id, expectedRevision)),
+  );
+  ipcMain.handle(IPC.basesQuery, (_event, id: unknown) =>
+    host.basesCall((bases) => bases.query(id)),
+  );
+  ipcMain.handle(IPC.clipperClip, (_event, input: unknown) =>
+    host.clipperCall((clipper) => clipper.clip(input)),
+  );
   ipcMain.handle(IPC.clipperImportFile, () => host.clipperImportFile());
   // Zotero: file import via a main-process dialog; sync talks to 127.0.0.1 only (port validated in the package).
   ipcMain.handle(IPC.integrityReport, () => host.integrityCall((integrity) => integrity.report()));
@@ -709,12 +860,32 @@ export function registerVaultIpc(win: BrowserWindow): VaultHost {
   ipcMain.handle(IPC.zoteroImportFile, () => host.zoteroImportFile());
   ipcMain.handle(IPC.zoteroSyncLocal, (_event, port: unknown) => host.zoteroSyncLocal(port));
   // PDF: arguments are `unknown` and validated by PdfHost; only vault-relative .pdf paths are accepted.
-  ipcMain.handle(IPC.pdfRead, (_event, pdfPath: unknown) => host.pdfCall((pdf) => pdf.read(pdfPath)));
-  ipcMain.handle(IPC.pdfAnnotationsList, (_event, pdfPath: unknown) => host.pdfCall((pdf) => pdf.list(pdfPath)));
-  ipcMain.handle(IPC.pdfAnnotationAdd, (_event, pdfPath: unknown, annotation: unknown, expectedRevision: unknown, title: unknown) => host.pdfCall((pdf) => pdf.add(pdfPath, annotation, expectedRevision, title)));
-  ipcMain.handle(IPC.pdfAnnotationUpdate, (_event, pdfPath: unknown, id: unknown, patch: unknown, expectedRevision: unknown) => host.pdfCall((pdf) => pdf.update(pdfPath, id, patch, expectedRevision)));
-  ipcMain.handle(IPC.pdfAnnotationRemove, (_event, pdfPath: unknown, id: unknown, expectedRevision: unknown) => host.pdfCall((pdf) => pdf.remove(pdfPath, id, expectedRevision)));
-  ipcMain.handle(IPC.pdfExportNote, (_event, pdfPath: unknown, title: unknown) => host.pdfCall((pdf) => pdf.exportNote(pdfPath, title)));
-  ipcMain.handle(IPC.basesSetField, (_event, edit: unknown) => host.basesCall((bases) => bases.setField(edit)));
+  ipcMain.handle(IPC.pdfRead, (_event, pdfPath: unknown) =>
+    host.pdfCall((pdf) => pdf.read(pdfPath)),
+  );
+  ipcMain.handle(IPC.pdfAnnotationsList, (_event, pdfPath: unknown) =>
+    host.pdfCall((pdf) => pdf.list(pdfPath)),
+  );
+  ipcMain.handle(
+    IPC.pdfAnnotationAdd,
+    (_event, pdfPath: unknown, annotation: unknown, expectedRevision: unknown, title: unknown) =>
+      host.pdfCall((pdf) => pdf.add(pdfPath, annotation, expectedRevision, title)),
+  );
+  ipcMain.handle(
+    IPC.pdfAnnotationUpdate,
+    (_event, pdfPath: unknown, id: unknown, patch: unknown, expectedRevision: unknown) =>
+      host.pdfCall((pdf) => pdf.update(pdfPath, id, patch, expectedRevision)),
+  );
+  ipcMain.handle(
+    IPC.pdfAnnotationRemove,
+    (_event, pdfPath: unknown, id: unknown, expectedRevision: unknown) =>
+      host.pdfCall((pdf) => pdf.remove(pdfPath, id, expectedRevision)),
+  );
+  ipcMain.handle(IPC.pdfExportNote, (_event, pdfPath: unknown, title: unknown) =>
+    host.pdfCall((pdf) => pdf.exportNote(pdfPath, title)),
+  );
+  ipcMain.handle(IPC.basesSetField, (_event, edit: unknown) =>
+    host.basesCall((bases) => bases.setField(edit)),
+  );
   return host;
 }

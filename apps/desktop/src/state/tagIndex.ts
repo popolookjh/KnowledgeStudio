@@ -21,7 +21,8 @@ class TagIndexService {
     this.contents.clear();
     for (const note of notes) this.contents.set(note.path, note.content);
     // New instance semantics by removing known paths then readding.
-    for (const path of this.index.tags().flatMap((tag) => this.index.pathsFor(tag.tag))) this.index.remove(path);
+    for (const path of this.index.tags().flatMap((tag) => this.index.pathsFor(tag.tag)))
+      this.index.remove(path);
     for (const [path, content] of this.contents) this.index.update(path, extractTags(content));
     this.emit();
   }
@@ -35,8 +36,12 @@ class TagIndexService {
     this.index.remove(path);
     this.emit();
   }
-  tags(): readonly { tag: string; count: number }[] { return this.index.tags(); }
-  pathsFor(tag: string): readonly string[] { return this.index.pathsFor(tag); }
+  tags(): readonly { tag: string; count: number }[] {
+    return this.index.tags();
+  }
+  pathsFor(tag: string): readonly string[] {
+    return this.index.pathsFor(tag);
+  }
 }
 
 export const tagIndex = new TagIndexService();

@@ -6,11 +6,11 @@ decisions live in [docs/adr/](docs/adr/).
 
 ## Core principle: content ≠ index ≠ application state
 
-| Layer | What it holds | Source of truth | Recoverable? |
-| ----- | ------------- | --------------- | ------------ |
-| **Content** | Markdown notes, canvas JSON, attachments | The files themselves | The vault is the product |
-| **Index** | SQLite: search (FTS5), backlinks, graph, metadata cache, embedding refs | Derived from content | Always — `REBUILD INDEX` recreates it |
-| **Application state** | Settings, layout, open tabs, recents | JSON in app-data dir | Regenerable; never mixed into notes |
+| Layer                 | What it holds                                                           | Source of truth      | Recoverable?                          |
+| --------------------- | ----------------------------------------------------------------------- | -------------------- | ------------------------------------- |
+| **Content**           | Markdown notes, canvas JSON, attachments                                | The files themselves | The vault is the product              |
+| **Index**             | SQLite: search (FTS5), backlinks, graph, metadata cache, embedding refs | Derived from content | Always — `REBUILD INDEX` recreates it |
+| **Application state** | Settings, layout, open tabs, recents                                    | JSON in app-data dir | Regenerable; never mixed into notes   |
 
 Rules that follow from this separation:
 
@@ -76,12 +76,12 @@ See [SECURITY.md](SECURITY.md) and [docs/security/](docs/security/) for the thre
 
 ## Testing strategy
 
-| Level | Scope | Tooling |
-| ----- | ----- | ------- |
-| Unit | Domain packages, path algebra, parsers | Vitest |
-| Integration | vault + index + search + backlinks on temp fixtures | Vitest |
-| Security | traversal, XSS/sanitization, plugin/MCP boundaries | Vitest |
-| UI | React components | Vitest + Testing Library |
-| E2E | app boot → create vault → edit → search → restart | Playwright |
+| Level       | Scope                                               | Tooling                  |
+| ----------- | --------------------------------------------------- | ------------------------ |
+| Unit        | Domain packages, path algebra, parsers              | Vitest                   |
+| Integration | vault + index + search + backlinks on temp fixtures | Vitest                   |
+| Security    | traversal, XSS/sanitization, plugin/MCP boundaries  | Vitest                   |
+| UI          | React components                                    | Vitest + Testing Library |
+| E2E         | app boot → create vault → edit → search → restart   | Playwright               |
 
 Bugs are fixed together with a regression test; disabled tests are treated as failures.

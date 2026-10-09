@@ -25,12 +25,12 @@ export function isInside(root: string, candidate: string): boolean {
   if (normalizedCandidate === normalizedRoot) {
     return true;
   }
-  const rootWithSep = normalizedRoot.endsWith(path.sep) ? normalizedRoot : normalizedRoot + path.sep;
-  return (
-    process.platform === 'win32'
-      ? normalizedCandidate.toLowerCase().startsWith(rootWithSep.toLowerCase())
-      : normalizedCandidate.startsWith(rootWithSep)
-  );
+  const rootWithSep = normalizedRoot.endsWith(path.sep)
+    ? normalizedRoot
+    : normalizedRoot + path.sep;
+  return process.platform === 'win32'
+    ? normalizedCandidate.toLowerCase().startsWith(rootWithSep.toLowerCase())
+    : normalizedCandidate.startsWith(rootWithSep);
 }
 
 /**

@@ -19,16 +19,16 @@ that validates `unknown` IPC arguments at runtime before doing any work.
 
 ## Trusted change-feed producers
 
-| Producer | Event types |
-| --- | --- |
-| Editor save / new note (`vault:write`, `vault:create-note`) | `document_created`, `document_updated` |
-| Rename / delete to trash | `document_moved`, `document_deleted` |
-| Attachment picker | `attachment_added` |
-| Bases inline edit (`BasesHost.setField`) | `metadata_changed` (`metadata.field`) |
-| Web clipper (`WebClipperHost`) | `source_imported` (`sourceType: web`) |
-| PDF annotations (`PdfHost`) | `annotation_created`, `annotation_updated`, `annotation_deleted`; exports are `document_created` |
-| Zotero import/sync (`ZoteroHost`) | `source_imported`, `source_updated` (`sourceType: zotero`) |
-| Integrity repair (`IntegrityHost`) | `document_updated` (`metadata.repair`) |
+| Producer                                                    | Event types                                                                                      |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Editor save / new note (`vault:write`, `vault:create-note`) | `document_created`, `document_updated`                                                           |
+| Rename / delete to trash                                    | `document_moved`, `document_deleted`                                                             |
+| Attachment picker                                           | `attachment_added`                                                                               |
+| Bases inline edit (`BasesHost.setField`)                    | `metadata_changed` (`metadata.field`)                                                            |
+| Web clipper (`WebClipperHost`)                              | `source_imported` (`sourceType: web`)                                                            |
+| PDF annotations (`PdfHost`)                                 | `annotation_created`, `annotation_updated`, `annotation_deleted`; exports are `document_created` |
+| Zotero import/sync (`ZoteroHost`)                           | `source_imported`, `source_updated` (`sourceType: zotero`)                                       |
+| Integrity repair (`IntegrityHost`)                          | `document_updated` (`metadata.repair`)                                                           |
 
 External edits observed by the watcher update the UI and search index but are not feed events:
 the feed records only trusted, attributable writes.
@@ -52,7 +52,7 @@ the feed records only trusted, attributable writes.
 
 ## Provenance source types
 
-| Source | `sourceId` | Record |
-| --- | --- | --- |
-| Markdown / web clip / Zotero note | `ks:<vaultId>:<documentId>` | `documentId` + `localRef` |
-| PDF | `ks:<vaultId>:<sidecar sourceKey>` | `localRef` = PDF path |
+| Source                            | `sourceId`                         | Record                    |
+| --------------------------------- | ---------------------------------- | ------------------------- |
+| Markdown / web clip / Zotero note | `ks:<vaultId>:<documentId>`        | `documentId` + `localRef` |
+| PDF                               | `ks:<vaultId>:<sidecar sourceKey>` | `localRef` = PDF path     |

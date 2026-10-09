@@ -5,7 +5,10 @@ describe('renderTemplate', () => {
   const now = new Date('2026-09-04T13:14:15Z');
   it('renders all documented variables', () => {
     const result = renderTemplate('{{date}} {{time}} {{uuid}} {{filename}} {{title}}', {
-      filename: 'note.md', title: 'My Note', uuid: 'fixed-id', now,
+      filename: 'note.md',
+      title: 'My Note',
+      uuid: 'fixed-id',
+      now,
     });
     expect(result).toBe('2026-09-04 13:14:15 fixed-id note.md My Note');
   });
@@ -13,10 +16,15 @@ describe('renderTemplate', () => {
     expect(renderTemplate('{{title}}', { filename: 'میانبر.md', now })).toBe('میانبر');
   });
   it('preserves unknown variables literally', () => {
-    expect(renderTemplate('{{env}} {{process.exec}} {{date}}', { filename: 'x', now })).toBe('{{env}} {{process.exec}} 2026-09-04');
+    expect(renderTemplate('{{env}} {{process.exec}} {{date}}', { filename: 'x', now })).toBe(
+      '{{env}} {{process.exec}} 2026-09-04',
+    );
   });
   it('does not execute template-looking code', () => {
-    const result = renderTemplate('{{constructor.constructor("return process")()}}', { filename: 'x', now });
+    const result = renderTemplate('{{constructor.constructor("return process")()}}', {
+      filename: 'x',
+      now,
+    });
     expect(result).toContain('constructor');
     expect(result).not.toContain('[object process]');
   });

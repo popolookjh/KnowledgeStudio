@@ -1,19 +1,22 @@
 import { ReadOnlyMcpServer } from '../packages/mcp/dist/src/index.js';
 
-const server = new ReadOnlyMcpServer({
-  searchNotes: async (query) => [{ path: 'smoke.md', content: query }],
-  readNote: async (notePath) => ({ path: notePath, content: 'smoke' }),
-  listNotes: async () => [{ path: 'smoke.md', content: 'smoke' }],
-  getMetadata: async () => ({ source: 'smoke' }),
-  getBacklinks: async () => [],
-  getOutgoingLinks: async () => [],
-  searchTags: async () => [],
-  retrieve: async () => [],
-  resolveCitation: async () => null,
-  listChanges: async () => ({ cursor: 'v1:smoke:0', changes: [], hasMore: false }),
-  listAnnotations: async () => ({ annotations: [] }),
-  queryBase: async () => ({ rows: [] }),
-}, { host: '127.0.0.1', port: 0 });
+const server = new ReadOnlyMcpServer(
+  {
+    searchNotes: async (query) => [{ path: 'smoke.md', content: query }],
+    readNote: async (notePath) => ({ path: notePath, content: 'smoke' }),
+    listNotes: async () => [{ path: 'smoke.md', content: 'smoke' }],
+    getMetadata: async () => ({ source: 'smoke' }),
+    getBacklinks: async () => [],
+    getOutgoingLinks: async () => [],
+    searchTags: async () => [],
+    retrieve: async () => [],
+    resolveCitation: async () => null,
+    listChanges: async () => ({ cursor: 'v1:smoke:0', changes: [], hasMore: false }),
+    listAnnotations: async () => ({ annotations: [] }),
+    queryBase: async () => ({ rows: [] }),
+  },
+  { host: '127.0.0.1', port: 0 },
+);
 
 try {
   const address = await server.start();

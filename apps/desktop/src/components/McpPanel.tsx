@@ -17,7 +17,9 @@ export function McpPanel(): React.JSX.Element {
     } else setNotice(result.error.message);
   }, [bridge]);
 
-  useEffect(() => { void refresh(); }, [refresh, sessionRoot]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh, sessionRoot]);
 
   const start = async (): Promise<void> => {
     if (!bridge) return;
@@ -35,22 +37,51 @@ export function McpPanel(): React.JSX.Element {
   return (
     <section className="rightbar__section mcp-panel">
       <h3 className="rightbar__heading">MCP (local)</h3>
-      <p className="rightbar__hint">Loopback-only · read-only · no shell, process, or write tools.</p>
-      <p className="rightbar__hint">Retrieval V2: cited passages, change feed, PDF annotations, and Bases for local JSON-RPC clients; browser-originated requests are refused.</p>
+      <p className="rightbar__hint">
+        Loopback-only · read-only · no shell, process, or write tools.
+      </p>
+      <p className="rightbar__hint">
+        Retrieval V2: cited passages, change feed, PDF annotations, and Bases for local JSON-RPC
+        clients; browser-originated requests are refused.
+      </p>
       {!sessionRoot && <p className="rightbar__hint">Open a vault before starting MCP.</p>}
       {status && (
         <>
           <p>Status: {status.running ? 'running' : 'stopped'}</p>
           <p>Bind: {status.endpoint ?? 'not listening'}</p>
           <p>Mode: {status.readOnly ? 'read-only' : 'restricted'}</p>
-          {status.vaultId && <p>Vault ID: <code>{status.vaultId}</code></p>}
+          {status.vaultId && (
+            <p>
+              Vault ID: <code>{status.vaultId}</code>
+            </p>
+          )}
           <p>Tools: {status.tools.join(', ')}</p>
         </>
       )}
-      <button type="button" className="btn btn--small btn--primary" disabled={!sessionRoot || status?.running === true} onClick={() => void start()}>Start local MCP</button>
-      <button type="button" className="btn btn--small" disabled={!status?.running} onClick={() => void stop()}>Stop MCP</button>
-      <button type="button" className="btn btn--small" onClick={() => void refresh()}>Refresh</button>
-      {(notice ?? status?.lastError) && <p className="mcp-panel__notice" role="status">{notice ?? status?.lastError}</p>}
+      <button
+        type="button"
+        className="btn btn--small btn--primary"
+        disabled={!sessionRoot || status?.running === true}
+        onClick={() => void start()}
+      >
+        Start local MCP
+      </button>
+      <button
+        type="button"
+        className="btn btn--small"
+        disabled={!status?.running}
+        onClick={() => void stop()}
+      >
+        Stop MCP
+      </button>
+      <button type="button" className="btn btn--small" onClick={() => void refresh()}>
+        Refresh
+      </button>
+      {(notice ?? status?.lastError) && (
+        <p className="mcp-panel__notice" role="status">
+          {notice ?? status?.lastError}
+        </p>
+      )}
     </section>
   );
 }

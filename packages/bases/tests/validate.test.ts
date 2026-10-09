@@ -3,9 +3,24 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { Vault } from '@knowledge-studio/vault';
-import { applyFieldEdit, collectBaseInputs, parseBaseDefinition, parseFieldEdit, queryBase, toRowView } from '../src/index.js';
+import {
+  applyFieldEdit,
+  collectBaseInputs,
+  parseBaseDefinition,
+  parseFieldEdit,
+  queryBase,
+  toRowView,
+} from '../src/index.js';
 
-const valid = { schemaVersion: 1, id: 'tasks', name: ' کارها ', view: 'kanban', filters: [{ field: 'status', op: 'exists' }], fields: ['status', 'وضعیت'], groupBy: 'status' };
+const valid = {
+  schemaVersion: 1,
+  id: 'tasks',
+  name: ' کارها ',
+  view: 'kanban',
+  filters: [{ field: 'status', op: 'exists' }],
+  fields: ['status', 'وضعیت'],
+  groupBy: 'status',
+};
 
 describe('parseBaseDefinition', () => {
   it('accepts and normalizes a Persian kanban base', () => {
@@ -29,12 +44,25 @@ describe('parseBaseDefinition', () => {
 
 describe('parseFieldEdit', () => {
   it('accepts scalar and list edits and rejects identity/virtual fields', () => {
-    expect(parseFieldEdit({ path: 'a.md', key: 'status', value: 'done', expectedMtimeMs: 1 }).ok).toBe(true);
-    expect(parseFieldEdit({ path: 'a.md', key: 'tags', value: ['x'], expectedMtimeMs: 1 }).ok).toBe(true);
-    expect(parseFieldEdit({ path: 'a.md', key: 'id', value: 'x', expectedMtimeMs: 1 }).ok).toBe(false);
-    expect(parseFieldEdit({ path: 'a.md', key: 'path', value: 'x', expectedMtimeMs: 1 }).ok).toBe(false);
-    expect(parseFieldEdit({ path: 'a.txt', key: 'status', value: 'x', expectedMtimeMs: 1 }).ok).toBe(false);
-    expect(parseFieldEdit({ path: 'a.md', key: 'status', value: { nested: true }, expectedMtimeMs: 1 }).ok).toBe(false);
+    expect(
+      parseFieldEdit({ path: 'a.md', key: 'status', value: 'done', expectedMtimeMs: 1 }).ok,
+    ).toBe(true);
+    expect(parseFieldEdit({ path: 'a.md', key: 'tags', value: ['x'], expectedMtimeMs: 1 }).ok).toBe(
+      true,
+    );
+    expect(parseFieldEdit({ path: 'a.md', key: 'id', value: 'x', expectedMtimeMs: 1 }).ok).toBe(
+      false,
+    );
+    expect(parseFieldEdit({ path: 'a.md', key: 'path', value: 'x', expectedMtimeMs: 1 }).ok).toBe(
+      false,
+    );
+    expect(
+      parseFieldEdit({ path: 'a.txt', key: 'status', value: 'x', expectedMtimeMs: 1 }).ok,
+    ).toBe(false);
+    expect(
+      parseFieldEdit({ path: 'a.md', key: 'status', value: { nested: true }, expectedMtimeMs: 1 })
+        .ok,
+    ).toBe(false);
     expect(parseFieldEdit({ path: 'a.md', key: 'status', value: 'x' }).ok).toBe(false);
   });
 });
@@ -62,11 +90,17 @@ describe('collectBaseInputs + toRowView', () => {
     const opened = await Vault.create(root);
     if (!opened.ok) throw opened.error;
     await mkdir(path.join(root, 'Projects'));
-    await writeFile(path.join(root, 'Projects', 'a.md'), '---\nstatus: open\nsecret: hidden\n---\nPRIVATE BODY\n');
+    await writeFile(
+      path.join(root, 'Projects', 'a.md'),
+      '---\nstatus: open\nsecret: hidden\n---\nPRIVATE BODY\n',
+    );
     await writeFile(path.join(root, 'other.md'), '---\nstatus: open\n---\n');
     const inputs = await collectBaseInputs(opened.value, 'Projects');
     expect(inputs.map((input) => input.path)).toEqual(['Projects/a.md']);
-    const rows = queryBase({ schemaVersion: 1, id: 'p', name: 'P', view: 'table', filters: [], fields: ['status'] }, inputs);
+    const rows = queryBase(
+      { schemaVersion: 1, id: 'p', name: 'P', view: 'table', filters: [], fields: ['status'] },
+      inputs,
+    );
     const view = toRowView(rows[0]!, ['status', 'missing']);
     expect(view.values).toEqual({ status: 'open', missing: null });
     expect(view.mtimeMs).toBeGreaterThan(0);

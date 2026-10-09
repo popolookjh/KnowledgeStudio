@@ -4,8 +4,14 @@
  * text). Pure functions — no I/O — so ranking is reproducible and testable.
  */
 
-export interface Chunk { readonly index: number; readonly heading: string | null; readonly text: string; }
-export interface ScoredChunk extends Chunk { readonly score: number; }
+export interface Chunk {
+  readonly index: number;
+  readonly heading: string | null;
+  readonly text: string;
+}
+export interface ScoredChunk extends Chunk {
+  readonly score: number;
+}
 
 const MAX_CHUNK_CHARS = 1200;
 
@@ -20,7 +26,8 @@ export function chunkMarkdown(content: string): readonly Chunk[] {
     let text = buffer.join('\n').trim();
     buffer = [];
     while (text.length > 0) {
-      let cut = text.length <= MAX_CHUNK_CHARS ? text.length : text.lastIndexOf('\n\n', MAX_CHUNK_CHARS);
+      let cut =
+        text.length <= MAX_CHUNK_CHARS ? text.length : text.lastIndexOf('\n\n', MAX_CHUNK_CHARS);
       if (cut <= 0) cut = text.lastIndexOf(' ', MAX_CHUNK_CHARS);
       if (cut <= 0) cut = MAX_CHUNK_CHARS;
       chunks.push({ index: chunks.length, heading, text: text.slice(0, cut).trim() });
@@ -43,7 +50,15 @@ export function chunkMarkdown(content: string): readonly Chunk[] {
 
 /** Lower-cased word tokens; Persian/Arabic letters and ZWNJ-joined words stay intact. */
 export function tokenize(text: string): readonly string[] {
-  return (text.normalize('NFKC').toLocaleLowerCase().replace(/[ً-ٰٟ]/g, '').match(/[\p{L}\p{N}‌]+/gu) ?? []).map((token) => token.replace(/‌/g, '')).filter((token) => token.length > 0);
+  return (
+    text
+      .normalize('NFKC')
+      .toLocaleLowerCase()
+      .replace(/[ً-ٰٟ]/g, '')
+      .match(/[\p{L}\p{N}‌]+/gu) ?? []
+  )
+    .map((token) => token.replace(/‌/g, ''))
+    .filter((token) => token.length > 0);
 }
 
 /** Scores chunks by query-term frequency with heading and coverage boosts. */

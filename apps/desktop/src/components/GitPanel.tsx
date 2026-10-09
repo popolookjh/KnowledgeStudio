@@ -22,7 +22,9 @@ export function GitPanel(): React.JSX.Element {
     } else setNotice(result.error.message);
   }, [bridge, sessionRoot]);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   const selectedPaths = [...selected];
   const inspectDiff = async (): Promise<void> => {
@@ -45,31 +47,81 @@ export function GitPanel(): React.JSX.Element {
     <section className="rightbar__section git-panel">
       <h3 className="rightbar__heading">Git (optional)</h3>
       {!sessionRoot && <p className="rightbar__hint">Open a vault to inspect Git status.</p>}
-      {sessionRoot && !status && <button type="button" className="btn btn--small" onClick={() => void refresh()}>Refresh status</button>}
-      {status && !status.available && <p className="git-panel__notice">Git unavailable: {status.error ?? 'not a repository'}</p>}
+      {sessionRoot && !status && (
+        <button type="button" className="btn btn--small" onClick={() => void refresh()}>
+          Refresh status
+        </button>
+      )}
+      {status && !status.available && (
+        <p className="git-panel__notice">Git unavailable: {status.error ?? 'not a repository'}</p>
+      )}
       {status?.available && (
         <>
-          <p className="rightbar__hint">Branch: {status.branch ?? 'detached'} · select files explicitly.</p>
-          {status.entries.length === 0 ? <p className="rightbar__hint">Working tree clean.</p> : (
+          <p className="rightbar__hint">
+            Branch: {status.branch ?? 'detached'} · select files explicitly.
+          </p>
+          {status.entries.length === 0 ? (
+            <p className="rightbar__hint">Working tree clean.</p>
+          ) : (
             <ul className="git-panel__files">
               {status.entries.map((entry) => (
                 <li key={entry.path}>
                   <label>
-                    <input type="checkbox" aria-label={`Select ${entry.path}`} checked={selected.has(entry.path)} onChange={() => setSelected((current) => { const next = new Set(current); if (next.has(entry.path)) next.delete(entry.path); else next.add(entry.path); return next; })} />
-                    <span>{entry.index}{entry.worktree} {entry.path}</span>
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${entry.path}`}
+                      checked={selected.has(entry.path)}
+                      onChange={() =>
+                        setSelected((current) => {
+                          const next = new Set(current);
+                          if (next.has(entry.path)) next.delete(entry.path);
+                          else next.add(entry.path);
+                          return next;
+                        })
+                      }
+                    />
+                    <span>
+                      {entry.index}
+                      {entry.worktree} {entry.path}
+                    </span>
                   </label>
                 </li>
               ))}
             </ul>
           )}
-          <button type="button" className="btn btn--small" disabled={selectedPaths.length === 0} onClick={() => void inspectDiff()}>View selected diff</button>
+          <button
+            type="button"
+            className="btn btn--small"
+            disabled={selectedPaths.length === 0}
+            onClick={() => void inspectDiff()}
+          >
+            View selected diff
+          </button>
           {diff && <pre className="git-panel__diff">{diff}</pre>}
-          <input className="git-panel__message" value={message} placeholder="Commit message (explicit)" onChange={(event) => setMessage(event.target.value)} />
-          <button type="button" className="btn btn--small btn--primary" disabled={selectedPaths.length === 0 || message.trim().length === 0} onClick={() => void commit()}>Commit selected</button>
-          <button type="button" className="btn btn--small" onClick={() => void refresh()}>Refresh</button>
+          <input
+            className="git-panel__message"
+            value={message}
+            placeholder="Commit message (explicit)"
+            onChange={(event) => setMessage(event.target.value)}
+          />
+          <button
+            type="button"
+            className="btn btn--small btn--primary"
+            disabled={selectedPaths.length === 0 || message.trim().length === 0}
+            onClick={() => void commit()}
+          >
+            Commit selected
+          </button>
+          <button type="button" className="btn btn--small" onClick={() => void refresh()}>
+            Refresh
+          </button>
         </>
       )}
-      {notice && <p className="git-panel__notice" role="status">{notice}</p>}
+      {notice && (
+        <p className="git-panel__notice" role="status">
+          {notice}
+        </p>
+      )}
     </section>
   );
 }

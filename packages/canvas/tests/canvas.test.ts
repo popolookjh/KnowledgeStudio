@@ -10,8 +10,20 @@ import {
   updateViewport,
 } from '../src/index.js';
 
-const note = { kind: 'note' as const, id: 'n1', path: 'notes/a.md', position: { x: 10, y: 20 }, size: { width: 240, height: 120 } };
-const text = { kind: 'text' as const, id: 'n2', text: 'hello', position: { x: 300, y: 20 }, size: { width: 180, height: 100 } };
+const note = {
+  kind: 'note' as const,
+  id: 'n1',
+  path: 'notes/a.md',
+  position: { x: 10, y: 20 },
+  size: { width: 240, height: 120 },
+};
+const text = {
+  kind: 'text' as const,
+  id: 'n2',
+  text: 'hello',
+  position: { x: 300, y: 20 },
+  size: { width: 180, height: 100 },
+};
 
 describe('CanvasDocument', () => {
   it('has an original, explicit format marker', () => {
@@ -19,7 +31,11 @@ describe('CanvasDocument', () => {
     expect(EMPTY_CANVAS.version).toBe(1);
   });
   it('round-trips human-readable JSON', () => {
-    const board = addEdge(addNode(addNode(EMPTY_CANVAS, note), text), { id: 'e1', source: 'n1', target: 'n2' });
+    const board = addEdge(addNode(addNode(EMPTY_CANVAS, note), text), {
+      id: 'e1',
+      source: 'n1',
+      target: 'n2',
+    });
     const parsed = parseCanvas(JSON.parse(serializeCanvas(board)));
     expect(parsed.ok && parsed.value).toEqual(board);
   });
@@ -37,7 +53,11 @@ describe('CanvasDocument', () => {
     ).toThrow(/endpoints/);
   });
   it('updates and removes nodes, including connected edges', () => {
-    const board = addEdge(addNode(addNode(EMPTY_CANVAS, note), text), { id: 'e1', source: 'n1', target: 'n2' });
+    const board = addEdge(addNode(addNode(EMPTY_CANVAS, note), text), {
+      id: 'e1',
+      source: 'n1',
+      target: 'n2',
+    });
     const moved = updateNode(board, 'n1', { position: { x: 99, y: 88 } });
     expect(moved.nodes[0]?.position).toEqual({ x: 99, y: 88 });
     const removed = removeNode(moved, 'n1');

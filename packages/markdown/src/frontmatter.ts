@@ -46,12 +46,7 @@ export function splitFrontmatter(content: string): FrontmatterSplit {
 }
 
 export type FrontmatterValue =
-  | string
-  | number
-  | boolean
-  | null
-  | readonly unknown[]
-  | { readonly [key: string]: unknown };
+  string | number | boolean | null | readonly unknown[] | { readonly [key: string]: unknown };
 
 export type ParsedFrontmatter = Readonly<Record<string, unknown>>;
 
@@ -87,9 +82,12 @@ export function parseFrontmatter(raw: string): Result<ParsedFrontmatter, Frontma
  * both surfaced as issues; the body is always returned so a broken header
  * never blocks editing.
  */
-export function readFrontmatter(
-  content: string,
-): { body: string; bodyStartLine: number; data: ParsedFrontmatter; issues: readonly FrontmatterIssue[] } {
+export function readFrontmatter(content: string): {
+  body: string;
+  bodyStartLine: number;
+  data: ParsedFrontmatter;
+  issues: readonly FrontmatterIssue[];
+} {
   const split = splitFrontmatter(content);
   if (split.frontmatter === null) {
     return { body: split.body, bodyStartLine: split.bodyStartLine, data: {}, issues: [] };

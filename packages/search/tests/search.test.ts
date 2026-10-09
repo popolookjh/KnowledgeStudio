@@ -10,11 +10,13 @@ let index: SearchIndex;
 const NOTES = [
   {
     path: 'notes/architecture.md',
-    content: '---\ntitle: معماری سیستم\ntags: [design, core]\n---\n# Architecture\n\nThe indexer rebuilds from Markdown. بازسازی کامل ممکن است.',
+    content:
+      '---\ntitle: معماری سیستم\ntags: [design, core]\n---\n# Architecture\n\nThe indexer rebuilds from Markdown. بازسازی کامل ممکن است.',
   },
   {
     path: 'notes/persian-note.md',
-    content: '---\ntitle: یادداشت فارسی\naliases: [farsi note]\n---\nسلام دنیا. این یک یادداشت آزمایشی است.',
+    content:
+      '---\ntitle: یادداشت فارسی\naliases: [farsi note]\n---\nسلام دنیا. این یک یادداشت آزمایشی است.',
   },
   {
     path: 'projects/alpha.md',
