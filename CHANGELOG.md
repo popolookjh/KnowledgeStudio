@@ -4,7 +4,26 @@ All notable changes to Knowledge Studio are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is
 [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [0.1.0-tier1] - 2026-10-10
+
+### First public Tier 1 prerelease
+
+- Markdown vault/editor, links/backlinks, metadata, tags, FTS5 search, graph,
+  templates, canvas, attachments, history and selected-file Git workflows.
+- Persian/RTL support, import/export, stable IDs, provenance and durable change feed.
+- Bases table/cards/Kanban, desktop HTML clipping, PDF annotations/cited export,
+  read-only MCP Retrieval V2 and Zotero offline/loopback integration.
+- Plugin discovery/permission policy and optional AI provider configuration;
+  third-party plugin execution and Tier 2 remain deferred.
+- Verified unsigned Windows x64 packaging with project and PDF.js license texts,
+  synthetic demo screenshot, release checksums and private vulnerability reporting.
+- Patched build/test dependencies; one moderate build-only advisory remains
+  documented in [dependency-security.md](docs/releases/dependency-security.md).
+
+See [release notes](docs/releases/v0.1.0-tier1.md) and
+[validation](docs/releases/validation.md) for scope and executed checks.
+
+### Foundation details
 
 ### Added
 
