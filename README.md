@@ -79,7 +79,7 @@ is masked for privacy; no user content is shown.
 ```
 KnowledgeStudio/
 ├── apps/desktop/          Electron shell + React renderer
-├── packages/              Domain packages (shared, vault, search, graph, ...)
+├── packages/              Domain packages (shared, vault, search, bases, ...)
 ├── tests/                 Cross-package integration and e2e tests
 ├── docs/                  Architecture, ADRs, development and security docs
 └── scripts/               Repository tooling

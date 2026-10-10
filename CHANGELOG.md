@@ -25,7 +25,7 @@ See [release notes](docs/releases/v0.1.0-tier1.md) and
 
 ### Foundation details
 
-### Added
+#### Added
 
 - Phase 1 vault engine (`@knowledge-studio/vault`):
   - create/open lifecycle with reserved `.knowledge-studio/` application
